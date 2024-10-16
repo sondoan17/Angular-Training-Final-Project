@@ -1,0 +1,31 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <a href="/dashboard"><img src="assets/images/logo.png" alt="logo" class="h-12 w-auto ml-2"></a>
+  <span class="example-spacer"></span>
+  <button mat-button routerLink="/dashboard">Dashboard</button>
+  <button mat-button routerLink="/other-page">Other Page</button>
+  
+  
+  <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-button" *ngIf="username !== null">
+    {{ userInitial }}
+  </button>
+  
+ 
+  
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item routerLink="/profile">
+      <mat-icon>person</mat-icon>
+      <span>Profile</span>
+    </button>
+    <button mat-menu-item routerLink="/settings">
+      <mat-icon>settings</mat-icon>
+      <span>Settings</span>
+    </button>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>

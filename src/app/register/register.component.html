@@ -1,42 +1,69 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-      <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign up new account
-        </h2>
-      </div>
-      <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()" #registerForm="ngForm">
-        <div class="rounded-md shadow-sm -space-y-px">
-          <div>
-            <label for="username" class="sr-only">Username</label>
-            <input id="username" name="username" type="text" required [(ngModel)]="username" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Username">
-          </div>
-          <div>
-            <label for="email-address" class="sr-only">Email address</label>
-            <input id="email-address" name="email" type="email" required [(ngModel)]="email" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email address">
-          </div>
-          <div>
-            <label for="password" class="sr-only">Password</label>
-            <input id="password" name="password" type="password" required [(ngModel)]="password" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password">
-          </div>
-        </div>
-  
-        <div>
-          <button type="submit" [disabled]="!registerForm.form.valid" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            Sign up
-          </button>
-        </div>
-      </form>
-      <div class="text-center mt-4">
-        <p class="text-sm text-gray-600">
-          Already have an account? 
-          <a href="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
-            Sign in
-          </a>
-        </p>
-      </div>
-      <div *ngIf="errorMessage" class="text-red-500 text-center mt-2">
-        {{ errorMessage }}
-      </div>
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <img class="mx-auto h-12 w-auto" src="assets/images/logo.png" alt="logo">
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        Sign up 
+      </h2>
     </div>
+    
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="space-y-4 w-full">
+      <div class="flex flex-col">
+        <label for="username" class="text-sm font-medium text-gray-600 mb-1">Username</label>
+        <input 
+          id="username" 
+          name="username" 
+          type="text" 
+          [(ngModel)]="username" 
+          required 
+          class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        >
+      </div>
+      
+      <div class="flex flex-col">
+        <label for="email-address" class="text-sm font-medium text-gray-600 mb-1">Email address</label>
+        <input 
+          id="email-address" 
+          name="email" 
+          type="email" 
+          [(ngModel)]="email" 
+          required 
+          class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        >
+      </div>
+      
+      <div class="flex flex-col">
+        <label for="password" class="text-sm font-medium text-gray-600 mb-1">Password</label>
+        <input 
+          id="password" 
+          name="password" 
+          type="password" 
+          [(ngModel)]="password" 
+          required 
+          class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        >
+      </div>
+
+      <button 
+        type="submit" 
+        [disabled]="!registerForm.form.valid"
+        class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-4"
+      >
+        Sign up
+      </button>
+    </form>
+
+  
+
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-600">
+        Already have an account? 
+        <a href="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
+          Sign in
+        </a>
+      </p>
+    </div>
+
+    
   </div>
+</div>

@@ -1,16 +1,18 @@
-<div class="container mx-auto max-w-[90%] p-5 font-sans min-h-screen flex flex-col">
+<div class="container mx-auto max-w-[90%] p-5 font-sans min-h-screen flex flex-col ">
   <header class="flex justify-between items-center mb-12">
     <div class="flex items-center">
-      <img src="assets/monday-logo.png" alt="logo" class="h-8 mr-2.5" />
+      <a routerLink="/">
+        <img [src]="'assets/images/logo.png'" alt="logo" class="h-20 mr-2.5" />
+      </a>
     </div>
     <div class="flex items-center space-x-4">
-      <a routerLink="/login" class="bg-white text-indigo-600 border border-indigo-600 px-5 py-2.5 rounded-md hover:bg-indigo-600 hover:text-white transition-colors duration-300">Login</a>
+      <a routerLink="/login" class="bg-[#F9FAFB] text-indigo-600 border border-indigo-600 px-5 py-2.5 rounded-md hover:bg-indigo-600 hover:text-white transition-colors duration-300">Login</a>
       <a routerLink="/register" class="bg-indigo-500 text-white px-5 py-2.5 rounded-md hover:bg-indigo-700 transition-colors duration-300 font-bold">Get Started →</a>
     </div>
   </header>
 
   <main class="text-center max-w-3xl mx-auto flex-grow flex flex-col justify-center">
-    <h1 class="text-5xl mb-5 text-gray-800">Work smarter with the<br />#1 task management platform</h1>
+    <h1 class="text-5xl mb-5 text-gray-800 font-bold ">Work smarter with the<br />#1 task management platform</h1>
     <p class="text-xl text-gray-600 mb-8">
       Plan, manage and track all your team's tasks in one flexible platform.
     </p>
