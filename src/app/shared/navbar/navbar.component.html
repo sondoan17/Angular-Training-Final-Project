@@ -1,19 +1,28 @@
 <mat-toolbar color="primary">
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+  <button
+    mat-icon-button
+    class="example-icon"
+    aria-label="Example icon-button with menu icon"
+    (click)="onToggleSidebar()"
+  >
     <mat-icon>menu</mat-icon>
   </button>
-  <a href="/dashboard"><img src="assets/images/logo.png" alt="logo" class="h-12 w-auto ml-2"></a>
+  <a href="/dashboard"
+    ><img src="assets/images/logo.png" alt="logo" class="h-12 w-auto ml-2"
+  /></a>
   <span class="example-spacer"></span>
   <button mat-button routerLink="/dashboard">Dashboard</button>
   <button mat-button routerLink="/other-page">Other Page</button>
-  
-  
-  <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-button" *ngIf="username !== null">
+
+  <button
+    mat-icon-button
+    [matMenuTriggerFor]="userMenu"
+    class="user-menu-button"
+    *ngIf="username !== null"
+  >
     {{ userInitial }}
   </button>
-  
- 
-  
+
   <mat-menu #userMenu="matMenu">
     <button mat-menu-item routerLink="/profile">
       <mat-icon>person</mat-icon>

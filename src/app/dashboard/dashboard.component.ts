@@ -6,8 +6,6 @@ import { NavbarComponent } from '../shared/navbar/navbar.component';
   standalone: true,
   imports: [NavbarComponent],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent {
-
-}
+export class DashboardComponent {}

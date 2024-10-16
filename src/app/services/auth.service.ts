@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { jwtDecode } from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode';
 
 interface AuthResponse {
   token: string;
@@ -19,14 +19,23 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  register(username: string, email: string, password: string): Observable<AuthResponse> {
+  register(
+    username: string,
+    email: string,
+    password: string
+  ): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${this.apiUrl}/register`, { username, email, password })
+      .post<AuthResponse>(`${this.apiUrl}/register`, {
+        username,
+        email,
+        password,
+      })
       .pipe(catchError(this.handleError));
   }
 
   login(username: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { username, password })
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/login`, { username, password })
       .pipe(
         tap((response: AuthResponse) => {
           console.log('Login response:', response);
@@ -39,7 +48,8 @@ export class AuthService {
   }
 
   loginWithGoogle(token: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/google`, { token })
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/google`, { token })
       .pipe(
         tap((response: AuthResponse) => {
           localStorage.setItem('token', response.token);
@@ -81,14 +91,22 @@ export class AuthService {
       try {
         const decodedToken: any = jwtDecode(token);
 
-        if (decodedToken.username || decodedToken.sub || (decodedToken.user && decodedToken.user.username)) {
-          return decodedToken.username || decodedToken.sub || decodedToken.user.username;
+        if (
+          decodedToken.username ||
+          decodedToken.sub ||
+          (decodedToken.user && decodedToken.user.username)
+        ) {
+          return (
+            decodedToken.username ||
+            decodedToken.sub ||
+            decodedToken.user.username
+          );
         }
       } catch (error) {
         console.error('Error decoding token:', error);
       }
     }
-  
+
     const localUsername = localStorage.getItem('username');
     if (localUsername) {
       return localUsername;
