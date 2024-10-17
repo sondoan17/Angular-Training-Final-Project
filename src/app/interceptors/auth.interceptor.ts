@@ -9,12 +9,21 @@ import {
 import { Observable } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  console.log('Interceptor called for URL:', req.url);
   const token = localStorage.getItem('token');
+  console.log('Token in interceptor:', token ? 'Token exists' : 'No token');
+  
   if (token) {
+    console.log('Adding token to request');
     const cloned = req.clone({
-      headers: req.headers.set('Authorization', `Bearer ${token}`),
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
     });
+    console.log('Modified request headers:', cloned.headers.keys());
     return next(cloned);
+  } else {
+    console.log('No token found, proceeding without authentication');
   }
   return next(req);
 };

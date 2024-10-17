@@ -21,7 +21,7 @@
             <h3>Project Members</h3>
             <ul *ngIf="project.members && project.members.length > 0">
               <li *ngFor="let member of project.members">
-                {{ member.username || member }}
+                {{ member.username }}
               </li>
             </ul>
             <p *ngIf="!project.members || project.members.length === 0">No members in this project yet.</p>

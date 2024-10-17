@@ -63,10 +63,27 @@ export class ProjectDetailsComponent implements OnInit {
   private fetchProjectDetails(id: string) {
     this.projectService.getProjectDetails(id).subscribe({
       next: (data) => {
+        console.log('Received project data:', data);
         this.project = data;
         this.editedProject = { name: this.project.name, description: this.project.description };
-        // Ensure members is an array
-        this.project.members = this.project.members || [];
+        
+        // Ensure members is an array of objects with username property
+        if (Array.isArray(this.project.members)) {
+          this.project.members = this.project.members.map((member: any) => {
+            if (typeof member === 'object' && member !== null && member.username) {
+              return { _id: member._id, username: member.username };
+            } else if (typeof member === 'string') {
+              console.warn(`Member data not populated for ID: ${member}`);
+              return { _id: member, username: 'Unknown' };
+            }
+            return { _id: 'unknown', username: 'Unknown' };
+          });
+        } else {
+          console.error('Project members is not an array:', this.project.members);
+          this.project.members = [];
+        }
+        
+        console.log('Processed project members:', this.project.members);
       },
       error: (error) => {
         console.error('Error fetching project details:', error);
@@ -104,6 +121,13 @@ export class ProjectDetailsComponent implements OnInit {
     this.projectService.updateProject(this.project._id, this.editedProject).subscribe({
       next: (updatedProject) => {
         this.project = updatedProject;
+        // Ensure the createdBy field is correctly formatted
+        if (typeof this.project.createdBy === 'object' && this.project.createdBy !== null) {
+          this.project.createdBy = {
+            _id: this.project.createdBy._id,
+            username: this.project.createdBy.username
+          };
+        }
         this.editMode = false;
       },
       error: (error) => {
@@ -128,18 +152,15 @@ export class ProjectDetailsComponent implements OnInit {
   addMemberToProject(username: string) {
     this.projectService.addMemberToProject(this.project._id, username).subscribe(
       updatedProject => {
-        this.project = updatedProject;
-        // Ensure members is an array after update
-        this.project.members = this.project.members || [];
-        console.log('Member added successfully');
-        // You can add a success message here if you want
+        console.log('Updated project after adding member:', updatedProject);
+        // Refresh the project details
+        this.fetchProjectDetails(this.project._id);
       },
       error => {
         console.error('Error adding member to project:', error);
         if (error.error && error.error.message) {
           console.error('Server error message:', error.error.message);
         }
-        // You can add an error message here if you want
       }
     );
   }

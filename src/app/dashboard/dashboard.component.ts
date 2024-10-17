@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from './create-project-dialog/create-project-dialog.component';
-import { ProjectService } from '../services/project.service';
+import { ProjectService, Project } from '../services/project.service';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -26,7 +26,7 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
-  userProjects: any[] = [];
+  userProjects: Project[] = [];
 
   constructor(private dialog: MatDialog, private projectService: ProjectService) {}
 
@@ -35,13 +35,20 @@ export class DashboardComponent implements OnInit {
   }
 
   loadUserProjects() {
+    console.log('Loading user projects');
     this.projectService.getUserProjects().subscribe({
-      next: (projects) => {
+      next: (projects: Project[]) => {
         this.userProjects = projects;
-      
+        console.log('Projects loaded successfully:', projects);
       },
       error: (error) => {
         console.error('Error loading user projects:', error);
+        if (error.error instanceof ErrorEvent) {
+          console.error('Client-side error:', error.error.message);
+        } else {
+          console.error(`Backend returned code ${error.status}, body was:`, error.error);
+        }
+        console.error('Full error object:', error);
       }
     });
   }
