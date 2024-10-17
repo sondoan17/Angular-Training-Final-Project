@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
+
 declare var google: any;
 
 @Component({
@@ -14,45 +15,48 @@ declare var google: any;
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
-  username: string = '';
-  password: string = '';
+  username = '';
+  password = '';
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.initializeGoogleSignIn();
+  }
+
+  onSubmit(): void {
+    this.authService.login(this.username, this.password).subscribe({
+      next: () => this.navigateToDashboard(),
+      error: (error) => console.error('Login failed', error),
+    });
+  }
+
+  private initializeGoogleSignIn(): void {
     google.accounts.id.initialize({
       client_id: environment.googleClientId,
       callback: this.handleCredentialResponse.bind(this),
     });
+    this.renderGoogleSignInButton();
+  }
+
+  private renderGoogleSignInButton(): void {
     google.accounts.id.renderButton(document.getElementById('googleBtn'), {
-      theme: "outline",
-      size: "large",
-      type: "standard",
-      
-      text: "signin_with",
-      logo_alignment: "center"
+      theme: 'outline',
+      size: 'large',
+      type: 'standard',
+      text: 'signin_with',
+      logo_alignment: 'center',
     });
   }
 
-  onSubmit() {
-    this.authService.login(this.username, this.password).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-      error: (error) => {
-        console.error('Login failed', error);
-      },
-    });
-  }
-
-  handleCredentialResponse(response: any) {
+  private handleCredentialResponse(response: any): void {
     this.authService.loginWithGoogle(response.credential).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-      error: (error) => {
-        console.error('Google login failed', error);
-      },
+      next: () => this.navigateToDashboard(),
+      error: (error) => console.error('Google login failed', error),
     });
+  }
+
+  private navigateToDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 }

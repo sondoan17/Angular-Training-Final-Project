@@ -33,7 +33,7 @@ export class NavbarComponent implements OnInit {
   }
 
   updateUsername() {
-    this.username = this.authService.getUsername();
+    this.username = localStorage.getItem('username');
   }
 
   get userInitial(): string {
@@ -48,5 +48,9 @@ export class NavbarComponent implements OnInit {
 
   onToggleSidebar() {
     this.toggleSidebar.emit();
+  }
+
+  isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
   }
 }

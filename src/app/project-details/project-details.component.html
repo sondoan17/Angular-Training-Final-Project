@@ -1,0 +1,51 @@
+<div class="project-details-container">
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #sidenav mode="side" [opened]="sidebarOpen" class="sidenav">
+      <app-sidebar></app-sidebar>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <app-navbar (toggleSidebar)="sidenav.toggle()"></app-navbar>
+      <div class="content">
+        <button mat-button (click)="goBack()" class="back-button">
+          <mat-icon>arrow_back</mat-icon> Back
+        </button>
+        <div *ngIf="project">
+          <div *ngIf="!editMode">
+            <h2>{{ project.name }}</h2>
+            <p>{{ project.description }}</p>
+            <p>Created by: {{ getCreatorUsername() }}</p>
+            <p>Created at: {{ project.createdAt | date }}</p>
+            
+            <!-- Add this section to display project members -->
+            <h3>Project Members</h3>
+            <ul *ngIf="project.members && project.members.length > 0">
+              <li *ngFor="let member of project.members">
+                {{ member.username || member }}
+              </li>
+            </ul>
+            <p *ngIf="!project.members || project.members.length === 0">No members in this project yet.</p>
+            <!-- End of new section -->
+
+            <button mat-raised-button color="primary" (click)="toggleEditMode()">Edit Project</button>
+            <button mat-raised-button color="primary" (click)="openAddMemberDialog()">Add Member</button>
+          </div>
+          <div *ngIf="editMode">
+            <mat-form-field>
+              <mat-label>Project Name</mat-label>
+              <input matInput [(ngModel)]="editedProject.name" required>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Project Description</mat-label>
+              <textarea matInput [(ngModel)]="editedProject.description" rows="4"></textarea>
+            </mat-form-field>
+            <div>
+              <button mat-raised-button color="primary" (click)="saveChanges()">Save Changes</button>
+              <button mat-button (click)="toggleEditMode()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

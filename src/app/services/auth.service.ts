@@ -33,32 +33,32 @@ export class AuthService {
       .pipe(catchError(this.handleError));
   }
 
-  login(username: string, password: string): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${this.apiUrl}/login`, { username, password })
+  login(username: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/login`, { username, password })
       .pipe(
-        tap((response: AuthResponse) => {
-          console.log('Login response:', response);
-          localStorage.setItem('token', response.token);
-
-          localStorage.setItem('username', response.username);
-        }),
-        catchError(this.handleError)
+        tap(response => {
+          if (response && response.token) {
+            localStorage.setItem('token', response.token);
+            console.log('Token stored:', response.token); // For debugging
+          }
+        })
       );
   }
 
   loginWithGoogle(token: string): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/google`, { token })
-      .pipe(
-        tap((response: AuthResponse) => {
-          localStorage.setItem('token', response.token);
-        }),
-        catchError(this.handleError)
-      );
+      .pipe(tap(this.handleSuccessfulAuth), catchError(this.handleError));
   }
 
-  private handleError(error: HttpErrorResponse) {
+  private handleSuccessfulAuth(response: AuthResponse): void {
+    if (response && response.token) {
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('username', response.username);
+    }
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
     if (error.error instanceof ErrorEvent) {
       errorMessage = `Error: ${error.error.message}`;
@@ -77,41 +77,47 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    
+    // You might want to add token expiration check here if your tokens have an expiration
+    return true;
   }
 
-  logout() {
+  logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     localStorage.removeItem('username');
   }
 
   getUsername(): string | null {
-    const token = localStorage.getItem('token');
+    const token = this.getToken();
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
-
-        if (
+        return (
           decodedToken.username ||
           decodedToken.sub ||
-          (decodedToken.user && decodedToken.user.username)
-        ) {
-          return (
-            decodedToken.username ||
-            decodedToken.sub ||
-            decodedToken.user.username
-          );
-        }
+          (decodedToken.user && decodedToken.user.username) ||
+          null
+        );
       } catch (error) {
         console.error('Error decoding token:', error);
       }
     }
+    return localStorage.getItem('username');
+  }
 
-    const localUsername = localStorage.getItem('username');
-    if (localUsername) {
-      return localUsername;
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.exp < Date.now() / 1000;
+    } catch (error) {
+      return true;
     }
-    console.log('Username not found in token or localStorage');
-    return null;
   }
 }
