@@ -10,8 +10,16 @@
   padding: 20px;
 }
 
+.project-details-container {
+  padding: 20px;
+}
+
 .back-button {
   margin-bottom: 20px;
+}
+
+h2 {
+  margin-bottom: 10px;
 }
 
 mat-form-field {
@@ -20,5 +28,24 @@ mat-form-field {
 }
 
 button {
+  margin-right: 10px;
+  margin-bottom: 20px;
+}
+
+mat-list-item {
+  height: auto !important;
+  margin-bottom: 16px;
+  padding: 16px !important;
+}
+
+mat-list-item div[mat-line] {
+  white-space: normal !important;
+}
+
+.mat-mdc-list-item-icon {
+  margin-right: 16px;
+}
+
+mat-icon {
   margin-right: 10px;
 }

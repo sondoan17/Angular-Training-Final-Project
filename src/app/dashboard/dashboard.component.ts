@@ -35,11 +35,9 @@ export class DashboardComponent implements OnInit {
   }
 
   loadUserProjects() {
-    console.log('Loading user projects');
     this.projectService.getUserProjects().subscribe({
       next: (projects: Project[]) => {
         this.userProjects = projects;
-        console.log('Projects loaded successfully:', projects);
       },
       error: (error) => {
         console.error('Error loading user projects:', error);
@@ -48,7 +46,6 @@ export class DashboardComponent implements OnInit {
         } else {
           console.error(`Backend returned code ${error.status}, body was:`, error.error);
         }
-        console.error('Full error object:', error);
       }
     });
   }
@@ -61,12 +58,11 @@ export class DashboardComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.projectService.createProject(result).subscribe({
-          next: (response) => {
-        
-            this.loadUserProjects(); // Reload projects after creating a new one
+          next: () => {
+            this.loadUserProjects();
           },
           error: (error) => {
-        
+            console.error('Error creating project:', error);
           }
         });
       }

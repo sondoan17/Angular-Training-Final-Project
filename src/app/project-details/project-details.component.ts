@@ -16,6 +16,9 @@ import { AddMemberDialogComponent } from '../add-member-dialog/add-member-dialog
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProjectMembersDialogComponent } from './project-members-dialog/project-members-dialog.component';
 import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
+import { CreateTaskDialogComponent } from './create-task-dialog/create-task-dialog.component';
+import { MatListModule } from '@angular/material/list';
+import { KanbanBoardComponent } from './kanban-board/kanban-board.component';
 
 @Component({
   selector: 'app-project-details',
@@ -34,6 +37,9 @@ import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-d
     MatSnackBarModule,
     ProjectMembersDialogComponent,
     EditProjectDialogComponent,
+    CreateTaskDialogComponent,
+    MatListModule,
+    KanbanBoardComponent,
   ],
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css'],
@@ -70,14 +76,12 @@ export class ProjectDetailsComponent implements OnInit {
   private fetchProjectDetails(id: string) {
     this.projectService.getProjectDetails(id).subscribe({
       next: (data) => {
-        console.log('Received project data:', data);
         this.project = data;
         this.editedProject = {
           name: this.project.name,
           description: this.project.description,
         };
 
-        // Ensure members is an array of objects with username property
         if (Array.isArray(this.project.members)) {
           this.project.members = this.project.members.map((member: any) => {
             if (
@@ -99,8 +103,6 @@ export class ProjectDetailsComponent implements OnInit {
           );
           this.project.members = [];
         }
-
-        console.log('Processed project members:', this.project.members);
       },
       error: (error) => {
         console.error('Error fetching project details:', error);
@@ -129,7 +131,6 @@ export class ProjectDetailsComponent implements OnInit {
   toggleEditMode() {
     this.editMode = !this.editMode;
     if (!this.editMode) {
-     
       this.editedProject = {
         name: this.project.name,
         description: this.project.description,
@@ -211,13 +212,13 @@ export class ProjectDetailsComponent implements OnInit {
   openEditProjectDialog() {
     const dialogRef = this.dialog.open(EditProjectDialogComponent, {
       width: '300px',
-      data: { 
-        name: this.project.name, 
-        description: this.project.description 
-      }
+      data: {
+        name: this.project.name,
+        description: this.project.description,
+      },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.saveChanges(result);
       }
@@ -225,22 +226,81 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   saveChanges(editedProject: { name: string; description: string }) {
-    this.projectService.updateProject(this.project._id, editedProject).subscribe({
+    this.projectService
+      .updateProject(this.project._id, editedProject)
+      .subscribe({
+        next: (updatedProject) => {
+          this.project = updatedProject;
+          if (
+            typeof this.project.createdBy === 'object' &&
+            this.project.createdBy !== null
+          ) {
+            this.project.createdBy = {
+              _id: this.project.createdBy._id,
+              username: this.project.createdBy.username,
+            };
+          }
+          this.snackBar.open('Project updated successfully', 'Close', {
+            duration: 3000,
+          });
+        },
+        error: (error) => {
+          console.error('Error updating project:', error);
+          this.snackBar.open('Error updating project', 'Close', {
+            duration: 3000,
+          });
+        },
+      });
+  }
+
+  openCreateTaskDialog() {
+    const dialogRef = this.dialog.open(CreateTaskDialogComponent, {
+      width: '500px',
+      data: { members: this.project.members },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.createTask(result);
+      }
+    });
+  }
+
+  createTask(taskData: any) {
+    this.projectService.createTask(this.project._id, taskData).subscribe({
       next: (updatedProject) => {
         this.project = updatedProject;
-        // Ensure the createdBy field is correctly formatted
-        if (typeof this.project.createdBy === 'object' && this.project.createdBy !== null) {
-          this.project.createdBy = {
-            _id: this.project.createdBy._id,
-            username: this.project.createdBy.username,
-          };
-        }
-        this.snackBar.open('Project updated successfully', 'Close', { duration: 3000 });
+        this.snackBar.open('Task created successfully', 'Close', {
+          duration: 3000,
+        });
       },
       error: (error) => {
-        console.error('Error updating project:', error);
-        this.snackBar.open('Error updating project', 'Close', { duration: 3000 });
+        console.error('Error creating task:', error);
+        this.snackBar.open('Error creating task', 'Close', { duration: 3000 });
       },
     });
+  }
+
+  getAssignedUsername(userId: string): string {
+    const assignedMember = this.project.members.find(
+      (member: any) => member._id === userId
+    );
+    return assignedMember ? assignedMember.username : 'Unassigned';
+  }
+
+  onTaskMoved(event: { task: any; newStatus: string }) {
+    this.projectService
+      .updateTaskStatus(this.project._id, event.task._id, event.newStatus)
+      .subscribe({
+        next: (updatedTask) => {
+          const taskIndex = this.project.tasks.findIndex(
+            (t: any) => t._id === updatedTask._id
+          );
+          if (taskIndex !== -1) {
+            this.project.tasks[taskIndex] = updatedTask;
+          }
+        },
+        error: (error) => console.error('Error updating task:', error),
+      });
   }
 }
