@@ -92,4 +92,8 @@ export class ProjectService {
       })
     );
   }
+
+  removeMemberFromProject(projectId: string, memberId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${projectId}/members/${memberId}`);
+  }
 }

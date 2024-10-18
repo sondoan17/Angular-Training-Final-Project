@@ -14,6 +14,8 @@ import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { AddMemberDialogComponent } from '../add-member-dialog/add-member-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ProjectMembersDialogComponent } from './project-members-dialog/project-members-dialog.component';
+import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
 
 @Component({
   selector: 'app-project-details',
@@ -29,26 +31,31 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatFormFieldModule,
     FormsModule,
     AddMemberDialogComponent,
-    MatSnackBarModule
+    MatSnackBarModule,
+    ProjectMembersDialogComponent,
+    EditProjectDialogComponent,
   ],
-  providers: [MatSnackBar],
   templateUrl: './project-details.component.html',
-  styleUrls: ['./project-details.component.css']
+  styleUrls: ['./project-details.component.css'],
 })
 export class ProjectDetailsComponent implements OnInit {
   project: any;
   error: string | null = null;
   sidebarOpen = false;
   editMode = false;
-  editedProject: { name: string; description: string } = { name: '', description: '' };
+  editedProject: { name: string; description: string } = {
+    name: '',
+    description: '',
+  };
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
+    private location: Location,
     private dialog: MatDialog,
-    private location: Location
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -65,12 +72,19 @@ export class ProjectDetailsComponent implements OnInit {
       next: (data) => {
         console.log('Received project data:', data);
         this.project = data;
-        this.editedProject = { name: this.project.name, description: this.project.description };
-        
+        this.editedProject = {
+          name: this.project.name,
+          description: this.project.description,
+        };
+
         // Ensure members is an array of objects with username property
         if (Array.isArray(this.project.members)) {
           this.project.members = this.project.members.map((member: any) => {
-            if (typeof member === 'object' && member !== null && member.username) {
+            if (
+              typeof member === 'object' &&
+              member !== null &&
+              member.username
+            ) {
               return { _id: member._id, username: member.username };
             } else if (typeof member === 'string') {
               console.warn(`Member data not populated for ID: ${member}`);
@@ -79,10 +93,13 @@ export class ProjectDetailsComponent implements OnInit {
             return { _id: 'unknown', username: 'Unknown' };
           });
         } else {
-          console.error('Project members is not an array:', this.project.members);
+          console.error(
+            'Project members is not an array:',
+            this.project.members
+          );
           this.project.members = [];
         }
-        
+
         console.log('Processed project members:', this.project.members);
       },
       error: (error) => {
@@ -112,37 +129,20 @@ export class ProjectDetailsComponent implements OnInit {
   toggleEditMode() {
     this.editMode = !this.editMode;
     if (!this.editMode) {
-      // Reset edited values if canceling edit
-      this.editedProject = { name: this.project.name, description: this.project.description };
+     
+      this.editedProject = {
+        name: this.project.name,
+        description: this.project.description,
+      };
     }
-  }
-
-  saveChanges() {
-    this.projectService.updateProject(this.project._id, this.editedProject).subscribe({
-      next: (updatedProject) => {
-        this.project = updatedProject;
-        // Ensure the createdBy field is correctly formatted
-        if (typeof this.project.createdBy === 'object' && this.project.createdBy !== null) {
-          this.project.createdBy = {
-            _id: this.project.createdBy._id,
-            username: this.project.createdBy.username
-          };
-        }
-        this.editMode = false;
-      },
-      error: (error) => {
-        console.error('Error updating project:', error);
-        // Handle error (e.g., show error message to user)
-      }
-    });
   }
 
   openAddMemberDialog() {
     const dialogRef = this.dialog.open(AddMemberDialogComponent, {
-      width: '250px'
+      width: '250px',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.addMemberToProject(result);
       }
@@ -150,18 +150,97 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   addMemberToProject(username: string) {
-    this.projectService.addMemberToProject(this.project._id, username).subscribe(
-      updatedProject => {
-        console.log('Updated project after adding member:', updatedProject);
-        // Refresh the project details
-        this.fetchProjectDetails(this.project._id);
+    this.projectService
+      .addMemberToProject(this.project._id, username)
+      .subscribe({
+        next: (updatedProject) => {
+          this.project = updatedProject;
+          this.snackBar.open('Member added successfully', 'Close', {
+            duration: 3000,
+          });
+        },
+        error: (error) => {
+          console.error('Error adding member:', error);
+          this.snackBar.open('Error adding member', 'Close', {
+            duration: 3000,
+          });
+        },
+      });
+  }
+
+  openMembersDialog() {
+    const dialogRef = this.dialog.open(ProjectMembersDialogComponent, {
+      width: '300px',
+      data: {
+        members: this.project.members,
+        projectId: this.project._id,
+        creatorId: this.project.creator,
       },
-      error => {
-        console.error('Error adding member to project:', error);
-        if (error.error && error.error.message) {
-          console.error('Server error message:', error.error.message);
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        if (result.action === 'add') {
+          this.addMemberToProject(result.username);
+        } else if (result.action === 'remove') {
+          this.removeMemberFromProject(result.memberId);
         }
       }
-    );
+    });
+  }
+
+  removeMemberFromProject(memberId: string) {
+    this.projectService
+      .removeMemberFromProject(this.project._id, memberId)
+      .subscribe({
+        next: (updatedProject) => {
+          this.project = updatedProject;
+          this.snackBar.open('Member removed successfully', 'Close', {
+            duration: 3000,
+          });
+        },
+        error: (error) => {
+          console.error('Error removing member:', error);
+          this.snackBar.open('Error removing member', 'Close', {
+            duration: 3000,
+          });
+        },
+      });
+  }
+
+  openEditProjectDialog() {
+    const dialogRef = this.dialog.open(EditProjectDialogComponent, {
+      width: '300px',
+      data: { 
+        name: this.project.name, 
+        description: this.project.description 
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.saveChanges(result);
+      }
+    });
+  }
+
+  saveChanges(editedProject: { name: string; description: string }) {
+    this.projectService.updateProject(this.project._id, editedProject).subscribe({
+      next: (updatedProject) => {
+        this.project = updatedProject;
+        // Ensure the createdBy field is correctly formatted
+        if (typeof this.project.createdBy === 'object' && this.project.createdBy !== null) {
+          this.project.createdBy = {
+            _id: this.project.createdBy._id,
+            username: this.project.createdBy.username,
+          };
+        }
+        this.snackBar.open('Project updated successfully', 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error updating project:', error);
+        this.snackBar.open('Error updating project', 'Close', { duration: 3000 });
+      },
+    });
   }
 }
