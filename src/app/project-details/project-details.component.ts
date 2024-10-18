@@ -56,6 +56,8 @@ export class ProjectDetailsComponent implements OnInit {
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
+  @ViewChild(KanbanBoardComponent) kanbanBoard!: KanbanBoardComponent;
+
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
@@ -268,8 +270,9 @@ export class ProjectDetailsComponent implements OnInit {
 
   createTask(taskData: any) {
     this.projectService.createTask(this.project._id, taskData).subscribe({
-      next: (updatedProject) => {
-        this.project = updatedProject;
+      next: (newTask) => {
+        this.project.tasks.push(newTask);
+        this.updateKanbanBoard();
         this.snackBar.open('Task created successfully', 'Close', {
           duration: 3000,
         });
@@ -302,5 +305,13 @@ export class ProjectDetailsComponent implements OnInit {
         },
         error: (error) => console.error('Error updating task:', error),
       });
+  }
+
+  // Thêm phương thức mới để cập nhật Kanban board
+  updateKanbanBoard() {
+    if (this.kanbanBoard) {
+      this.kanbanBoard.tasks = this.project.tasks;
+      this.kanbanBoard.distributeTasksToColumns();
+    }
   }
 }

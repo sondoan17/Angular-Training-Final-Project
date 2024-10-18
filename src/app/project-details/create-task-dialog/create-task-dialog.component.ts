@@ -32,10 +32,10 @@ import { FormsModule } from '@angular/forms';
       <mat-form-field>
         <mat-label>Status</mat-label>
         <mat-select [(ngModel)]="task.status">
-          <mat-option value="not started">Not Started</mat-option>
-          <mat-option value="in progress">In Progress</mat-option>
-          <mat-option value="stuck">Stuck</mat-option>
-          <mat-option value="done">Done</mat-option>
+          <mat-option value="Not Started">Not Started</mat-option>
+          <mat-option value="In Progress">In Progress</mat-option>
+          <mat-option value="Stuck">Stuck</mat-option>
+          <mat-option value="Done">Done</mat-option>
         </mat-select>
       </mat-form-field>
       <mat-form-field>
@@ -76,7 +76,7 @@ export class CreateTaskDialogComponent {
     title: '',
     description: '',
     type: 'task',
-    status: 'not started',
+    status: 'Not Started',
     priority: 'none',
     timeline: { days: 0, months: 0 },
     assignedTo: ''
@@ -95,4 +95,3 @@ export class CreateTaskDialogComponent {
     this.dialogRef.close(this.task);
   }
 }
-

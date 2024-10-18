@@ -2,22 +2,29 @@
   <button mat-button (click)="goBack()" class="back-button">
     <mat-icon>arrow_back</mat-icon> Back
   </button>
-  
+
   <div *ngIf="project">
     <h2>{{ project.name }}</h2>
     <p>{{ project.description }}</p>
     <p>Created by: {{ getCreatorUsername() }}</p>
     <p>Created at: {{ project.createdAt | date }}</p>
 
-    <button mat-raised-button color="primary" (click)="openEditProjectDialog()">Edit Project</button>
-    <button mat-raised-button color="primary" (click)="openMembersDialog()">Members</button>
-    <button mat-raised-button color="primary" (click)="openCreateTaskDialog()">Create Task</button>
+    <button mat-raised-button color="primary" (click)="openEditProjectDialog()">
+      Edit Project
+    </button>
+    <button mat-raised-button color="primary" (click)="openMembersDialog()">
+      Members
+    </button>
+    <button mat-raised-button color="primary" (click)="openCreateTaskDialog()">
+      Create Task
+    </button>
 
     <h3>Tasks</h3>
-    <app-kanban-board 
-      [tasks]="project.tasks" 
+    <app-kanban-board
+      [tasks]="project.tasks"
       [projectId]="project._id"
-      (taskMoved)="onTaskMoved($event)">
+      (taskMoved)="onTaskMoved($event)"
+    >
     </app-kanban-board>
   </div>
 </div>
