@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProjectService } from '../services/project.service';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
@@ -19,6 +19,7 @@ import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-d
 import { CreateTaskDialogComponent } from './create-task-dialog/create-task-dialog.component';
 import { MatListModule } from '@angular/material/list';
 import { KanbanBoardComponent } from './kanban-board/kanban-board.component';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-project-details',
@@ -63,53 +64,24 @@ export class ProjectDetailsComponent implements OnInit {
     private projectService: ProjectService,
     private location: Location,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router  
   ) {}
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.fetchProjectDetails(id);
-    } else {
-      this.error = 'No project ID provided.';
-    }
-  }
-
-  private fetchProjectDetails(id: string) {
-    this.projectService.getProjectDetails(id).subscribe({
-      next: (data) => {
-        this.project = data;
-        this.editedProject = {
-          name: this.project.name,
-          description: this.project.description,
-        };
-
-        if (Array.isArray(this.project.members)) {
-          this.project.members = this.project.members.map((member: any) => {
-            if (
-              typeof member === 'object' &&
-              member !== null &&
-              member.username
-            ) {
-              return { _id: member._id, username: member.username };
-            } else if (typeof member === 'string') {
-              console.warn(`Member data not populated for ID: ${member}`);
-              return { _id: member, username: 'Unknown' };
-            }
-            return { _id: 'unknown', username: 'Unknown' };
-          });
-        } else {
-          console.error(
-            'Project members is not an array:',
-            this.project.members
-          );
-          this.project.members = [];
-        }
+    this.route.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        const id = params.get('id');
+        return this.projectService.getProjectDetails(id!);
+      })
+    ).subscribe({
+      next: (project) => {
+        this.project = project;
+        console.log('Loaded project:', this.project);
       },
       error: (error) => {
-        console.error('Error fetching project details:', error);
-        this.error = 'Failed to load project details. Please try again later.';
-      },
+        console.error('Error loading project:', error);
+      }
     });
   }
 
@@ -127,7 +99,7 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   goBack() {
-    this.location.back();
+    this.router.navigate(['/dashboard']);
   }
 
   toggleEditMode() {

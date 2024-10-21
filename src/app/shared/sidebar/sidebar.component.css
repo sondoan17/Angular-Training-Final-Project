@@ -1,0 +1,36 @@
+.sidebar-container {
+  padding: 16px;
+}
+
+mat-nav-list {
+  padding-top: 0;
+}
+
+mat-expansion-panel {
+  box-shadow: none;
+  background: transparent;
+}
+
+mat-expansion-panel-header {
+  padding: 0 16px;
+}
+
+mat-panel-title {
+  align-items: center;
+}
+
+mat-icon {
+  margin-right: 16px;
+}
+
+.mat-expansion-panel-body {
+  padding: 0;
+}
+
+.mat-expansion-panel .mat-expansion-panel-header.mat-expanded {
+  height: 48px;
+}
+
+a[mat-list-item] {
+  height: 40px;
+}

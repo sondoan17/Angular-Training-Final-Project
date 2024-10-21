@@ -1,0 +1,49 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #sidenav mode="side" class="sidenav">
+    <app-sidebar></app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <app-navbar (toggleSidebar)="sidenav.toggle()"></app-navbar>
+    <div class="content">
+      <h2 class="page-title">Tasks Assigned to You</h2>
+      <mat-accordion multi>
+        <mat-expansion-panel *ngFor="let projectId of objectKeys(tasksByProject)" [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ tasksByProject[projectId].projectName }}
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ tasksByProject[projectId].tasks.length }} tasks
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="task-list">
+            <mat-card *ngFor="let task of tasksByProject[projectId].tasks" class="task-card">
+              <mat-card-header>
+                <mat-card-title>{{task.title}}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <p>{{task.description}}</p>
+                <div class="task-details">
+                  <mat-form-field>
+                    <mat-label>Status</mat-label>
+                    <mat-select [(ngModel)]="task.status" (selectionChange)="updateTaskStatus(projectId, task._id, task.status)">
+                      <mat-option *ngFor="let status of statuses" [value]="status">
+                        {{status}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <span class="priority" [ngClass]="task.priority.toLowerCase()">{{task.priority}}</span>
+                </div>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-button [routerLink]="['/projects', task.projectId, 'tasks', task._id]">View Details</button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

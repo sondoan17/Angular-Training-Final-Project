@@ -1,0 +1,67 @@
+.sidenav-container {
+  height: 100vh;
+}
+
+.sidenav {
+  width: 250px;
+}
+
+.content {
+  padding: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.task-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.task-card {
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.task-card:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.task-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.status, .priority {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.not-started { background-color: #f0f0f0; color: #333; }
+.in-progress { background-color: #fff176; color: #333; }
+.stuck { background-color: #ef5350; color: white; }
+.done { background-color: #66bb6a; color: white; }
+
+.low { background-color: #81c784; color: white; }
+.medium { background-color: #ffd54f; color: #333; }
+.high { background-color: #ff8a65; color: white; }
+
+mat-card-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+mat-expansion-panel {
+  margin-bottom: 16px;
+}
+
+mat-form-field {
+  width: 120px;
+}

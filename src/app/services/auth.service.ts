@@ -121,4 +121,9 @@ export class AuthService {
       return true;
     }
   }
+
+  getCurrentUserId(): string | null {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    return user ? user._id : null;
+  }
 }

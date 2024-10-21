@@ -15,11 +15,11 @@ import { FormsModule } from '@angular/forms';
     <mat-dialog-content>
       <mat-form-field>
         <mat-label>Project Name</mat-label>
-        <input matInput [(ngModel)]="data.name" required>
+        <input matInput [(ngModel)]="editedProject.name" required>
       </mat-form-field>
       <mat-form-field>
         <mat-label>Project Description</mat-label>
-        <textarea matInput [(ngModel)]="data.description" rows="4"></textarea>
+        <textarea matInput [(ngModel)]="editedProject.description" rows="4"></textarea>
       </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions>
@@ -29,17 +29,20 @@ import { FormsModule } from '@angular/forms';
   `,
 })
 export class EditProjectDialogComponent {
+  editedProject: { name: string; description: string };
+
   constructor(
     public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { name: string; description: string }
-  ) {}
+  ) {
+    this.editedProject = { ...data };
+  }
 
   onCancel(): void {
     this.dialogRef.close();
   }
 
   onSave(): void {
-    this.dialogRef.close(this.data);
+    this.dialogRef.close(this.editedProject);
   }
 }
-

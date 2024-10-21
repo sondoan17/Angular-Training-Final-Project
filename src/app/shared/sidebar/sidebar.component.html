@@ -1,6 +1,38 @@
 <div class="sidebar-container">
   <mat-nav-list>
-    <a mat-list-item routerLink="/dashboard">Dashboard</a>
-    <a mat-list-item routerLink="/projects">Projects</a>
+    <a mat-list-item routerLink="/dashboard">
+      <mat-icon>dashboard</mat-icon>
+      <span>Dashboard</span>
+    </a>
+    <a mat-list-item routerLink="/assigned-tasks">
+      <mat-icon>assignment_ind</mat-icon>
+      <span>Assigned to me</span>
+    </a>
+
+    
+
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>folder</mat-icon>
+          <span>My Projects</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-nav-list>
+        <a
+          mat-list-item
+          *ngFor="let project of projects"
+          [routerLink]="['/projects', project._id]"
+        >
+          <mat-icon>description</mat-icon>
+          <span>{{ project.name }}</span>
+        </a>
+      </mat-nav-list>
+    </mat-expansion-panel>
+
+    <a mat-list-item (click)="addNewProject()">
+      <mat-icon>add</mat-icon>
+      <span>New</span>
+    </a>
   </mat-nav-list>
 </div>

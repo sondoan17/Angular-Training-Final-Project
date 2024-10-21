@@ -16,13 +16,22 @@
       </button>
 
       <mat-nav-list>
-        <a
-          mat-list-item
-          *ngFor="let project of userProjects"
-          [routerLink]="['/projects', project._id]"
-        >
+        <a mat-list-item *ngFor="let project of userProjects" [routerLink]="['/projects', project._id]">
           <span matListItemTitle>{{ project.name }}</span>
           <span matListItemLine>{{ project.description }}</span>
+          <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation(); $event.preventDefault();">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="editProject(project)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            <button mat-menu-item (click)="deleteProject(project)">
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
         </a>
       </mat-nav-list>
 

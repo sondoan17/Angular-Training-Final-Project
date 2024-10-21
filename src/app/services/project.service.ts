@@ -54,15 +54,17 @@ export class ProjectService {
     return this.http.post<Project>(`${this.apiUrl}/create`, projectData);
   }
 
-  updateProject(id: string, projectData: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, projectData).pipe(
+  updateProject(id: string, projectData: any): Observable<Project> {
+    return this.http.put<Project>(`${this.apiUrl}/${id}`, projectData).pipe(
       map(project => {
-        project.members = project.members.map((member: any) => {
-          if (typeof member === 'string') {
-            return { _id: member, username: 'Unknown' };
-          }
-          return member;
-        });
+        if (Array.isArray(project.members)) {
+          project.members = project.members.map((member: any) => {
+            if (typeof member === 'string') {
+              return { _id: member, username: 'Unknown' };
+            }
+            return member;
+          });
+        }
         return project;
       })
     );
@@ -92,10 +94,10 @@ export class ProjectService {
     return this.http.post(`${this.apiUrl}/${projectId}/tasks`, taskData);
   }
 
-  updateTaskStatus(projectId: string, taskId: string, newStatus: string): Observable<any> {
+  updateTaskStatus(projectId: string, taskId: string, status: string): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.patch(`${this.apiUrl}/${projectId}/tasks/${taskId}`, { status: newStatus }, { headers });
+    return this.http.patch(`${this.apiUrl}/${projectId}/tasks/${taskId}`, { status }, { headers });
   }
 
   getTaskDetails(projectId: string, taskId: string): Observable<any> {
@@ -103,5 +105,13 @@ export class ProjectService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     return this.http.get(`${this.apiUrl}/${projectId}/tasks/${taskId}`, { headers });
+  }
+
+  deleteProject(projectId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${projectId}`);
+  }
+
+  getAssignedTasks(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/assigned-tasks`);
   }
 }

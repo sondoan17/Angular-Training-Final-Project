@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 import { ProjectDetailsComponent } from './project-details/project-details.component';
 import { TaskDetailsComponent } from './task-details/task-details.component';
+import { AssignedTasksComponent } from './assigned-tasks/assigned-tasks.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -23,10 +24,19 @@ export const routes: Routes = [
       ),
     canActivate: [AuthGuard],
   },
-  { path: 'projects/:id', component: ProjectDetailsComponent },
+  {
+    path: 'projects/:id',
+    component: ProjectDetailsComponent,
+    canActivate: [AuthGuard]
+  },
   {
     path: 'projects/:projectId/tasks/:taskId',
     component: TaskDetailsComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'assigned-tasks',
+    component: AssignedTasksComponent,
     canActivate: [AuthGuard]
   },
 ];

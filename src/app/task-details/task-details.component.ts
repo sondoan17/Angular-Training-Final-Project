@@ -6,6 +6,8 @@ import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
+import { forkJoin, Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-task-details',
@@ -16,7 +18,7 @@ import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 })
 export class TaskDetailsComponent implements OnInit {
   task: any;
-  assignedUsername: string = 'Unassigned';
+  assignedUsernames: string[] = [];
   creatorUsername: string = 'Unknown';
 
   @ViewChild('sidenav') sidenav!: MatSidenav;
@@ -34,57 +36,66 @@ export class TaskDetailsComponent implements OnInit {
       this.projectService.getTaskDetails(projectId, taskId).subscribe({
         next: (task) => {
           this.task = task;
-          this.updateAssignedUsername();
-          this.updateCreatorUsername();
+          this.updateAssignedUsernames();
         },
         error: (error) => console.error('Error fetching task details:', error)
       });
     }
   }
 
-  updateAssignedUsername() {
-    if (this.task.assignedTo) {
-      if (typeof this.task.assignedTo === 'string') {
-        this.userService.getUserById(this.task.assignedTo).subscribe({
-          next: (user) => {
-            this.assignedUsername = user.username;
-          },
-          error: (error) => {
-            console.error('Error fetching user details:', error);
-            this.assignedUsername = 'Unknown (ID: ' + this.task.assignedTo + ')';
-          }
-        });
-      } else if (this.task.assignedTo.username) {
-        this.assignedUsername = this.task.assignedTo.username;
-      } else {
-        this.assignedUsername = 'Unknown';
-      }
+  updateAssignedUsernames() {
+    if (this.task.assignedTo && Array.isArray(this.task.assignedTo)) {
+      const userObservables: Observable<string>[] = this.task.assignedTo.map((assignee: any) => 
+        this.getUsernameObservable(assignee)
+      );
+
+      forkJoin(userObservables).subscribe({
+        next: (usernames) => {
+          this.assignedUsernames = usernames.filter(username => username !== null);
+        },
+        error: (error) => {
+          console.error('Error fetching user details:', error);
+          this.assignedUsernames = this.task.assignedTo.map((assignee: any) => this.getAssigneeName(assignee));
+        }
+      });
+    } else if (this.task.assignedTo) {
+      this.getUsernameObservable(this.task.assignedTo).subscribe({
+        next: (username) => {
+          this.assignedUsernames = username ? [username] : ['Unknown'];
+        },
+        error: (error) => {
+          console.error('Error fetching user details:', error);
+          this.assignedUsernames = [this.getAssigneeName(this.task.assignedTo)];
+        }
+      });
     } else {
-      this.assignedUsername = 'Unassigned';
+      this.assignedUsernames = ['Unassigned'];
     }
   }
 
-  updateCreatorUsername() {
-    if (this.task.createdBy) {
-      if (typeof this.task.createdBy === 'string') {
-        this.userService.getUserById(this.task.createdBy).subscribe({
-          next: (user) => {
-            this.creatorUsername = user.username;
-          },
-          error: (error) => {
-            console.error('Error fetching creator details:', error);
-            this.creatorUsername = 'Unknown (ID: ' + this.task.createdBy + ')';
-          }
-        });
-      } else if (this.task.createdBy.username) {
-        this.creatorUsername = this.task.createdBy.username;
-      } else {
-        this.creatorUsername = 'Unknown';
-      }
+  private getUsernameObservable(assignee: any): Observable<string | null> {
+    if (typeof assignee === 'string') {
+      return this.userService.getUserById(assignee).pipe(
+        map(user => user.username),
+        catchError(error => {
+          console.error('Error fetching user:', error);
+          return of(`Unknown (ID: ${assignee})`);
+        })
+      );
+    } else if (assignee && typeof assignee === 'object' && assignee.username) {
+      return of(assignee.username);
+    } else {
+      return of(null);
     }
   }
 
-  getCreatorUsername(): string {
-    return this.creatorUsername;
+  private getAssigneeName(assignee: any): string {
+    if (typeof assignee === 'string') {
+      return `Unknown (ID: ${assignee})`;
+    } else if (assignee && typeof assignee === 'object' && assignee.username) {
+      return assignee.username;
+    } else {
+      return 'Unknown';
+    }
   }
 }

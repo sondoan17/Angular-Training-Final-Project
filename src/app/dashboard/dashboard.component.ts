@@ -7,8 +7,12 @@ import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterModule } from '@angular/router';
+import { EditProjectDialogComponent } from '../project-details/edit-project-dialog/edit-project-dialog.component';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +24,12 @@ import { RouterLink } from '@angular/router';
     MatSidenavModule,
     MatButtonModule,
     MatListModule,
-    RouterLink
+    MatMenuModule,
+    MatIconModule,
+    RouterLink,
+    RouterModule,
+    EditProjectDialogComponent,
+    MatSnackBarModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -28,7 +37,11 @@ import { RouterLink } from '@angular/router';
 export class DashboardComponent implements OnInit {
   userProjects: Project[] = [];
 
-  constructor(private dialog: MatDialog, private projectService: ProjectService) {}
+  constructor(
+    private dialog: MatDialog,
+    private projectService: ProjectService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit() {
     this.loadUserProjects();
@@ -44,9 +57,12 @@ export class DashboardComponent implements OnInit {
         if (error.error instanceof ErrorEvent) {
           console.error('Client-side error:', error.error.message);
         } else {
-          console.error(`Backend returned code ${error.status}, body was:`, error.error);
+          console.error(
+            `Backend returned code ${error.status}, body was:`,
+            error.error
+          );
         }
-      }
+      },
     });
   }
 
@@ -55,7 +71,7 @@ export class DashboardComponent implements OnInit {
       width: '400px',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.projectService.createProject(result).subscribe({
           next: () => {
@@ -63,7 +79,64 @@ export class DashboardComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error creating project:', error);
-          }
+          },
+        });
+      }
+    });
+  }
+
+  openEditProjectDialog(project: Project) {
+    const dialogRef = this.dialog.open(EditProjectDialogComponent, {
+      width: '400px',
+      data: { project },
+    });
+  }
+
+  deleteProject(project: Project) {
+    if (
+      confirm(`Are you sure you want to delete the project "${project.name}"?`)
+    ) {
+      this.projectService.deleteProject(project._id).subscribe({
+        next: () => {
+          this.loadUserProjects();
+        },
+        error: (error) => {
+          console.error('Error deleting project:', error);
+        },
+      });
+    }
+  }
+
+  editProject(project: Project) {
+    const dialogRef = this.dialog.open(EditProjectDialogComponent, {
+      width: '300px',
+      data: {
+        name: project.name,
+        description: project.description,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.projectService.updateProject(project._id, result).subscribe({
+          next: (updatedProject) => {
+            console.log('Project updated:', updatedProject);
+            const index = this.userProjects.findIndex(
+              (p) => p._id === updatedProject._id
+            );
+            if (index !== -1) {
+              this.userProjects[index] = updatedProject;
+            }
+            this.snackBar.open('Project updated successfully', 'Close', {
+              duration: 3000,
+            });
+          },
+          error: (error) => {
+            console.error('Error updating project:', error);
+            this.snackBar.open('Error updating project', 'Close', {
+              duration: 3000,
+            });
+          },
         });
       }
     });
