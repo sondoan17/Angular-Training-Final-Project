@@ -1,28 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from '../services/project.service';
-import { UserService } from '../services/user.service'; // You might need to create this service
+import { UserService } from '../services/user.service';
 import { CommonModule } from '@angular/common';
+import { NavbarComponent } from '../shared/navbar/navbar.component';
+import { SidebarComponent } from '../shared/sidebar/sidebar.component';
+import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-task-details',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div *ngIf="task">
-      <h2>{{ task.title }}</h2>
-      <p>Description: {{ task.description }}</p>
-      <p>Status: {{ task.status }}</p>
-      <p>Type: {{ task.type }}</p>
-      <p>Priority: {{ task.priority }}</p>
-      <p>Timeline: {{ task.timeline.days }} days, {{ task.timeline.months }} months</p>
-      <p>Assigned to: {{ assignedUsername }}</p>
-    </div>
-  `
+  imports: [CommonModule, NavbarComponent, SidebarComponent, MatSidenavModule],
+  templateUrl: './task-details.component.html',
+  styleUrls: ['./task-details.component.css']
 })
 export class TaskDetailsComponent implements OnInit {
   task: any;
   assignedUsername: string = 'Unassigned';
+  creatorUsername: string = 'Unknown';
+
+  @ViewChild('sidenav') sidenav!: MatSidenav;
 
   constructor(
     private route: ActivatedRoute,
@@ -36,9 +33,9 @@ export class TaskDetailsComponent implements OnInit {
     if (projectId && taskId) {
       this.projectService.getTaskDetails(projectId, taskId).subscribe({
         next: (task) => {
-          
           this.task = task;
           this.updateAssignedUsername();
+          this.updateCreatorUsername();
         },
         error: (error) => console.error('Error fetching task details:', error)
       });
@@ -65,5 +62,29 @@ export class TaskDetailsComponent implements OnInit {
     } else {
       this.assignedUsername = 'Unassigned';
     }
+  }
+
+  updateCreatorUsername() {
+    if (this.task.createdBy) {
+      if (typeof this.task.createdBy === 'string') {
+        this.userService.getUserById(this.task.createdBy).subscribe({
+          next: (user) => {
+            this.creatorUsername = user.username;
+          },
+          error: (error) => {
+            console.error('Error fetching creator details:', error);
+            this.creatorUsername = 'Unknown (ID: ' + this.task.createdBy + ')';
+          }
+        });
+      } else if (this.task.createdBy.username) {
+        this.creatorUsername = this.task.createdBy.username;
+      } else {
+        this.creatorUsername = 'Unknown';
+      }
+    }
+  }
+
+  getCreatorUsername(): string {
+    return this.creatorUsername;
   }
 }

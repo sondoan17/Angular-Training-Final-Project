@@ -290,6 +290,7 @@ export class ProjectDetailsComponent implements OnInit {
     );
     return assignedMember ? assignedMember.username : 'Unassigned';
   }
+  
 
   onTaskMoved(event: { task: any; newStatus: string }) {
     this.projectService

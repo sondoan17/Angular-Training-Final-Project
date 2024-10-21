@@ -1,8 +1,21 @@
-<div *ngIf="task">
-  <h2>{{ task.title }}</h2>
-  <p>Description: {{ task.description }}</p>
-  <p>Status: {{ task.status }}</p>
-  <p>Priority: {{ task.priority }}</p>
-  <p>Assigned to: {{ assignedUsername }}</p>
-  <!-- ... other task details ... -->
-</div>
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #sidenav mode="side" class="sidenav">
+    <app-sidebar></app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <app-navbar (toggleSidebar)="sidenav.toggle()"></app-navbar>
+    <div class="content">
+      <div *ngIf="task">
+        <h2>{{ task.title }}</h2>
+        <p>Description: {{ task.description }}</p>
+        <p>Status: {{ task.status }}</p>
+        <p>Type: {{ task.type }}</p>
+        <p>Priority: {{ task.priority }}</p>
+        <p>Timeline: {{ task.timeline.days }} days, {{ task.timeline.months }} months</p>
+        <p>Assigned to: {{ assignedUsername }}</p>
+        <p>Created by: {{ getCreatorUsername() }}</p>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
