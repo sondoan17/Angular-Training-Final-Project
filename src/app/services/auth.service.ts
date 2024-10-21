@@ -123,7 +123,16 @@ export class AuthService {
   }
 
   getCurrentUserId(): string | null {
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-    return user ? user._id : null;
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        return decodedToken.userId || decodedToken.sub || null;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+      }
+    }
+    return null;
   }
 }

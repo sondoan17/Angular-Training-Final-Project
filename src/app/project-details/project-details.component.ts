@@ -62,7 +62,7 @@ export class ProjectDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
-    private location: Location,
+  
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router  

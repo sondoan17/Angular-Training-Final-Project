@@ -141,5 +141,6 @@ export class CreateTaskDialogComponent {
     if (this.assignToMe) {
       this.task.assign;
     }
+    this.dialogRef.close(this.task);
   }
 }
