@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { AddMemberDialogComponent } from '../add-member-dialog/add-member-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -62,27 +61,28 @@ export class ProjectDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
-  
+
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private router: Router  
+    private router: Router
   ) {}
 
   ngOnInit() {
-    this.route.paramMap.pipe(
-      switchMap((params: ParamMap) => {
-        const id = params.get('id');
-        return this.projectService.getProjectDetails(id!);
-      })
-    ).subscribe({
-      next: (project) => {
-        this.project = project;
-        console.log('Loaded project:', this.project);
-      },
-      error: (error) => {
-        console.error('Error loading project:', error);
-      }
-    });
+    this.route.paramMap
+      .pipe(
+        switchMap((params: ParamMap) => {
+          const id = params.get('id');
+          return this.projectService.getProjectDetails(id!);
+        })
+      )
+      .subscribe({
+        next: (project) => {
+          this.project = project;
+        },
+        error: (error) => {
+          console.error('Error loading project:', error);
+        },
+      });
   }
 
   getCreatorUsername(): string {
@@ -243,14 +243,20 @@ export class ProjectDetailsComponent implements OnInit {
   createTask(taskData: any) {
     this.projectService.createTask(this.project._id, taskData).subscribe({
       next: (newTask) => {
-        this.project.tasks.push(newTask);
-        this.updateKanbanBoard();
-        this.snackBar.open('Task created successfully', 'Close', {
-          duration: 3000,
-        });
+        if (newTask && newTask._id) {
+          this.project.tasks.push(newTask);
+          this.updateKanbanBoard();
+          this.snackBar.open('Task created successfully', 'Close', {
+            duration: 3000,
+          });
+          // this.router.navigate(['/projects', this.project._id, 'tasks', newTask._id]);
+        } else {
+          this.snackBar.open('Task created, but no _id returned', 'Close', {
+            duration: 3000,
+          });
+        }
       },
       error: (error) => {
-        console.error('Error creating task:', error);
         this.snackBar.open('Error creating task', 'Close', { duration: 3000 });
       },
     });
@@ -262,7 +268,6 @@ export class ProjectDetailsComponent implements OnInit {
     );
     return assignedMember ? assignedMember.username : 'Unassigned';
   }
-  
 
   onTaskMoved(event: { task: any; newStatus: string }) {
     this.projectService
