@@ -14,11 +14,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SearchService } from '../services/search.service';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  switchMap,
-} from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Subject, Subscription, of } from 'rxjs';
 
 @Component({
@@ -47,7 +43,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     searchTerm: new FormControl(''),
     status: new FormControl(''),
     priority: new FormControl(''),
-    type: new FormControl('')
+    type: new FormControl(''),
   });
 
   searchResults: any[] = [];
@@ -61,29 +57,31 @@ export class SearchComponent implements OnInit, OnDestroy {
   constructor(private searchService: SearchService, private router: Router) {}
 
   ngOnInit() {
-    this.searchSubscription = this.searchForm.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap((formValue) => {
-        if (formValue.searchTerm && formValue.searchTerm.trim() !== '') {
-          return this.searchService.searchProjectsAndTasks(
-            formValue.searchTerm,
-            formValue.status || undefined,
-            formValue.priority || undefined,
-            formValue.type || undefined
-          );
-        } else {
-          return of([]);
-        }
-      })
-    ).subscribe({
-      next: (results) => {
-        this.searchResults = results;
-      },
-      error: (error) => {
-        console.error('Error searching:', error);
-      }
-    });
+    this.searchSubscription = this.searchForm.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((formValue) => {
+          if (formValue.searchTerm && formValue.searchTerm.trim() !== '') {
+            return this.searchService.searchProjectsAndTasks(
+              formValue.searchTerm,
+              formValue.status || undefined,
+              formValue.priority || undefined,
+              formValue.type || undefined
+            );
+          } else {
+            return of([]);
+          }
+        })
+      )
+      .subscribe({
+        next: (results) => {
+          this.searchResults = results;
+        },
+        error: (error) => {
+          console.error('Error searching:', error);
+        },
+      });
   }
 
   ngOnDestroy() {

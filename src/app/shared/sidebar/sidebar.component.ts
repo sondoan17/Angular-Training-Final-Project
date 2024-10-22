@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
     MatListModule,
     MatIconModule,
     MatExpansionModule,
-    RouterModule
+    RouterModule,
   ],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
@@ -28,7 +28,7 @@ export class SidebarComponent implements OnInit {
     { name: 'Adrian Bert - CRM Da...' },
     { name: 'Trust - SaaS Dashbo...' },
     { name: 'Pertamina Project' },
-    { name: 'Garuda Project' }
+    { name: 'Garuda Project' },
   ];
 
   constructor(
@@ -48,7 +48,7 @@ export class SidebarComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading projects:', error);
-      }
+      },
     });
   }
 
@@ -57,7 +57,7 @@ export class SidebarComponent implements OnInit {
       width: '400px',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.projectService.createProject(result).subscribe({
           next: () => {
@@ -65,11 +65,9 @@ export class SidebarComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error creating project:', error);
-          }
+          },
         });
       }
     });
   }
-
- 
 }

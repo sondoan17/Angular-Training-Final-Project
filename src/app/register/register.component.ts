@@ -10,7 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrl: './register.component.css',
 })
 export class RegisterComponent {
   username = '';
@@ -21,23 +21,25 @@ export class RegisterComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit(): void {
-    this.authService.register(this.username, this.email, this.password).subscribe({
-      next: () => {
-        this.handleSuccessfulRegistration();
-      },
-      error: (error) => {
-        this.handleRegistrationError(error);
-      }
-    });
+    this.authService
+      .register(this.username, this.email, this.password)
+      .subscribe({
+        next: () => {
+          this.handleSuccessfulRegistration();
+        },
+        error: (error) => {
+          this.handleRegistrationError(error);
+        },
+      });
   }
 
   private handleSuccessfulRegistration(): void {
-   
     this.router.navigate(['/login']);
   }
 
   private handleRegistrationError(error: any): void {
     console.error('Registration failed', error);
-    this.errorMessage = error.message || 'An error occurred during registration';
+    this.errorMessage =
+      error.message || 'An error occurred during registration';
   }
 }

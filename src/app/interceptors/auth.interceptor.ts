@@ -10,12 +10,12 @@ import { Observable } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('token');
-  
+
   if (token) {
     const cloned = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
     return next(cloned);
   }
@@ -32,8 +32,8 @@ export class AuthInterceptor implements HttpInterceptor {
     if (token) {
       const cloned = request.clone({
         setHeaders: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       return next.handle(cloned);
     }

@@ -8,9 +8,8 @@ describe('AddMemberDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddMemberDialogComponent]
-    })
-    .compileComponents();
+      imports: [AddMemberDialogComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddMemberDialogComponent);
     component = fixture.componentInstance;

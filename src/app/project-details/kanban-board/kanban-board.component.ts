@@ -5,8 +5,6 @@ import {
   CdkDragDrop,
   moveItemInArray,
   transferArrayItem,
-  CdkDragStart,
-  CdkDragEnd,
 } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';

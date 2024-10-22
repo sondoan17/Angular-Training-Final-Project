@@ -8,7 +8,10 @@
     <div class="content">
       <h2 class="page-title">Tasks Assigned to You</h2>
       <mat-accordion multi>
-        <mat-expansion-panel *ngFor="let projectId of objectKeys(tasksByProject)" [expanded]="true">
+        <mat-expansion-panel
+          *ngFor="let projectId of objectKeys(tasksByProject)"
+          [expanded]="true"
+        >
           <mat-expansion-panel-header>
             <mat-panel-title>
               {{ tasksByProject[projectId].projectName }}
@@ -19,26 +22,51 @@
           </mat-expansion-panel-header>
 
           <div class="task-list">
-            <mat-card *ngFor="let task of tasksByProject[projectId].tasks" class="task-card">
+            <mat-card
+              *ngFor="let task of tasksByProject[projectId].tasks"
+              class="task-card"
+            >
               <mat-card-header>
-                <mat-card-title>{{task.title}}</mat-card-title>
+                <mat-card-title>{{ task.title }}</mat-card-title>
               </mat-card-header>
               <mat-card-content>
-                <p>{{task.description}}</p>
+                <p>{{ task.description }}</p>
                 <div class="task-details">
                   <mat-form-field>
                     <mat-label>Status</mat-label>
-                    <mat-select [(ngModel)]="task.status" (selectionChange)="updateTaskStatus(projectId, task._id, task.status)">
-                      <mat-option *ngFor="let status of statuses" [value]="status">
-                        {{status}}
+                    <mat-select
+                      [(ngModel)]="task.status"
+                      (selectionChange)="
+                        updateTaskStatus(projectId, task._id, task.status)
+                      "
+                    >
+                      <mat-option
+                        *ngFor="let status of statuses"
+                        [value]="status"
+                      >
+                        {{ status }}
                       </mat-option>
                     </mat-select>
                   </mat-form-field>
-                  <span class="priority" [ngClass]="task.priority.toLowerCase()">{{task.priority}}</span>
+                  <span
+                    class="priority"
+                    [ngClass]="task.priority.toLowerCase()"
+                    >{{ task.priority }}</span
+                  >
                 </div>
               </mat-card-content>
               <mat-card-actions>
-                <button mat-button [routerLink]="['/projects', task.projectId, 'tasks', task._id]">View Details</button>
+                <button
+                  mat-button
+                  [routerLink]="[
+                    '/projects',
+                    task.projectId,
+                    'tasks',
+                    task._id
+                  ]"
+                >
+                  View Details
+                </button>
               </mat-card-actions>
             </mat-card>
           </div>

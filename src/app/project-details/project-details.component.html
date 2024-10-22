@@ -16,13 +16,21 @@
         <p>Created by: {{ getCreatorUsername() }}</p>
         <p>Created at: {{ project.createdAt | date }}</p>
 
-        <button mat-raised-button color="primary" (click)="openEditProjectDialog()">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="openEditProjectDialog()"
+        >
           Edit Project
         </button>
         <button mat-raised-button color="primary" (click)="openMembersDialog()">
           Members
         </button>
-        <button mat-raised-button color="primary" (click)="openCreateTaskDialog()">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="openCreateTaskDialog()"
+        >
           Create Task
         </button>
 

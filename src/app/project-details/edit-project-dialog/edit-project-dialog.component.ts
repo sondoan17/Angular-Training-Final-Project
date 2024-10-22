@@ -1,5 +1,9 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogModule,
+} from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,22 +13,35 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-edit-project-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, FormsModule],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+  ],
   template: `
     <h2 mat-dialog-title>Edit Project</h2>
     <mat-dialog-content>
       <mat-form-field>
         <mat-label>Project Name</mat-label>
-        <input matInput [(ngModel)]="editedProject.name" required>
+        <input matInput [(ngModel)]="editedProject.name" required />
       </mat-form-field>
       <mat-form-field>
         <mat-label>Project Description</mat-label>
-        <textarea matInput [(ngModel)]="editedProject.description" rows="4"></textarea>
+        <textarea
+          matInput
+          [(ngModel)]="editedProject.description"
+          rows="4"
+        ></textarea>
       </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions>
       <button mat-button (click)="onCancel()">Cancel</button>
-      <button mat-raised-button color="primary" (click)="onSave()">Save Changes</button>
+      <button mat-raised-button color="primary" (click)="onSave()">
+        Save Changes
+      </button>
     </mat-dialog-actions>
   `,
 })

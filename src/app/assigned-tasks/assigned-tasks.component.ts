@@ -37,10 +37,10 @@ interface TasksByProject {
     FormsModule,
     RouterModule,
     NavbarComponent,
-    SidebarComponent
+    SidebarComponent,
   ],
   templateUrl: './assigned-tasks.component.html',
-  styleUrls: ['./assigned-tasks.component.css']
+  styleUrls: ['./assigned-tasks.component.css'],
 })
 export class AssignedTasksComponent implements OnInit {
   tasksByProject: TasksByProject = {};
@@ -59,7 +59,7 @@ export class AssignedTasksComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading assigned tasks:', error);
-      }
+      },
     });
   }
 
@@ -68,7 +68,7 @@ export class AssignedTasksComponent implements OnInit {
       if (!acc[task.projectId]) {
         acc[task.projectId] = {
           projectName: task.projectName,
-          tasks: []
+          tasks: [],
         };
       }
       acc[task.projectId].tasks.push(task);
@@ -81,18 +81,22 @@ export class AssignedTasksComponent implements OnInit {
   }
 
   updateTaskStatus(projectId: string, taskId: string, newStatus: string) {
-    this.projectService.updateTaskStatus(projectId, taskId, newStatus).subscribe({
-      next: (updatedTask) => {
-        // Cập nhật task trong tasksByProject
-        const task = this.tasksByProject[projectId].tasks.find(t => t._id === taskId);
-        if (task) {
-          task.status = newStatus;
-        }
-      },
-      error: (error) => {
-        console.error('Error updating task status:', error);
-        // Có thể thêm thông báo lỗi cho người dùng ở đây
-      }
-    });
+    this.projectService
+      .updateTaskStatus(projectId, taskId, newStatus)
+      .subscribe({
+        next: (updatedTask) => {
+          // Cập nhật task trong tasksByProject
+          const task = this.tasksByProject[projectId].tasks.find(
+            (t) => t._id === taskId
+          );
+          if (task) {
+            task.status = newStatus;
+          }
+        },
+        error: (error) => {
+          console.error('Error updating task status:', error);
+          // Có thể thêm thông báo lỗi cho người dùng ở đây
+        },
+      });
   }
 }

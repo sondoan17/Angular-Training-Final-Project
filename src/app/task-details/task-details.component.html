@@ -12,7 +12,10 @@
         <p>Status: {{ task.status }}</p>
         <p>Type: {{ task.type }}</p>
         <p>Priority: {{ task.priority }}</p>
-        <p>Timeline: {{ task.timeline.days }} days, {{ task.timeline.months }} months</p>
+        <p>
+          Timeline: {{ task.timeline.days }} days,
+          {{ task.timeline.months }} months
+        </p>
         <p>Assigned to:</p>
         <ul>
           <li *ngFor="let username of assignedUsernames">{{ username }}</li>
