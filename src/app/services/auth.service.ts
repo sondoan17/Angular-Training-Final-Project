@@ -34,13 +34,13 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, { username, password })
+    return this.http
+      .post<any>(`${this.apiUrl}/login`, { username, password })
       .pipe(
-        tap(response => {
+        tap((response) => {
           if (response && response.token) {
             localStorage.setItem('token', response.token);
             localStorage.setItem('username', response.username);
-          
           }
         })
       );
@@ -80,8 +80,7 @@ export class AuthService {
   isLoggedIn(): boolean {
     const token = localStorage.getItem('token');
     if (!token) return false;
-    
-    // You might want to add token expiration check here if your tokens have an expiration
+
     return true;
   }
 
@@ -111,15 +110,6 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem('token');
-  }
-
-  private isTokenExpired(token: string): boolean {
-    try {
-      const decoded: any = jwtDecode(token);
-      return decoded.exp < Date.now() / 1000;
-    } catch (error) {
-      return true;
-    }
   }
 
   getCurrentUserId(): string | null {

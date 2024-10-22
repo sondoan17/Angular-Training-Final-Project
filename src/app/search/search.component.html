@@ -1,0 +1,67 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #sidenav mode="side" class="sidenav">
+    <app-sidebar></app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <app-navbar (toggleSidebar)="toggleSidebar(sidenav)"></app-navbar>
+    <div class="content">
+      <h2>Search</h2>
+      <form [formGroup]="searchForm">
+        <mat-form-field appearance="fill">
+          <mat-label>Search projects and tasks</mat-label>
+          <input matInput formControlName="searchTerm">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let status of statusOptions" [value]="status">
+              {{status}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let priority of priorityOptions" [value]="priority">
+              {{priority | titlecase}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let type of typeOptions" [value]="type">
+              {{type | titlecase}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </form>
+
+      <div *ngIf="searchResults.length > 0">
+        <h3>Search Results:</h3>
+        <mat-nav-list>
+          <ng-container *ngFor="let result of searchResults">
+            <a mat-list-item *ngIf="result.type === 'project'" (click)="navigateToProject(result._id)">
+              <span matListItemTitle>Project: {{ result.name }}</span>
+              <span matListItemLine>{{ result.description }}</span>
+            </a>
+            <a mat-list-item *ngIf="result.type === 'task'" (click)="navigateToTask(result.projectId, result._id)">
+              <span matListItemTitle>Task: {{ result.title }}</span>
+              <span matListItemLine>Project: {{ result.projectName }} | Status: {{ result.status }} | Priority: {{ result.priority }} | Type: {{ result.type }}</span>
+            </a>
+          </ng-container>
+        </mat-nav-list>
+      </div>
+
+      <p *ngIf="searchResults.length === 0 && searchForm.get('searchTerm')?.value">No results found.</p>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

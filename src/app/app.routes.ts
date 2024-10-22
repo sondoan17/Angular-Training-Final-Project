@@ -3,6 +3,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { ProjectDetailsComponent } from './project-details/project-details.component';
 import { TaskDetailsComponent } from './task-details/task-details.component';
 import { AssignedTasksComponent } from './assigned-tasks/assigned-tasks.component';
+import { SearchComponent } from './search/search.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -27,16 +28,21 @@ export const routes: Routes = [
   {
     path: 'projects/:id',
     component: ProjectDetailsComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: 'projects/:projectId/tasks/:taskId',
     component: TaskDetailsComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: 'assigned-tasks',
     component: AssignedTasksComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'search',
+    component: SearchComponent,
+    canActivate: [AuthGuard],
   },
 ];
