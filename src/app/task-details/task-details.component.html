@@ -11,7 +11,16 @@
           <mat-card-title>{{ task.title }}</mat-card-title>
           <mat-card-subtitle>
             <mat-chip-set>
-              <mat-chip [style.background-color]="getStatusColor(task.status)">{{ task.status }}</mat-chip>
+              <mat-chip [style.background-color]="getStatusColor(task.status)" [matMenuTriggerFor]="statusMenu">
+                {{ task.status }}
+              </mat-chip>
+              <mat-menu #statusMenu="matMenu">
+              
+                <button mat-menu-item (click)="updateTaskStatus('Not Started')">Not Started</button>
+                <button mat-menu-item (click)="updateTaskStatus('In Progress')">In Progress</button>
+                <button mat-menu-item (click)="updateTaskStatus('Stuck')">Stuck</button>
+                <button mat-menu-item (click)="updateTaskStatus('Done')">Done</button>
+              </mat-menu>
               <mat-chip [style.background-color]="getPriorityColor(task.priority)">{{ task.priority }}</mat-chip>
               <mat-chip>{{ task.type }}</mat-chip>
             </mat-chip-set>
@@ -27,8 +36,8 @@
           <p><strong>Assigned To:</strong> {{ getAssignedMemberNames() }}</p>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="editTask()">Edit Task</button>
-          <button mat-raised-button color="warn" (click)="deleteTask()">Delete Task</button>
+          <button mat-raised-button color="primary" (click)="editTask()" *ngIf="isProjectCreator">Edit Task</button>
+          <button mat-raised-button color="warn" (click)="deleteTask()" *ngIf="isProjectCreator">Delete Task</button>
         </mat-card-actions>
       </mat-card>
     </div>
