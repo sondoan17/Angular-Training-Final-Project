@@ -5,22 +5,32 @@
 
   <mat-sidenav-content>
     <app-navbar (toggleSidebar)="sidenav.toggle()"></app-navbar>
-    <div class="content">
-      <div *ngIf="task">
-        <h2>{{ task.title }}</h2>
-        <p>Description: {{ task.description }}</p>
-        <p>Status: {{ task.status }}</p>
-        <p>Type: {{ task.type }}</p>
-        <p>Priority: {{ task.priority }}</p>
-        <p>
-          Timeline: {{ task.timeline.days }} days,
-          {{ task.timeline.months }} months
-        </p>
-        <p>Assigned to:</p>
-        <ul>
-          <li *ngFor="let username of assignedUsernames">{{ username }}</li>
-        </ul>
-      </div>
+    <div class="content" *ngIf="task">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ task.title }}</mat-card-title>
+          <mat-card-subtitle>
+            <mat-chip-set>
+              <mat-chip [style.background-color]="getStatusColor(task.status)">{{ task.status }}</mat-chip>
+              <mat-chip [style.background-color]="getPriorityColor(task.priority)">{{ task.priority }}</mat-chip>
+              <mat-chip>{{ task.type }}</mat-chip>
+            </mat-chip-set>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ task.description }}</p>
+          <p><strong>Timeline:</strong></p>
+          <p>
+            <mat-icon>calendar_today</mat-icon>
+            Start: {{ formatDate(task.timeline.start) }} - End: {{ formatDate(task.timeline.end) }}
+          </p>
+          <p><strong>Assigned To:</strong> {{ getAssignedMemberNames() }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="editTask()">Edit Task</button>
+          <button mat-raised-button color="warn" (click)="deleteTask()">Delete Task</button>
+        </mat-card-actions>
+      </mat-card>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

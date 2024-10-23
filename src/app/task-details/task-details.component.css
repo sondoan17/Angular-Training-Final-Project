@@ -1,9 +1,39 @@
 .sidenav-container {
   height: 100vh;
 }
+
 .sidenav {
-  width: 200px;
+  width: 250px;
 }
+
 .content {
   padding: 20px;
+}
+
+mat-card {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+mat-card-title {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+mat-chip-list {
+  margin-bottom: 16px;
+}
+
+mat-chip {
+  color: white;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.mat-icon {
+  vertical-align: middle;
+  margin-right: 8px;
 }

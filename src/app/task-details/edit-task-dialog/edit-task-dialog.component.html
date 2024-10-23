@@ -1,0 +1,53 @@
+<h1 mat-dialog-title>Edit Task</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <mat-label>Title</mat-label>
+    <input matInput [(ngModel)]="data.title">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <textarea matInput [(ngModel)]="data.description"></textarea>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Status</mat-label>
+    <mat-select [(ngModel)]="data.status">
+      <mat-option value="Not Started">Not Started</mat-option>
+      <mat-option value="In Progress">In Progress</mat-option>
+      <mat-option value="Stuck">Stuck</mat-option>
+      <mat-option value="Done">Done</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Priority</mat-label>
+    <mat-select [(ngModel)]="data.priority">
+      <mat-option value="low">Low</mat-option>
+      <mat-option value="medium">Medium</mat-option>
+      <mat-option value="high">High</mat-option>
+      <mat-option value="critical">Critical</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Start Date</mat-label>
+    <input matInput [matDatepicker]="startPicker" [(ngModel)]="data.timeline.start">
+    <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+    <mat-datepicker #startPicker></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>End Date</mat-label>
+    <input matInput [matDatepicker]="endPicker" [(ngModel)]="data.timeline.end">
+    <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+    <mat-datepicker #endPicker></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Assigned Members</mat-label>
+    <mat-select multiple [(ngModel)]="data.assignedTo">
+      <mat-option *ngFor="let member of projectMembers" [value]="member._id">
+        {{member.username}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Save</button>
+</div>

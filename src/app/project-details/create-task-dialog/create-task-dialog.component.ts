@@ -12,20 +12,24 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'app-create-task-dialog',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatCheckboxModule,
-    FormsModule,
+    MatDatepickerModule,
   ],
+  providers: [provideNativeDateAdapter()],
   template: `
     <h2 mat-dialog-title>Create New Task</h2>
     <mat-dialog-content>
@@ -64,22 +68,14 @@ import { AuthService } from '../../services/auth.service';
         </mat-select>
       </mat-form-field>
       <mat-form-field>
-        <mat-label>Timeline (Days)</mat-label>
-        <input
-          matInput
-          type="number"
-          [(ngModel)]="task.timeline.days"
-          min="0"
-        />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Timeline (Months)</mat-label>
-        <input
-          matInput
-          type="number"
-          [(ngModel)]="task.timeline.months"
-          min="0"
-        />
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate placeholder="Start date" [(ngModel)]="task.timeline.start">
+          <input matEndDate placeholder="End date" [(ngModel)]="task.timeline.end">
+        </mat-date-range-input>
+        <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
       </mat-form-field>
       <mat-checkbox [(ngModel)]="assignToMe" (change)="onAssignToMeChange()"
         >Assign to me</mat-checkbox
@@ -114,7 +110,10 @@ export class CreateTaskDialogComponent {
     type: 'task',
     status: 'Not Started',
     priority: 'none',
-    timeline: { days: 0, months: 0 },
+    timeline: {
+      start: null,
+      end: null
+    },
     assignedTo: [],
   };
   assignToMe: boolean = false;
