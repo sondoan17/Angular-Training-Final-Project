@@ -28,28 +28,35 @@ interface Column {
   standalone: true,
   imports: [CommonModule, DragDropModule, MatCardModule],
   template: `
-    <div class="kanban-board">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div
-        class="kanban-column"
         *ngFor="let column of columns"
+        class="p-4 rounded-lg shadow"
+        [ngClass]="getColumnClass(column.id)"
         cdkDropList
         [cdkDropListData]="column.tasks"
         (cdkDropListDropped)="drop($event)"
         [id]="column.id"
         [cdkDropListConnectedTo]="getConnectedList()"
       >
-        <h3>{{ column.title }}</h3>
-        <mat-card
+        <h3 class="text-lg font-semibold mb-4 text-gray-700">{{ column.title }}</h3>
+        <div
           *ngFor="let task of column.tasks"
           cdkDrag
           (click)="onTaskClick(task)"
+          class="bg-white p-4 rounded shadow-sm mb-3 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4"
+          [ngClass]="getTaskBorderClass(task.priority)"
         >
-          <mat-card-title>{{ task.title }}</mat-card-title>
-          <mat-card-content>
-            <p>{{ task.description }}</p>
-            <p>Priority: {{ task.priority }}</p>
-          </mat-card-content>
-        </mat-card>
+          <h4 class="font-medium mb-2 text-gray-800">{{ task.title }}</h4>
+          <p class="text-sm text-gray-600 mb-2 task-description" [title]="task.description">
+            {{ task.description }}
+          </p>
+          <div class="flex justify-end items-center text-xs">
+            <span class="px-2 py-1 rounded font-medium" [ngClass]="getTaskPriorityClass(task.priority)">
+              {{ task.priority }}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -80,6 +87,27 @@ interface Column {
       }
       .cdk-drag-animating {
         transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
+      .column-drop-zone {
+        transition: background-color 0.2s ease;
+      }
+      .column-drop-zone.cdk-drop-list-dragging {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+      .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .task-description {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        max-height: 4.5em; /* Approximately 3 lines of text */
       }
     `,
   ],
@@ -155,5 +183,50 @@ export class KanbanBoardComponent implements OnInit {
 
   getConnectedList(): string[] {
     return this.columns.map((column) => column.id);
+  }
+
+  getColumnClass(columnId: string): string {
+    switch (columnId) {
+      case 'not-started':
+        return 'bg-gray-50 border-t-4 border-gray-300';
+      case 'in-progress':
+        return 'bg-blue-50 border-t-4 border-blue-400';
+      case 'stuck':
+        return 'bg-red-50 border-t-4 border-red-400';
+      case 'done':
+        return 'bg-green-50 border-t-4 border-green-400';
+      default:
+        return 'bg-gray-50';
+    }
+  }
+
+  getTaskBorderClass(priority: string): string {
+    switch (priority.toLowerCase()) {
+      case 'critical':
+        return 'border-purple-500';
+      case 'high':
+        return 'border-red-500';
+      case 'medium':
+        return 'border-yellow-500';
+      case 'low':
+        return 'border-green-500';
+      default:
+        return 'border-gray-300';
+    }
+  }
+
+  getTaskPriorityClass(priority: string): string {
+    switch (priority.toLowerCase()) {
+      case 'critical':
+        return 'bg-purple-600 text-white';
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   }
 }

@@ -1,12 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent } from '../shared/navbar/navbar.component';
-import { SidebarComponent } from '../shared/sidebar/sidebar.component';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatButtonModule } from '@angular/material/button';
-import { MatListModule } from '@angular/material/list';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -22,13 +15,6 @@ import { Subject, Subscription, of } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule,
-    NavbarComponent,
-    SidebarComponent,
-    MatSidenavModule,
-    MatButtonModule,
-    MatListModule,
-    MatMenuModule,
-    MatIconModule,
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -90,10 +76,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-  }
-
-  toggleSidebar(sidenav: any) {
-    sidenav.toggle();
   }
 
   navigateToProject(projectId: string) {

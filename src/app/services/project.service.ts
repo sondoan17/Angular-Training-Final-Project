@@ -5,14 +5,12 @@ import { environment } from '../../environments/environment';
 
 export interface Project {
   _id: string;
-  id?: string;
   name: string;
   description: string;
-  createdBy: string | { _id: string; username: string };
-  members?: string[] | { _id: string; username: string }[];
-  createdAt?: Date;
-  updatedAt?: Date;
-  tasks?: Task[];
+  members?: { _id: string; name: string }[];
+  createdAt: Date;
+  createdBy?: { _id: string; name: string };
+  // ... other properties
 }
 
 export interface Task {

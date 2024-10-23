@@ -1,40 +1,50 @@
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #sidenav mode="side" class="sidenav">
-    <app-sidebar></app-sidebar>
-  </mat-sidenav>
+<div class="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+  <div class="max-w-7xl mx-auto">
+    <button
+      mat-button
+      (click)="goBack()"
+      class="mb-4 flex items-center text-gray-600 hover:text-gray-800"
+    >
+      <mat-icon class="mr-2">arrow_back</mat-icon> Back to Dashboard
+    </button>
 
-  <mat-sidenav-content>
-    <app-navbar (toggleSidebar)="sidenav.toggle()"></app-navbar>
-    <div class="content">
-      <button mat-button (click)="goBack()" class="back-button">
-        <mat-icon>arrow_back</mat-icon> Back
-      </button>
+    <div *ngIf="project" class="bg-white shadow rounded-lg p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">{{ project.name }}</h2>
+        <div class="space-x-2">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="openEditProjectDialog()"
+          >
+            <mat-icon class="mr-2">edit</mat-icon> Edit Project
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            (click)="openMembersDialog()"
+          >
+            <mat-icon class="mr-2">group</mat-icon> Members
+          </button>
+        </div>
+      </div>
 
-      <div *ngIf="project">
-        <h2>{{ project.name }}</h2>
-        <p>{{ project.description }}</p>
+      <p class="text-gray-600 mb-4">{{ project.description }}</p>
+      <div class="flex justify-between text-sm text-gray-500 mb-6">
         <p>Created by: {{ getCreatorUsername() }}</p>
         <p>Created at: {{ project.createdAt | date }}</p>
+      </div>
 
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="openEditProjectDialog()"
-        >
-          Edit Project
-        </button>
-        <button mat-raised-button color="primary" (click)="openMembersDialog()">
-          Members
-        </button>
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Tasks</h3>
         <button
           mat-raised-button
           color="primary"
           (click)="openCreateTaskDialog()"
+          class="mb-4"
         >
-          Create Task
+          <mat-icon class="mr-2">add</mat-icon> Create Task
         </button>
-
-        <h3>Tasks</h3>
         <app-kanban-board
           [tasks]="project.tasks"
           [projectId]="project._id"
@@ -43,5 +53,5 @@
         </app-kanban-board>
       </div>
     </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </div>
+</div>

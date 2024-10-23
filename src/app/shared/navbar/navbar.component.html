@@ -1,28 +1,37 @@
-<mat-toolbar color="primary">
-  <button mat-icon-button (click)="onToggleSidebar()">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <a href="/dashboard"
-    ><img src="assets/images/logo.png" alt="logo" class="h-12 w-auto ml-2"
-  /></a>
-  <span class="example-spacer"></span>
+<nav class="bg-white shadow">
+  <div class=" mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <button (click)="onToggleSidebar()" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <div class="flex-shrink-0 flex items-center ml-4">
+          <img class="h-8 w-auto" src="assets/images/logo.png" alt="Logo">
+        </div>
+      </div>
+      <div class="flex items-center">
+        <button [matMenuTriggerFor]="userMenu" class="ml-3 flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <span class="sr-only">Open user menu</span>
+          <div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium">
+            {{ userInitial }}
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
 
-  <button mat-mini-fab [matMenuTriggerFor]="userMenu" class="user-menu-button">
-    {{ userInitial }}
-  </button>
-
-  <mat-menu #userMenu="matMenu">
-    <button mat-menu-item routerLink="/profile">
-      <mat-icon>person</mat-icon>
+  <mat-menu #userMenu="matMenu" class="mt-2">
+    <button mat-menu-item routerLink="/profile" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+      <mat-icon class="mr-3 text-gray-400">person</mat-icon>
       <span>Profile</span>
     </button>
-    <button mat-menu-item routerLink="/settings">
-      <mat-icon>settings</mat-icon>
+    <button mat-menu-item routerLink="/settings" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+      <mat-icon class="mr-3 text-gray-400">settings</mat-icon>
       <span>Settings</span>
     </button>
-    <button mat-menu-item (click)="logout()">
-      <mat-icon>exit_to_app</mat-icon>
+    <button mat-menu-item (click)="logout()" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+      <mat-icon class="mr-3 text-gray-400">exit_to_app</mat-icon>
       <span>Logout</span>
     </button>
   </mat-menu>
-</mat-toolbar>
+</nav>

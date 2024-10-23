@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from '../../dashboard/create-project-dialog/create-project-dialog.component';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -18,11 +18,13 @@ import { Router } from '@angular/router';
     MatIconModule,
     MatExpansionModule,
     RouterModule,
+    RouterLink,
   ],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css'],
 })
 export class SidebarComponent implements OnInit {
+  @Input() isOpen = false;
+  @Output() sidebarClosed = new EventEmitter<void>();
   projects: any[] = [];
   favorites: any[] = [
     { name: 'Adrian Bert - CRM Da...' },
@@ -69,5 +71,10 @@ export class SidebarComponent implements OnInit {
         });
       }
     });
+  }
+
+  closeSidebar() {
+    this.isOpen = false;
+    this.sidebarClosed.emit();
   }
 }

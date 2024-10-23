@@ -2,9 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from './create-project-dialog/create-project-dialog.component';
 import { ProjectService, Project } from '../services/project.service';
-import { NavbarComponent } from '../shared/navbar/navbar.component';
-import { SidebarComponent } from '../shared/sidebar/sidebar.component';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
@@ -13,15 +10,13 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { EditProjectDialogComponent } from '../project-details/edit-project-dialog/edit-project-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    NavbarComponent,
-    SidebarComponent,
-    MatSidenavModule,
     MatButtonModule,
     MatListModule,
     MatMenuModule,
@@ -30,6 +25,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     RouterModule,
     EditProjectDialogComponent,
     MatSnackBarModule,
+    ConfirmDialogComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -93,18 +89,32 @@ export class DashboardComponent implements OnInit {
   }
 
   deleteProject(project: Project) {
-    if (
-      confirm(`Are you sure you want to delete the project "${project.name}"?`)
-    ) {
-      this.projectService.deleteProject(project._id).subscribe({
-        next: () => {
-          this.loadUserProjects();
-        },
-        error: (error) => {
-          console.error('Error deleting project:', error);
-        },
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Confirm Delete',
+        message: `Are you sure you want to delete the project "${project.name}"?`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.projectService.deleteProject(project._id).subscribe({
+          next: () => {
+            this.loadUserProjects();
+            this.snackBar.open('Project deleted successfully', 'Close', {
+              duration: 3000,
+            });
+          },
+          error: (error) => {
+            console.error('Error deleting project:', error);
+            this.snackBar.open('Error deleting project', 'Close', {
+              duration: 3000,
+            });
+          },
+        });
+      }
+    });
   }
 
   editProject(project: Project) {

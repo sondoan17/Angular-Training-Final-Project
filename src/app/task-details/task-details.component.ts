@@ -3,10 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EditTaskDialogComponent } from './edit-task-dialog/edit-task-dialog.component';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../shared/sidebar/sidebar.component';
-import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,9 +19,6 @@ import { MatMenuModule } from '@angular/material/menu';
   standalone: true,
   imports: [
     CommonModule,
-    MatSidenavModule,
-    SidebarComponent,
-    NavbarComponent,
     MatCardModule,
     MatChipsModule,
     MatIconModule,

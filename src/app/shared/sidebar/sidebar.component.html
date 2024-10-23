@@ -1,40 +1,43 @@
-<div class="sidebar-container">
-  <mat-nav-list>
-    <a mat-list-item routerLink="/dashboard">
-      <mat-icon>dashboard</mat-icon>
-      <span>Dashboard</span>
-    </a>
-    <a mat-list-item routerLink="/assigned-tasks">
-      <mat-icon>assignment_ind</mat-icon>
-      <span>Assigned to me</span>
-    </a>
-    <a mat-list-item routerLink="/search">
-      <mat-icon>search</mat-icon>
-      <span>Search</span>
-    </a>
-
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>folder</mat-icon>
-          <span>My Projects</span>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <mat-nav-list>
-        <a
-          mat-list-item
-          *ngFor="let project of projects"
-          [routerLink]="['/projects', project._id]"
-        >
-          <mat-icon>description</mat-icon>
-          <span>{{ project.name }}</span>
+<div class="fixed inset-y-0 left-0 z-30 w-64 bg-gray-800 text-white transform transition-transform duration-300 ease-in-out" [ngClass]="{'translate-x-0': isOpen, '-translate-x-full': !isOpen}">
+  <nav class="h-full overflow-y-auto py-6 px-4">
+    <ul class="space-y-2">
+      <li>
+        <a routerLink="/dashboard" class="flex items-center p-2 rounded-lg hover:bg-gray-700 transition-colors">
+          <mat-icon class="mr-3 text-gray-400">dashboard</mat-icon>
+          <span>Dashboard</span>
         </a>
-      </mat-nav-list>
-    </mat-expansion-panel>
+      </li>
+      <li>
+        <a routerLink="/assigned-tasks" class="flex items-center p-2 rounded-lg hover:bg-gray-700 transition-colors">
+          <mat-icon class="mr-3 text-gray-400">assignment_ind</mat-icon>
+          <span>Assigned to me</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/search" class="flex items-center p-2 rounded-lg hover:bg-gray-700 transition-colors">
+          <mat-icon class="mr-3 text-gray-400">search</mat-icon>
+          <span>Search</span>
+        </a>
+      </li>
+    </ul>
 
-    <a mat-list-item (click)="addNewProject()">
-      <mat-icon>add</mat-icon>
-      <span>New</span>
-    </a>
-  </mat-nav-list>
+    <div class="mt-6">
+      <h3 class="px-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">My Projects</h3>
+      <ul class="mt-2 space-y-1">
+        <li *ngFor="let project of projects">
+          <a [routerLink]="['/projects', project._id]" class="flex items-center p-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <mat-icon class="mr-3 text-gray-400">description</mat-icon>
+            <span class="truncate">{{ project.name }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <button (click)="addNewProject()" class="mt-6 w-full flex items-center justify-center p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+      <mat-icon class="mr-2">add</mat-icon>
+      <span>New Project</span>
+    </button>
+  </nav>
 </div>
+
+<div *ngIf="isOpen" class="fixed inset-0 z-20 bg-black opacity-50 transition-opacity lg:hidden" (click)="closeSidebar()"></div>

@@ -2,9 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProjectService } from '../services/project.service';
-import { NavbarComponent } from '../shared/navbar/navbar.component';
-import { SidebarComponent } from '../shared/sidebar/sidebar.component';
-import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
+import { MatSidenav } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -25,9 +23,6 @@ import { switchMap } from 'rxjs/operators';
   standalone: true,
   imports: [
     CommonModule,
-    NavbarComponent,
-    SidebarComponent,
-    MatSidenavModule,
     MatButtonModule,
     MatIconModule,
     MatInputModule,
