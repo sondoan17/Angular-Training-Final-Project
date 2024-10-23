@@ -135,7 +135,22 @@ export class ProjectService {
   }
 
   updateTask(projectId: string, taskId: string, taskData: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${projectId}/tasks/${taskId}`, taskData);
+    // Ensure we're sending only IDs for assignedTo
+    const updatedTaskData = {
+      ...taskData,
+      assignedTo: taskData.assignedTo.map((member: any) => 
+        typeof member === 'object' ? member._id : member
+      )
+    };
+    return this.http.put<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}`, updatedTaskData).pipe(
+      map(task => ({
+        ...task,
+        assignedTo: task.assignedTo.map((member: any) => ({
+          _id: member._id,
+          username: member.username || 'Unknown'
+        }))
+      }))
+    );
   }
 
   getAllUsers(): Observable<any[]> {

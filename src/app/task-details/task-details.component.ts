@@ -142,11 +142,12 @@ export class TaskDetailsComponent implements OnInit {
       if (result) {
         this.projectService.updateTask(this.projectId!, this.taskId!, result).subscribe(
           updatedTask => {
-            this.task = updatedTask;  // Update the task with the new data
-            console.log('Updated task:', this.task);  // For debugging
+            this.task = updatedTask;
+            // Optionally, show a success message
           },
           error => {
             console.error('Error updating task:', error);
+            // Handle error (e.g., show an error message to the user)
           }
         );
       }
@@ -154,13 +155,19 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   getAssignedMemberNames(): string {
-    if (!this.task || !this.task.assignedTo || !this.projectMembers) {
-      return '';
+    if (!this.task || !this.task.assignedTo || !Array.isArray(this.task.assignedTo)) {
+      return 'No members assigned';
     }
     return this.task.assignedTo
-      .map((userId: string) => {
-        const member = this.projectMembers.find(m => m._id === userId);
-        return member ? member.username : 'Unknown';
+      .filter((member: any) => member !== null && member !== undefined)
+      .map((member: any) => {
+        if (typeof member === 'object' && member !== null && member.username) {
+          return member.username;
+        } else if (typeof member === 'string') {
+          const foundMember = this.projectMembers.find(m => m._id === member);
+          return foundMember ? foundMember.username : 'Unknown';
+        }
+        return 'Unknown';
       })
       .join(', ');
   }
