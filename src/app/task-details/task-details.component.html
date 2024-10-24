@@ -1,64 +1,92 @@
-<div class="content" *ngIf="task">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ task.title }}</mat-card-title>
-      <mat-card-subtitle>
-        <mat-chip-set>
-          <mat-chip
-            [style.background-color]="getStatusColor(task.status)"
-            [matMenuTriggerFor]="statusMenu"
-          >
-            {{ task.status }}
-          </mat-chip>
-          <mat-menu #statusMenu="matMenu">
-            <button mat-menu-item (click)="updateTaskStatus('Not Started')">
-              Not Started
-            </button>
-            <button mat-menu-item (click)="updateTaskStatus('In Progress')">
-              In Progress
-            </button>
-            <button mat-menu-item (click)="updateTaskStatus('Stuck')">
-              Stuck
-            </button>
-            <button mat-menu-item (click)="updateTaskStatus('Done')">
-              Done
-            </button>
-          </mat-menu>
-          <mat-chip
-            [style.background-color]="getPriorityColor(task.priority)"
-            >{{ task.priority }}</mat-chip
-          >
-          <mat-chip>{{ task.type }}</mat-chip>
-        </mat-chip-set>
-      </mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <p>{{ task.description }}</p>
-      <p><strong>Timeline:</strong></p>
-      <p>
-        <mat-icon>calendar_today</mat-icon>
-        Start: {{ formatDate(task.timeline.start) }} - End:
-        {{ formatDate(task.timeline.end) }}
-      </p>
-      <p><strong>Assigned To:</strong> {{ getAssignedMemberNames() }}</p>
-    </mat-card-content>
-    <mat-card-actions>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="editTask()"
-        *ngIf="isProjectCreator"
+<div class="max-w-4xl mx-auto p-6" *ngIf="task">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ task.title }}</h1>
+    <div class="flex flex-wrap gap-2">
+      <button 
+        [matMenuTriggerFor]="statusMenu" 
+        [ngClass]="getStatusClass(task.status)" 
+        class="px-3 py-1 rounded-full text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
-        Edit Task
+        <span class="mr-1">{{ task.status }}</span>
+        <mat-icon class="text-sm">arrow_drop_down</mat-icon>
       </button>
-      <button
-        mat-raised-button
-        color="warn"
-        (click)="deleteTask()"
-        *ngIf="isProjectCreator"
-      >
-        Delete Task
-      </button>
-    </mat-card-actions>
-  </mat-card>
+      <mat-menu #statusMenu="matMenu" class="custom-menu">
+        <button mat-menu-item (click)="updateTaskStatus('Not Started')" class="flex items-center">
+          <span class="w-3 h-3 rounded-full bg-gray-500 mr-2"></span>
+          Not Started
+        </button>
+        <button mat-menu-item (click)="updateTaskStatus('In Progress')" class="flex items-center">
+          <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+          In Progress
+        </button>
+        <button mat-menu-item (click)="updateTaskStatus('Stuck')" class="flex items-center">
+          <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+          Stuck
+        </button>
+        <button mat-menu-item (click)="updateTaskStatus('Done')" class="flex items-center">
+          <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+          Done
+        </button>
+      </mat-menu>
+      <span [ngClass]="getPriorityClass(task.priority)" class="px-3 py-1 rounded-full text-sm font-medium">
+        {{ task.priority }}
+      </span>
+      <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+        {{ task.type }}
+      </span>
+    </div>
+  </div>
+
+  <div class="bg-white shadow rounded-lg overflow-hidden mb-8">
+    <div class="p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Description</h2>
+      <p class="text-gray-600">{{ task.description }}</p>
+    </div>
+    <div class="border-t border-gray-200 p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Timeline</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <div class="flex items-center mb-2">
+            <mat-icon class="text-blue-500 mr-2">event</mat-icon>
+            <span class="font-semibold text-blue-700">Start Date</span>
+          </div>
+          <p class="text-blue-800">{{ formatDate(task.timeline.start) }}</p>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg">
+          <div class="flex items-center mb-2">
+            <mat-icon class="text-green-500 mr-2">event</mat-icon>
+            <span class="font-semibold text-green-700">End Date</span>
+          </div>
+          <p class="text-green-800">{{ formatDate(task.timeline.end) }}</p>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg">
+          <div class="flex items-center mb-2">
+            <mat-icon class="text-purple-500 mr-2">timer</mat-icon>
+            <span class="font-semibold text-purple-700">Remaining Time</span>
+          </div>
+          <p [ngClass]="{
+            'text-purple-800': remainingTime !== 'Overdue',
+            'text-red-600 font-bold': remainingTime === 'Overdue'
+          }">
+            {{ remainingTime }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200 p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Assigned To</h2>
+      <p class="text-gray-600">{{ getAssignedMemberNames() }}</p>
+    </div>
+  </div>
+
+  <div class="flex justify-end space-x-4" *ngIf="isProjectCreator">
+    <button mat-raised-button color="primary" (click)="editTask()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
+      <mat-icon class="mr-2">edit</mat-icon>
+      Edit Task
+    </button>
+    <button mat-raised-button color="warn" (click)="deleteTask()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center">
+      <mat-icon class="mr-2">delete</mat-icon>
+      Delete Task
+    </button>
+  </div>
 </div>

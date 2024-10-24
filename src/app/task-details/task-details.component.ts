@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,6 +13,8 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../services/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
+import { interval } from 'rxjs';
+import { takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-task-details',
@@ -31,12 +33,14 @@ import { MatMenuModule } from '@angular/material/menu';
   templateUrl: './task-details.component.html',
   styleUrls: ['./task-details.component.css'],
 })
-export class TaskDetailsComponent implements OnInit {
+export class TaskDetailsComponent implements OnInit, OnDestroy {
   task: any;
   projectId: string | null = null;
   taskId: string | null = null;
   projectMembers: any[] = [];
   isProjectCreator: boolean = false;
+  remainingTime: string = '';
+  private alive = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,8 +58,14 @@ export class TaskDetailsComponent implements OnInit {
         this.loadTaskDetails();
         this.loadProjectMembers();
         this.checkProjectCreator();
+        this.updateRemainingTime();
+        this.startRemainingTimeCounter();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.alive = false;
   }
 
   loadTaskDetails(): void {
@@ -66,6 +76,8 @@ export class TaskDetailsComponent implements OnInit {
           (task) => {
             this.task = task;
             console.log('Loaded task:', this.task); // Add this line for debugging
+            this.updateRemainingTime();
+            this.startRemainingTimeCounter();
           },
           (error) => {
             console.error('Error loading task details:', error);
@@ -203,9 +215,7 @@ export class TaskDetailsComponent implements OnInit {
               projectCreatorId._id.toString() === currentUserId.toString();
           } else {
             this.isProjectCreator = false;
-            console.warn(
-              'ID not available.'
-            );
+            console.warn('ID not available.');
           }
         },
         (error) => {
@@ -222,11 +232,73 @@ export class TaskDetailsComponent implements OnInit {
         .subscribe(
           (updatedTask) => {
             this.task = updatedTask;
+            // Optionally, show a success message
           },
           (error) => {
             console.error('Error updating task status:', error);
+            // Handle error (e.g., show an error message to the user)
           }
         );
     }
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'Not Started':
+        return 'bg-gray-500 text-white';
+      case 'In Progress':
+        return 'bg-blue-500 text-white';
+      case 'Stuck':
+        return 'bg-red-500 text-white';
+      case 'Done':
+        return 'bg-green-500 text-white';
+      default:
+        return 'bg-gray-500 text-white';
+    }
+  }
+
+  getPriorityClass(priority: string): string {
+    switch (priority) {
+      case 'low':
+        return 'bg-green-500 text-white';
+      case 'medium':
+        return 'bg-yellow-500 text-white';
+      case 'high':
+        return 'bg-orange-500 text-white';
+      case 'critical':
+        return 'bg-red-500 text-white';
+      default:
+        return 'bg-gray-500 text-white';
+    }
+  }
+
+  updateRemainingTime(): void {
+    if (this.task && this.task.timeline && this.task.timeline.end) {
+      const endDate = new Date(this.task.timeline.end);
+      const now = new Date();
+      const timeDiff = endDate.getTime() - now.getTime();
+
+      if (timeDiff > 0) {
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(
+          (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+
+        this.remainingTime = `${days}d ${hours}h ${minutes}m`;
+      } else {
+        this.remainingTime = 'Overdue';
+      }
+    } else {
+      this.remainingTime = 'No end date set';
+    }
+  }
+
+  startRemainingTimeCounter(): void {
+    interval(60000)
+      .pipe(takeWhile(() => this.alive))
+      .subscribe(() => {
+        this.updateRemainingTime();
+      });
   }
 }
