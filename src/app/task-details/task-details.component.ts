@@ -41,6 +41,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   isProjectCreator: boolean = false;
   remainingTime: string = '';
   private alive = true;
+  activityLog: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -70,19 +71,30 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   loadTaskDetails(): void {
     if (this.projectId && this.taskId) {
-      this.projectService
-        .getTaskDetails(this.projectId!, this.taskId!)
-        .subscribe(
-          (task) => {
-            this.task = task;
-            console.log('Loaded task:', this.task); // Add this line for debugging
-            this.updateRemainingTime();
-            this.startRemainingTimeCounter();
-          },
-          (error) => {
-            console.error('Error loading task details:', error);
-          }
-        );
+      this.projectService.getTaskDetails(this.projectId!, this.taskId!).subscribe(
+        (task) => {
+          this.task = task;
+          this.updateRemainingTime();
+          this.startRemainingTimeCounter();
+          this.loadActivityLog();
+        },
+        (error) => {
+          console.error('Error loading task details:', error);
+        }
+      );
+    }
+  }
+
+  loadActivityLog(): void {
+    if (this.projectId && this.taskId) {
+      this.projectService.getTaskActivityLog(this.projectId!, this.taskId!).subscribe(
+        (log) => {
+          this.activityLog = log;
+        },
+        (error) => {
+          console.error('Error loading activity log:', error);
+        }
+      );
     }
   }
 

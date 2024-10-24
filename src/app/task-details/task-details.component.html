@@ -89,4 +89,32 @@
       Delete Task
     </button>
   </div>
+
+  <div class="bg-white shadow rounded-lg overflow-hidden mt-8">
+    <div class="p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Activity Log</h2>
+      <ul class="space-y-4">
+        <li *ngFor="let activity of activityLog" class="flex items-start">
+          <div class="flex-shrink-0">
+            <span class="inline-block h-8 w-8 rounded-full overflow-hidden bg-gray-100">
+              <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </span>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-900">
+              {{ activity.performedBy.username }}
+            </p>
+            <p class="text-sm text-gray-500">
+              {{ activity.action }}
+            </p>
+            <p class="mt-1 text-xs text-gray-500">
+              {{ activity.timestamp | date:'medium' }}
+            </p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
 </div>
