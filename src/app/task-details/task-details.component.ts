@@ -9,12 +9,14 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../services/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { interval } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-task-details',
@@ -26,12 +28,12 @@ import { takeWhile } from 'rxjs/operators';
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
-    EditTaskDialogComponent,
     MatMenuModule,
+    MatPaginatorModule,
   ],
-  providers: [provideNativeDateAdapter()],
   templateUrl: './task-details.component.html',
   styleUrls: ['./task-details.component.css'],
+  providers: [DatePipe] // Add DatePipe to providers
 })
 export class TaskDetailsComponent implements OnInit, OnDestroy {
   task: any;
@@ -42,13 +44,18 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   remainingTime: string = '';
   private alive = true;
   activityLog: any[] = [];
+  currentPage: number = 1;
+  totalPages: number = 1;
+  totalLogs: number = 0;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private projectService: ProjectService,
     private dialog: MatDialog,
-    private authService: AuthService
+    private authService: AuthService,
+    private sanitizer: DomSanitizer,
+    private datePipe: DatePipe
   ) {}
 
   ngOnInit(): void {
@@ -61,6 +68,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
         this.checkProjectCreator();
         this.updateRemainingTime();
         this.startRemainingTimeCounter();
+        this.loadActivityLog();
       }
     });
   }
@@ -85,17 +93,25 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadActivityLog(): void {
+  loadActivityLog(page: number = this.currentPage): void {
     if (this.projectId && this.taskId) {
-      this.projectService.getTaskActivityLog(this.projectId!, this.taskId!).subscribe(
-        (log) => {
-          this.activityLog = log;
+      this.projectService.getTaskActivityLog(this.projectId, this.taskId, page).subscribe(
+        (response) => {
+          this.activityLog = response.logs;
+          this.currentPage = response.currentPage;
+          this.totalPages = response.totalPages;
+          this.totalLogs = response.totalLogs;
         },
         (error) => {
           console.error('Error loading activity log:', error);
         }
       );
     }
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.loadActivityLog(this.currentPage);
   }
 
   loadProjectMembers(): void {
@@ -173,23 +189,22 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   editTask(): void {
     const dialogRef = this.dialog.open(EditTaskDialogComponent, {
       width: '500px',
-      data: { ...this.task, projectId: this.projectId },
+      data: { ...this.task, projectId: this.projectId }
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.projectService
-          .updateTask(this.projectId!, this.taskId!, result)
-          .subscribe(
-            (updatedTask) => {
-              this.task = updatedTask;
-              // Optionally, show a success message
-            },
-            (error) => {
-              console.error('Error updating task:', error);
-              // Handle error (e.g., show an error message to the user)
-            }
-          );
+        this.projectService.updateTask(this.projectId!, this.taskId!, result).subscribe(
+          updatedTask => {
+            this.task = updatedTask;
+            this.loadActivityLog(); // This will now use the current page
+            // Show success message
+          },
+          error => {
+            console.error('Error updating task:', error);
+            // Show error message
+          }
+        );
       }
     });
   }
@@ -244,6 +259,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
         .subscribe(
           (updatedTask) => {
             this.task = updatedTask;
+            this.loadActivityLog(); // This will now use the current page
             // Optionally, show a success message
           },
           (error) => {
@@ -312,5 +328,39 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.updateRemainingTime();
       });
+  }
+
+  formatActivityAction(action: string): SafeHtml {
+    // Split the action string into separate changes
+    const changes = action.split('. ');
+    
+    // Format each change
+    const formattedChanges = changes.map(change => {
+      if (change.includes('changed from')) {
+        const [field, values] = change.split(' changed from ');
+        const [oldValue, newValue] = values.split(' to ');
+        return `<strong>${field}</strong> changed from <span class="text-red-500">${this.formatDateIfNeeded(oldValue)}</span> to <span class="text-green-500">${this.formatDateIfNeeded(newValue)}</span>`;
+      } else if (change.includes('Added members:')) {
+        return change.replace('Added members:', '<strong>Added members:</strong> <span class="text-green-500">') + '</span>';
+      } else if (change.includes('Removed members:')) {
+        return change.replace('Removed members:', '<strong>Removed members:</strong> <span class="text-red-500">') + '</span>';
+      } else {
+        return `<strong>${change}</strong>`;
+      }
+    });
+
+    // Join the formatted changes and sanitize the HTML
+    return this.sanitizer.bypassSecurityTrustHtml(formattedChanges.join('<br>'));
+  }
+
+  formatDateIfNeeded(value: string): string {
+    // Check if the value is a valid date string (YYYY-MM-DD format)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (dateRegex.test(value)) {
+      // If it's a date, format it as DD/MM/YYYY
+      return this.datePipe.transform(value, 'dd/MM/yyyy') || value;
+    }
+    // If it's not a date, return the original value
+    return value;
   }
 }

@@ -155,7 +155,7 @@ export class ProjectService {
     return this.http.get<any[]>(`${this.apiUrl}/users`);
   }
 
-  getTaskActivityLog(projectId: string, taskId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${projectId}/tasks/${taskId}/activity`);
+  getTaskActivityLog(projectId: string, taskId: string, page: number = 1): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}/activity?page=${page}`);
   }
 }

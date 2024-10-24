@@ -50,14 +50,14 @@
             <mat-icon class="text-blue-500 mr-2">event</mat-icon>
             <span class="font-semibold text-blue-700">Start Date</span>
           </div>
-          <p class="text-blue-800">{{ formatDate(task.timeline.start) }}</p>
+          <p class="text-blue-800">{{ task.timeline.start | date:'dd/MM/yyyy' }}</p>
         </div>
         <div class="bg-green-50 p-4 rounded-lg">
           <div class="flex items-center mb-2">
             <mat-icon class="text-green-500 mr-2">event</mat-icon>
             <span class="font-semibold text-green-700">End Date</span>
           </div>
-          <p class="text-green-800">{{ formatDate(task.timeline.end) }}</p>
+          <p class="text-green-800">{{ task.timeline.end | date:'dd/MM/yyyy' }}</p>
         </div>
         <div class="bg-purple-50 p-4 rounded-lg">
           <div class="flex items-center mb-2">
@@ -92,29 +92,43 @@
 
   <div class="bg-white shadow rounded-lg overflow-hidden mt-8">
     <div class="p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Activity Log</h2>
-      <ul class="space-y-4">
-        <li *ngFor="let activity of activityLog" class="flex items-start">
-          <div class="flex-shrink-0">
-            <span class="inline-block h-8 w-8 rounded-full overflow-hidden bg-gray-100">
-              <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </span>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-900">
-              {{ activity.performedBy.username }}
-            </p>
-            <p class="text-sm text-gray-500">
-              {{ activity.action }}
-            </p>
-            <p class="mt-1 text-xs text-gray-500">
-              {{ activity.timestamp | date:'medium' }}
-            </p>
-          </div>
-        </li>
-      </ul>
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">Activity Log</h2>
+      <div class="flow-root">
+        <ul role="list" class="-mb-8">
+          <li *ngFor="let activity of activityLog; let last = last">
+            <div class="relative pb-8">
+              <span class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" *ngIf="!last"></span>
+              <div class="relative flex items-start space-x-3">
+                <div class="relative">
+                  <img class="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white" 
+                       [src]="'https://ui-avatars.com/api/?name=' + (activity.performedBy?.username || 'User') + '&background=random'" 
+                       [alt]="activity.performedBy?.username || 'User'">
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div>
+                    <div class="text-sm">
+                      <a href="#" class="font-medium text-gray-900">{{ activity.performedBy?.username || 'Unknown User' }}</a>
+                    </div>
+                    <div class="mt-0.5 text-sm text-gray-500">
+                      {{ activity.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                    </div>
+                  </div>
+                  <div class="mt-2 text-sm text-gray-700">
+                    <p [innerHTML]="formatActivityAction(activity.action)"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <mat-paginator
+        [length]="totalLogs"
+        [pageSize]="5"
+        [pageIndex]="currentPage - 1"
+        (page)="onPageChange($event)"
+        aria-label="Select page of activity logs">
+      </mat-paginator>
     </div>
   </div>
 </div>

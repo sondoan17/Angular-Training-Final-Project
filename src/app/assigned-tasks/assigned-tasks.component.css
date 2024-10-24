@@ -23,7 +23,29 @@
 }
 
 .task-card {
-  transition: box-shadow 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+}
+
+.task-card mat-card-header {
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.task-card mat-card-content {
+  flex-grow: 1;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.task-card mat-card-content p {
+  max-height: 4.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  
+  -webkit-box-orient: vertical;
 }
 
 .task-card:hover {
@@ -34,7 +56,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
+  margin-top: auto;
 }
 
 .status,
@@ -86,4 +108,9 @@ mat-expansion-panel {
 
 mat-form-field {
   width: 120px;
+}
+
+.task-details button {
+  margin-left: 0;
+  margin-right: 0;
 }

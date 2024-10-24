@@ -1,77 +1,62 @@
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #sidenav mode="side" class="sidenav">
-    <app-sidebar></app-sidebar>
-  </mat-sidenav>
+<div class="content max-w-6xl mx-auto p-6">
+  <h2 class="page-title text-3xl font-bold text-gray-800 mb-8">Tasks Assigned to You</h2>
+  <mat-accordion multi>
+    <mat-expansion-panel *ngFor="let projectId of objectKeys(tasksByProject)" [expanded]="true" class="mb-4">
+      <mat-expansion-panel-header class="bg-gray-100">
+        <mat-panel-title class="text-lg font-semibold text-gray-800">
+          {{ tasksByProject[projectId].projectName }}
+        </mat-panel-title>
+        <mat-panel-description class="text-gray-600">
+          {{ tasksByProject[projectId].tasks.length }} tasks
+        </mat-panel-description>
+      </mat-expansion-panel-header>
 
-  <mat-sidenav-content>
-    <app-navbar (toggleSidebar)="sidenav.toggle()"></app-navbar>
-    <div class="content">
-      <h2 class="page-title">Tasks Assigned to You</h2>
-      <mat-accordion multi>
-        <mat-expansion-panel
-          *ngFor="let projectId of objectKeys(tasksByProject)"
-          [expanded]="true"
-        >
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              {{ tasksByProject[projectId].projectName }}
-            </mat-panel-title>
-            <mat-panel-description>
-              {{ tasksByProject[projectId].tasks.length }} tasks
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-
-          <div class="task-list">
-            <mat-card
-              *ngFor="let task of tasksByProject[projectId].tasks"
-              class="task-card"
-            >
-              <mat-card-header>
-                <mat-card-title>{{ task.title }}</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <p>{{ task.description }}</p>
-                <div class="task-details">
-                  <mat-form-field>
-                    <mat-label>Status</mat-label>
-                    <mat-select
-                      [(ngModel)]="task.status"
-                      (selectionChange)="
-                        updateTaskStatus(projectId, task._id, task.status)
-                      "
-                    >
-                      <mat-option
-                        *ngFor="let status of statuses"
-                        [value]="status"
-                      >
-                        {{ status }}
-                      </mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                  <span
-                    class="priority"
-                    [ngClass]="task.priority.toLowerCase()"
-                    >{{ task.priority }}</span
-                  >
-                </div>
-              </mat-card-content>
-              <mat-card-actions>
-                <button
-                  mat-button
-                  [routerLink]="[
-                    '/projects',
-                    task.projectId,
-                    'tasks',
-                    task._id
-                  ]"
-                >
-                  View Details
+      <div class="task-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <mat-card *ngFor="let task of tasksByProject[projectId].tasks" class="task-card flex flex-col h-full">
+          <mat-card-header>
+            <mat-card-title class="text-xl font-semibold mb-3">{{ task.title }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="flex-grow mb-4">
+            <p class="text-gray-600">{{ task.description }}</p>
+          </mat-card-content>
+          <div class="task-details mt-auto space-y-3">
+            <div class="flex items-center justify-between">
+              <button 
+                [matMenuTriggerFor]="statusMenu" 
+                [ngClass]="getStatusClass(task.status)"
+                class="px-3 py-1 rounded-tl-full rounded-bl-full text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <span class="mr-1">{{ task.status }}</span>
+                <mat-icon class="text-sm">arrow_drop_down</mat-icon>
+              </button>
+              <mat-menu #statusMenu="matMenu" class="custom-menu">
+                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Not Started')" class="flex items-center">
+                  <span class="w-3 h-3 rounded-full bg-gray-500 mr-3"></span>
+                  Not Started
                 </button>
-              </mat-card-actions>
-            </mat-card>
+                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'In Progress')" class="flex items-center">
+                  <span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>
+                  In Progress
+                </button>
+                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Stuck')" class="flex items-center">
+                  <span class="w-3 h-3 rounded-full bg-red-500 mr-3"></span>
+                  Stuck
+                </button>
+                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Done')" class="flex items-center">
+                  <span class="w-3 h-3 rounded-full bg-green-500 mr-3"></span>
+                  Done
+                </button>
+              </mat-menu>
+              <span [ngClass]="getPriorityClass(task.priority)" class="px-3 py-1.5 rounded-tr-full rounded-br-full text-sm font-medium">
+                {{ task.priority }}
+              </span>
+            </div>
+            <button mat-button [routerLink]="['/projects', task.projectId, 'tasks', task._id]" class="w-full text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 transition-colors duration-200 py-2 rounded">
+              View Details
+            </button>
           </div>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+        </mat-card>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

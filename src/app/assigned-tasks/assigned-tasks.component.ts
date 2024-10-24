@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -11,8 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ProjectService } from '../services/project.service';
-import { NavbarComponent } from '../shared/navbar/navbar.component';
-import { SidebarComponent } from '../shared/sidebar/sidebar.component';
+import { MatMenuModule } from '@angular/material/menu';
 
 interface TasksByProject {
   [projectId: string]: {
@@ -26,7 +24,6 @@ interface TasksByProject {
   standalone: true,
   imports: [
     CommonModule,
-    MatSidenavModule,
     MatListModule,
     MatIconModule,
     MatCardModule,
@@ -36,8 +33,7 @@ interface TasksByProject {
     MatFormFieldModule,
     FormsModule,
     RouterModule,
-    NavbarComponent,
-    SidebarComponent,
+    MatMenuModule,
   ],
   templateUrl: './assigned-tasks.component.html',
   styleUrls: ['./assigned-tasks.component.css'],
@@ -85,7 +81,6 @@ export class AssignedTasksComponent implements OnInit {
       .updateTaskStatus(projectId, taskId, newStatus)
       .subscribe({
         next: (updatedTask) => {
-          // Cập nhật task trong tasksByProject
           const task = this.tasksByProject[projectId].tasks.find(
             (t) => t._id === taskId
           );
@@ -95,8 +90,37 @@ export class AssignedTasksComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error updating task status:', error);
-          // Có thể thêm thông báo lỗi cho người dùng ở đây
         },
       });
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'Not Started':
+        return 'bg-gray-500 text-white';
+      case 'In Progress':
+        return 'bg-blue-500 text-white';
+      case 'Stuck':
+        return 'bg-red-500 text-white';
+      case 'Done':
+        return 'bg-green-500 text-white';
+      default:
+        return 'bg-gray-500 text-white';
+    }
+  }
+
+  getPriorityClass(priority: string): string {
+    switch (priority.toLowerCase()) {
+      case 'low':
+        return 'bg-green-500 text-white';
+      case 'medium':
+        return 'bg-yellow-500 text-white';
+      case 'high':
+        return 'bg-orange-500 text-white';
+      case 'critical':
+        return 'bg-purple-500 text-white';
+      default:
+        return 'bg-gray-500 text-white';
+    }
   }
 }

@@ -1,0 +1,127 @@
+.edit-task-dialog {
+  max-width: 500px;
+  width: 100%;
+}
+
+.dialog-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #3f51b5;
+  text-align: center;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.half-width {
+  width: calc(50% - 10px);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+/* Colorful form fields */
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+  background-color: #f0f4ff;
+  border-radius: 8px;
+  padding: 0.75em 0.75em 0 0.75em;
+}
+
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-underline::before {
+  background-color: #3f51b5;
+}
+
+::ng-deep .mat-form-field-appearance-fill.mat-focused .mat-form-field-label {
+  color: #3f51b5;
+}
+
+::ng-deep .mat-form-field-appearance-fill.mat-focused .mat-form-field-flex {
+  background-color: #e8eeff;
+}
+
+::ng-deep .mat-select-value-text {
+  color: #3f51b5;
+}
+
+::ng-deep .mat-select-arrow {
+  color: #3f51b5;
+}
+
+::ng-deep .mat-option {
+  color: #3f51b5;
+}
+
+::ng-deep .mat-option:hover:not(.mat-option-disabled) {
+  background: #e8eeff;
+}
+
+::ng-deep .mat-option.mat-selected:not(.mat-option-multiple):not(.mat-option-disabled) {
+  background: #3f51b5;
+  color: white;
+}
+
+::ng-deep .mat-calendar-body-selected {
+  background-color: #3f51b5;
+}
+
+/* Colorful buttons */
+button.mat-raised-button.mat-primary {
+  background-color: #3f51b5;
+  color: white;
+}
+
+button.mat-stroked-button.mat-warn {
+  color: #f44336;
+  border-color: #f44336;
+}
+
+/* Priority colors */
+::ng-deep .mat-option[ng-reflect-value="low"] {
+  color: #4caf50;
+}
+
+::ng-deep .mat-option[ng-reflect-value="medium"] {
+  color: #ff9800;
+}
+
+::ng-deep .mat-option[ng-reflect-value="high"] {
+  color: #f44336;
+}
+
+::ng-deep .mat-option[ng-reflect-value="critical"] {
+  color: #9c27b0;
+}
+
+/* Status colors */
+::ng-deep .mat-option[ng-reflect-value="Not Started"] {
+  color: #9e9e9e;
+}
+
+::ng-deep .mat-option[ng-reflect-value="In Progress"] {
+  color: #2196f3;
+}
+
+::ng-deep .mat-option[ng-reflect-value="Stuck"] {
+  color: #f44336;
+}
+
+::ng-deep .mat-option[ng-reflect-value="Done"] {
+  color: #4caf50;
+}
