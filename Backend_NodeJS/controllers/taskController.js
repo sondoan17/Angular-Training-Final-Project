@@ -78,7 +78,7 @@ exports.getTaskById = async (req, res) => {
 exports.updateTask = async (req, res) => {
   try {
     const { projectId, taskId } = req.params;
-    const { status } = req.body;
+    const updateData = req.body;
 
     const project = await Project.findById(projectId);
     if (!project) {
@@ -90,8 +90,27 @@ exports.updateTask = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    task.status = status;
+    // Log changes
+    const changes = [];
+    for (const [key, value] of Object.entries(updateData)) {
+      if (task[key] !== value) {
+        changes.push(`${key} changed from ${task[key]} to ${value}`);
+      }
+    }
+
+    // Update task
+    Object.assign(task, updateData);
     await project.save();
+
+    // Log activity
+    if (changes.length > 0) {
+      await logTaskActivity(
+        projectId,
+        taskId,
+        `Task updated: ${changes.join(', ')}`,
+        req.user.userId
+      );
+    }
 
     res.json(task);
   } catch (error) {

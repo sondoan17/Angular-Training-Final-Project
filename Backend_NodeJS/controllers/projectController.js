@@ -135,7 +135,7 @@ exports.getProjectById = async (req, res) => {
 
 exports.updateProject = async (req, res) => {
   const { id } = req.params;
-  const { name, description } = req.body;
+  const updateData = req.body;
 
   try {
     let project = await Project.findById(id);
@@ -150,26 +150,27 @@ exports.updateProject = async (req, res) => {
         .json({ message: "You don't have permission to update this project" });
     }
 
-    if (name !== project.name) {
-      await logProjectActivity(
-        id,
-        `Project name changed from "${project.name}" to "${name}"`,
-        req.user.userId
-      );
-    }
-    if (description !== project.description) {
-      await logProjectActivity(
-        id,
-        "Project description updated",
-        req.user.userId
-      );
+    // Log changes
+    const changes = [];
+    for (const [key, value] of Object.entries(updateData)) {
+      if (project[key] !== value) {
+        changes.push(`${key} changed from "${project[key]}" to "${value}"`);
+      }
     }
 
-    project.name = name || project.name;
-    project.description = description || project.description;
+    // Update project
+    Object.assign(project, updateData);
     project.updatedAt = new Date();
-
     await project.save();
+
+    // Log activity
+    if (changes.length > 0) {
+      await logProjectActivity(
+        id,
+        `Project updated: ${changes.join(', ')}`,
+        req.user.userId
+      );
+    }
 
     project = await Project.findById(id).populate("createdBy", "username");
 
@@ -310,7 +311,7 @@ exports.getProjectActivity = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 5;
 
-    const project = await Project.findById(projectId);
+    const project = await Project.findById(projectId, { activityLog: 1 });
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -336,12 +337,9 @@ exports.getProjectActivity = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching project activity log:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error fetching project activity log",
-        error: error.toString(),
-      });
+    res.status(500).json({
+      message: "Error fetching project activity log",
+      error: error.toString(),
+    });
   }
 };
-

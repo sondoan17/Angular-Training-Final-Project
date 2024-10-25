@@ -235,13 +235,20 @@ export class KanbanBoardComponent implements OnInit {
     this.projectService.updateTaskStatus(this.projectId, task._id, newStatus).subscribe(
       (updatedTask) => {
         console.log('Task status updated:', updatedTask);
-        // Optionally, you can update the local task object if needed
-        Object.assign(task, updatedTask);
-        this.taskMoved.emit({ task: updatedTask, newStatus });
+        if (updatedTask && updatedTask._id) {
+          // Update the local task object
+          Object.assign(task, updatedTask);
+          this.taskMoved.emit({ task: updatedTask, newStatus });
+        } else {
+          console.error('Invalid task data returned from server:', updatedTask);
+          // Optionally, revert the UI change or show an error message
+        }
       },
       (error) => {
         console.error('Error updating task status:', error);
-        // Optionally, you can handle the error (e.g., show an error message)
+        // Revert the UI change
+        this.distributeTasksToColumns();
+        // Optionally, show an error message to the user
       }
     );
   }

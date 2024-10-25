@@ -58,11 +58,11 @@ export class ProjectDetailsComponent implements OnInit {
 
   @ViewChild(KanbanBoardComponent) kanbanBoard!: KanbanBoardComponent;
 
-  activityLogs: any[] = [];
-  currentPage = 1;
-  totalPages = 1;
-  totalLogs = 0;
-  pageSize = 5; // Add this line to set the page size
+  activityLog: any[] = [];
+  currentPage: number = 1;
+  totalPages: number = 1;
+  totalLogs: number = 0;
+  pageSize: number = 5;
 
   constructor(
     private route: ActivatedRoute,
@@ -86,7 +86,7 @@ export class ProjectDetailsComponent implements OnInit {
       .subscribe({
         next: (project) => {
           this.project = project;
-          this.loadActivityLogs();
+          this.loadActivityLog();
         },
         error: (error) => {
           console.error('Error loading project:', error);
@@ -142,7 +142,7 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Member added successfully', 'Close', {
             duration: 3000,
           });
-          this.loadActivityLogs(1); // Refresh activity log and reset to first page
+          this.loadActivityLog(1); // Refresh activity log and reset to first page
         },
         error: (error) => {
           console.error('Error adding member:', error);
@@ -183,7 +183,7 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Member removed successfully', 'Close', {
             duration: 3000,
           });
-          this.loadActivityLogs(1); // Refresh activity log and reset to first page
+          this.loadActivityLog(1); // Refresh activity log and reset to first page
         },
         error: (error) => {
           console.error('Error removing member:', error);
@@ -237,9 +237,9 @@ export class ProjectDetailsComponent implements OnInit {
             },
             timestamp: new Date()
           };
-          this.activityLogs.unshift(newLogEntry);
-          if (this.activityLogs.length > this.pageSize) {
-            this.activityLogs.pop();
+          this.activityLog.unshift(newLogEntry);
+          if (this.activityLog.length > this.pageSize) {
+            this.activityLog.pop();
           }
           this.totalLogs++;
         },
@@ -274,7 +274,7 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Task created successfully', 'Close', {
             duration: 3000,
           });
-          this.loadActivityLogs(1); // Refresh activity log and reset to first page
+          this.loadActivityLog(1); // Refresh activity log and reset to first page
         } else {
           this.snackBar.open('Task created, but no _id returned', 'Close', {
             duration: 3000,
@@ -299,25 +299,24 @@ export class ProjectDetailsComponent implements OnInit {
       .updateTaskStatus(this.project._id, event.task._id, event.newStatus)
       .subscribe({
         next: (response) => {
-          const taskIndex = this.project.tasks.findIndex(
-            (t: any) => t._id === response.task._id
-          );
-          if (taskIndex !== -1) {
-            this.project.tasks[taskIndex] = response.task;
+          if (response && response._id) {
+            const taskIndex = this.project.tasks.findIndex(
+              (t: any) => t._id === response._id
+            );
+            if (taskIndex !== -1) {
+              this.project.tasks[taskIndex] = response;
+            }
+            // Reload activity logs after updating task
+            this.loadActivityLog(1);
+            // Update the Kanban board
+            this.updateKanbanBoard();
+          } else {
+            console.error('Invalid response structure:', response);
           }
-          // Add a new activity log entry locally
-          const newLogEntry = {
-            action: response.activityLog.action,
-            performedBy: response.activityLog.performedBy,
-            timestamp: new Date(response.activityLog.timestamp)
-          };
-          this.activityLogs.unshift(newLogEntry);
-          if (this.activityLogs.length > this.pageSize) {
-            this.activityLogs.pop();
-          }
-          this.totalLogs++;
         },
-        error: (error) => console.error('Error updating task:', error),
+        error: (error) => {
+          console.error('Error updating task:', error);
+        }
       });
   }
 
@@ -329,30 +328,31 @@ export class ProjectDetailsComponent implements OnInit {
     }
   }
 
-  loadActivityLogs(page: number = 1) {
-    this.projectService.getProjectActivityLog(this.project._id, page, this.pageSize).subscribe({
-      next: (response) => {
-        this.activityLogs = response.logs;
-        this.currentPage = response.currentPage;
-        this.totalPages = response.totalPages;
-        this.totalLogs = response.totalLogs;
-      },
-      error: (error) => {
-        console.error('Error loading activity logs:', error);
-      }
-    });
+  loadActivityLog(page: number = this.currentPage): void {
+    if (this.project && this.project._id) {
+      this.projectService.getProjectActivityLog(this.project._id, page, this.pageSize).subscribe(
+        (response) => {
+          console.log('Loaded activity log:', response);
+          this.activityLog = response.logs;
+          this.currentPage = response.currentPage;
+          this.totalPages = response.totalPages;
+          this.totalLogs = response.totalLogs;
+        },
+        (error) => {
+          console.error('Error loading activity log:', error);
+        }
+      );
+    }
   }
 
-  onPageChange(event: PageEvent) {
+  onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
-    this.loadActivityLogs(this.currentPage);
+    this.loadActivityLog(this.currentPage);
   }
 
   formatActivityAction(action: string): SafeHtml {
-    // Split the action string into separate changes
     const changes = action.split('. ');
     
-    // Format each change
     const formattedChanges = changes.map(change => {
       if (change.includes('changed from')) {
         const [field, values] = change.split(' changed from ');
@@ -367,18 +367,14 @@ export class ProjectDetailsComponent implements OnInit {
       }
     });
 
-    // Join the formatted changes and sanitize the HTML
     return this.sanitizer.bypassSecurityTrustHtml(formattedChanges.join('<br>'));
   }
 
   formatDateIfNeeded(value: string): string {
-    // Check if the value is a valid date string (YYYY-MM-DD format)
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (dateRegex.test(value)) {
-      // If it's a date, format it as DD/MM/YYYY
       return this.datePipe.transform(value, 'dd/MM/yyyy') || value;
     }
-    // If it's not a date, return the original value
     return value;
   }
 }

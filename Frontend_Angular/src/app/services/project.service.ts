@@ -102,8 +102,14 @@ export class ProjectService {
     return this.http.put<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}`, { status })
       .pipe(
         map(response => {
-          // Check if assignedTo exists and is an array before mapping
-          if (response && response.assignedTo && Array.isArray(response.assignedTo)) {
+          console.log('Server response:', response); // Log the entire response
+          if (!response) {
+            throw new Error('No response from server');
+          }
+          if (!response._id) {
+            throw new Error('Invalid task data returned from server');
+          }
+          if (response.assignedTo && Array.isArray(response.assignedTo)) {
             response.assignedTo = response.assignedTo.map((member: any) => {
               if (typeof member === 'object' && member !== null) {
                 return {
@@ -116,10 +122,13 @@ export class ProjectService {
               return { _id: 'unknown', username: 'Unknown' };
             });
           } else {
-            // If assignedTo is not as expected, set it to an empty array
             response.assignedTo = [];
           }
           return response;
+        }),
+        catchError(error => {
+          console.error('Error in updateTaskStatus:', error);
+          return throwError('An error occurred while updating the task status.');
         })
       );
   }

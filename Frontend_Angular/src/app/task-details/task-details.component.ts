@@ -258,15 +258,13 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     if (this.projectId && this.taskId && this.task) {
       this.projectService.updateTaskStatus(this.projectId, this.taskId, newStatus).subscribe(
         (updatedTask) => {
-          // Update only the status of the task
           this.task.status = updatedTask.status;
           this.updateRemainingTime();
-          this.loadActivityLog();
-          // Optionally, show a success message
+          // Reload activity log after updating task status
+          this.loadActivityLog(1);
         },
         (error) => {
           console.error('Error updating task status:', error);
-          // Handle error (e.g., show an error message to the user)
         }
       );
     }
