@@ -114,3 +114,90 @@ mat-form-field {
   margin-left: 0;
   margin-right: 0;
 }
+
+::ng-deep .mat-expansion-panel-header {
+  padding: 0 16px;
+  min-height: 48px;
+  height: auto !important;
+}
+
+::ng-deep .mat-expansion-panel-header-title,
+::ng-deep .mat-expansion-panel-header-description {
+  margin-right: 0;
+  align-items: center;
+}
+
+.project-title {
+  flex: 1;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+::ng-deep .mat-expansion-panel-body {
+  padding: 0 16px 16px;
+}
+
+::ng-deep .mat-card {
+  padding: 12px;
+}
+
+::ng-deep .mat-card-header {
+  margin-bottom: 8px;
+}
+
+::ng-deep .mat-card-content {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 640px) {
+  ::ng-deep .mat-expansion-panel-header {
+    padding: 0 12px;
+    min-height: 40px;
+  }
+  
+  .project-title {
+    -webkit-line-clamp: 1;
+  }
+
+  ::ng-deep .mat-expansion-panel-body {
+    padding: 0 12px 12px;
+  }
+
+  ::ng-deep .mat-card {
+    padding: 10px;
+  }
+
+  ::ng-deep .mat-card-header {
+    margin-bottom: 6px;
+  }
+
+  ::ng-deep .mat-card-content {
+    margin-bottom: 6px;
+  }
+}
+
+@media (max-width: 320px) {
+  ::ng-deep .mat-expansion-panel-header {
+    padding: 0 8px;
+  }
+
+  ::ng-deep .mat-expansion-panel-body {
+    padding: 0 8px 8px;
+  }
+
+  ::ng-deep .mat-card {
+    padding: 8px;
+  }
+
+  ::ng-deep .mat-card-header {
+    margin-bottom: 4px;
+  }
+
+  ::ng-deep .mat-card-content {
+    margin-bottom: 4px;
+  }
+}

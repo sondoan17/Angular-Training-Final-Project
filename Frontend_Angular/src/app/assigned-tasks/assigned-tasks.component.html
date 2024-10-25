@@ -1,33 +1,40 @@
-<div class="content max-w-6xl mx-auto p-6">
-  <h2 class="page-title text-3xl font-bold text-gray-800 mb-8">Tasks Assigned to You</h2>
+<div class="content max-w-6xl mx-auto p-2 sm:p-4 md:p-6">
+  <h2 class="page-title text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4 md:mb-6">Tasks Assigned to You</h2>
   <mat-accordion multi>
-    <mat-expansion-panel *ngFor="let projectId of objectKeys(tasksByProject)" [expanded]="true" class="mb-4">
+    <mat-expansion-panel *ngFor="let projectId of objectKeys(tasksByProject)" [expanded]="true" class="mb-3 sm:mb-4">
       <mat-expansion-panel-header class="bg-gray-100">
-        <mat-panel-title class="text-lg font-semibold text-gray-800">
+        <mat-panel-title class="project-title text-sm sm:text-base md:text-lg font-semibold text-gray-800 truncate">
           {{ tasksByProject[projectId].projectName }}
         </mat-panel-title>
-        <mat-panel-description class="text-gray-600">
+        <!-- <mat-panel-description class="text-xs sm:text-sm md:text-base text-gray-600 whitespace-nowrap">
           {{ tasksByProject[projectId].tasks.length }} tasks
-        </mat-panel-description>
+        </mat-panel-description> -->
       </mat-expansion-panel-header>
 
-      <div class="task-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+      <div class="task-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mt-3 sm:mt-4 md:mt-6">
         <mat-card *ngFor="let task of tasksByProject[projectId].tasks" class="task-card flex flex-col h-full">
-          <mat-card-header>
-            <mat-card-title class="text-xl font-semibold mb-3">{{ task.title }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content class="flex-grow mb-4">
-            <p class="text-gray-600">{{ task.description }}</p>
+          <div class="flex justify-between items-start mb-2">
+            <mat-card-header class="p-0">
+              <mat-card-title class="text-base sm:text-lg md:text-xl font-semibold">{{ task.title }}</mat-card-title>
+            </mat-card-header>
+            <button mat-icon-button [routerLink]="['/projects', task.projectId, 'tasks', task._id]" 
+              class="text-blue-600 hover:text-blue-800 transition-colors duration-200 -mt-2 -mr-2"
+              aria-label="View task details">
+              <mat-icon class="text-sm sm:text-base md:text-lg">visibility</mat-icon>
+            </button>
+          </div>
+          <mat-card-content class="flex-grow mb-2 sm:mb-3">
+            <p class="text-xs sm:text-sm md:text-base text-gray-600">{{ task.description }}</p>
           </mat-card-content>
-          <div class="task-details mt-auto space-y-3">
+          <div class="task-details mt-auto">
             <div class="flex items-center justify-between">
               <button 
                 [matMenuTriggerFor]="statusMenu" 
                 [ngClass]="getStatusClass(task.status)"
-                class="px-3 py-1 rounded-tl-full rounded-bl-full text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="px-2 py-1 rounded-tl-full rounded-bl-full text-xs sm:text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <span class="mr-1">{{ task.status }}</span>
-                <mat-icon class="text-sm">arrow_drop_down</mat-icon>
+                <mat-icon class="text-xs sm:text-sm">arrow_drop_down</mat-icon>
               </button>
               <mat-menu #statusMenu="matMenu" class="custom-menu">
                 <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Not Started')" class="flex items-center">
@@ -47,14 +54,10 @@
                   Done
                 </button>
               </mat-menu>
-              <span [ngClass]="getPriorityClass(task.priority)" class="px-3 py-1.5 rounded-tr-full rounded-br-full text-sm font-medium">
+              <span [ngClass]="getPriorityClass(task.priority)" class="px-3 py-2 sm:py-1.5 rounded-tr-full rounded-br-full text-xs sm:text-sm font-medium">
                 {{ task.priority }}
               </span>
             </div>
-            <button mat-button [routerLink]="['/projects', task.projectId, 'tasks', task._id]" 
-              class="text-sm text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 transition-colors duration-200 py-1.5 px-3 rounded">
-              View Details
-            </button>
           </div>
         </mat-card>
       </div>
