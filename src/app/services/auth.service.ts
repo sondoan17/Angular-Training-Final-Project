@@ -113,15 +113,20 @@ export class AuthService {
   }
 
   getCurrentUserId(): string | null {
-    const token = this.getToken();
+    const user = this.getUser();
+    return user ? user.id : null;
+  }
+
+  getCurrentUsername(): string | null {
+    const user = this.getUser();
+    return user ? user.username : null;
+  }
+
+  private getUser(): any {
+    const token = localStorage.getItem('token');
     if (token) {
-      try {
-        const decodedToken: any = jwtDecode(token);
-        return decodedToken.userId || decodedToken.sub || null;
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
-      }
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return { id: payload.userId, username: payload.username };
     }
     return null;
   }

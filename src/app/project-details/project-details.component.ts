@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ProjectService } from '../services/project.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { AddMemberDialogComponent } from '../add-member-dialog/add-member-dialog.component';
+import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProjectMembersDialogComponent } from './project-members-dialog/project-members-dialog.component';
 import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
@@ -17,6 +17,9 @@ import { CreateTaskDialogComponent } from './create-task-dialog/create-task-dial
 import { MatListModule } from '@angular/material/list';
 import { KanbanBoardComponent } from './kanban-board/kanban-board.component';
 import { switchMap } from 'rxjs/operators';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-project-details',
@@ -35,9 +38,11 @@ import { switchMap } from 'rxjs/operators';
     CreateTaskDialogComponent,
     MatListModule,
     KanbanBoardComponent,
+    MatPaginatorModule,
   ],
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css'],
+  providers: [DatePipe]
 })
 export class ProjectDetailsComponent implements OnInit {
   project: any;
@@ -53,13 +58,21 @@ export class ProjectDetailsComponent implements OnInit {
 
   @ViewChild(KanbanBoardComponent) kanbanBoard!: KanbanBoardComponent;
 
+  activityLogs: any[] = [];
+  currentPage = 1;
+  totalPages = 1;
+  totalLogs = 0;
+  pageSize = 5; // Add this line to set the page size
+
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
-
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private sanitizer: DomSanitizer,
+    private datePipe: DatePipe,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -73,6 +86,7 @@ export class ProjectDetailsComponent implements OnInit {
       .subscribe({
         next: (project) => {
           this.project = project;
+          this.loadActivityLogs();
         },
         error: (error) => {
           console.error('Error loading project:', error);
@@ -128,6 +142,7 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Member added successfully', 'Close', {
             duration: 3000,
           });
+          this.loadActivityLogs(1); // Refresh activity log and reset to first page
         },
         error: (error) => {
           console.error('Error adding member:', error);
@@ -168,6 +183,7 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Member removed successfully', 'Close', {
             duration: 3000,
           });
+          this.loadActivityLogs(1); // Refresh activity log and reset to first page
         },
         error: (error) => {
           console.error('Error removing member:', error);
@@ -212,6 +228,20 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Project updated successfully', 'Close', {
             duration: 3000,
           });
+          // Add a new activity log entry locally
+          const newLogEntry = {
+            action: `Project details updated`,
+            performedBy: { 
+              _id: this.authService.getCurrentUserId(),
+              username: this.authService.getCurrentUsername()
+            },
+            timestamp: new Date()
+          };
+          this.activityLogs.unshift(newLogEntry);
+          if (this.activityLogs.length > this.pageSize) {
+            this.activityLogs.pop();
+          }
+          this.totalLogs++;
         },
         error: (error) => {
           console.error('Error updating project:', error);
@@ -244,7 +274,7 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Task created successfully', 'Close', {
             duration: 3000,
           });
-          // this.router.navigate(['/projects', this.project._id, 'tasks', newTask._id]);
+          this.loadActivityLogs(1); // Refresh activity log and reset to first page
         } else {
           this.snackBar.open('Task created, but no _id returned', 'Close', {
             duration: 3000,
@@ -268,13 +298,24 @@ export class ProjectDetailsComponent implements OnInit {
     this.projectService
       .updateTaskStatus(this.project._id, event.task._id, event.newStatus)
       .subscribe({
-        next: (updatedTask) => {
+        next: (response) => {
           const taskIndex = this.project.tasks.findIndex(
-            (t: any) => t._id === updatedTask._id
+            (t: any) => t._id === response.task._id
           );
           if (taskIndex !== -1) {
-            this.project.tasks[taskIndex] = updatedTask;
+            this.project.tasks[taskIndex] = response.task;
           }
+          // Add a new activity log entry locally
+          const newLogEntry = {
+            action: response.activityLog.action,
+            performedBy: response.activityLog.performedBy,
+            timestamp: new Date(response.activityLog.timestamp)
+          };
+          this.activityLogs.unshift(newLogEntry);
+          if (this.activityLogs.length > this.pageSize) {
+            this.activityLogs.pop();
+          }
+          this.totalLogs++;
         },
         error: (error) => console.error('Error updating task:', error),
       });
@@ -286,5 +327,58 @@ export class ProjectDetailsComponent implements OnInit {
       this.kanbanBoard.tasks = this.project.tasks;
       this.kanbanBoard.distributeTasksToColumns();
     }
+  }
+
+  loadActivityLogs(page: number = 1) {
+    this.projectService.getProjectActivityLog(this.project._id, page, this.pageSize).subscribe({
+      next: (response) => {
+        this.activityLogs = response.logs;
+        this.currentPage = response.currentPage;
+        this.totalPages = response.totalPages;
+        this.totalLogs = response.totalLogs;
+      },
+      error: (error) => {
+        console.error('Error loading activity logs:', error);
+      }
+    });
+  }
+
+  onPageChange(event: PageEvent) {
+    this.currentPage = event.pageIndex + 1;
+    this.loadActivityLogs(this.currentPage);
+  }
+
+  formatActivityAction(action: string): SafeHtml {
+    // Split the action string into separate changes
+    const changes = action.split('. ');
+    
+    // Format each change
+    const formattedChanges = changes.map(change => {
+      if (change.includes('changed from')) {
+        const [field, values] = change.split(' changed from ');
+        const [oldValue, newValue] = values.split(' to ');
+        return `<strong>${field}</strong> changed from <span class="text-red-500">${this.formatDateIfNeeded(oldValue)}</span> to <span class="text-green-500">${this.formatDateIfNeeded(newValue)}</span>`;
+      } else if (change.includes('Added members:')) {
+        return change.replace('Added members:', '<strong>Added members:</strong> <span class="text-green-500">') + '</span>';
+      } else if (change.includes('Removed members:')) {
+        return change.replace('Removed members:', '<strong>Removed members:</strong> <span class="text-red-500">') + '</span>';
+      } else {
+        return `<strong>${change}</strong>`;
+      }
+    });
+
+    // Join the formatted changes and sanitize the HTML
+    return this.sanitizer.bypassSecurityTrustHtml(formattedChanges.join('<br>'));
+  }
+
+  formatDateIfNeeded(value: string): string {
+    // Check if the value is a valid date string (YYYY-MM-DD format)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (dateRegex.test(value)) {
+      // If it's a date, format it as DD/MM/YYYY
+      return this.datePipe.transform(value, 'dd/MM/yyyy') || value;
+    }
+    // If it's not a date, return the original value
+    return value;
   }
 }
