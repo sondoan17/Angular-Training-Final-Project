@@ -98,18 +98,30 @@ export class ProjectService {
     return this.http.post<Task>(`${this.apiUrl}/${projectId}/tasks`, taskData);
   }
 
-  updateTaskStatus(
-    projectId: string,
-    taskId: string,
-    status: string
-  ): Observable<any> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.patch(
-      `${this.apiUrl}/${projectId}/tasks/${taskId}`,
-      { status },
-      { headers }
-    );
+  updateTaskStatus(projectId: string, taskId: string, status: string): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}`, { status })
+      .pipe(
+        map(response => {
+          // Check if assignedTo exists and is an array before mapping
+          if (response && response.assignedTo && Array.isArray(response.assignedTo)) {
+            response.assignedTo = response.assignedTo.map((member: any) => {
+              if (typeof member === 'object' && member !== null) {
+                return {
+                  _id: member._id,
+                  username: member.username || 'Unknown'
+                };
+              } else if (typeof member === 'string') {
+                return { _id: member, username: 'Unknown' };
+              }
+              return { _id: 'unknown', username: 'Unknown' };
+            });
+          } else {
+            // If assignedTo is not as expected, set it to an empty array
+            response.assignedTo = [];
+          }
+          return response;
+        })
+      );
   }
 
   getTaskDetails(projectId: string, taskId: string): Observable<any> {

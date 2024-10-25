@@ -8,6 +8,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
+import { ProjectService } from '../../services/project.service';
 
 interface Task {
   _id: string;
@@ -134,7 +135,7 @@ export class KanbanBoardComponent implements OnInit {
     { id: 'done', title: 'Done', tasks: [] },
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private projectService: ProjectService) {}
 
   ngOnInit() {
     this.distributeTasksToColumns();
@@ -168,7 +169,7 @@ export class KanbanBoardComponent implements OnInit {
       );
       const task = event.container.data[event.currentIndex];
       const newStatus = this.getStatusFromColumnId(event.container.id);
-      this.taskMoved.emit({ task, newStatus });
+      this.updateTaskStatus(task, newStatus);
     }
   }
 
@@ -228,5 +229,20 @@ export class KanbanBoardComponent implements OnInit {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  updateTaskStatus(task: Task, newStatus: string) {
+    this.projectService.updateTaskStatus(this.projectId, task._id, newStatus).subscribe(
+      (updatedTask) => {
+        console.log('Task status updated:', updatedTask);
+        // Optionally, you can update the local task object if needed
+        Object.assign(task, updatedTask);
+        this.taskMoved.emit({ task: updatedTask, newStatus });
+      },
+      (error) => {
+        console.error('Error updating task status:', error);
+        // Optionally, you can handle the error (e.g., show an error message)
+      }
+    );
   }
 }

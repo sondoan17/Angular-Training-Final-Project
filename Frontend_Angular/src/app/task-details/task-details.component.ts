@@ -256,21 +256,19 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   updateTaskStatus(newStatus: string): void {
     if (this.projectId && this.taskId && this.task) {
-      const updatedTask = { ...this.task, status: newStatus };
-      this.projectService
-        .updateTask(this.projectId, this.taskId, updatedTask)
-        .subscribe(
-          (updatedTask) => {
-            this.task = updatedTask;
-            this.updateRemainingTime();
-            this.loadActivityLog();
-            // Optionally, show a success message
-          },
-          (error) => {
-            console.error('Error updating task status:', error);
-            // Handle error (e.g., show an error message to the user)
-          }
-        );
+      this.projectService.updateTaskStatus(this.projectId, this.taskId, newStatus).subscribe(
+        (updatedTask) => {
+          // Update only the status of the task
+          this.task.status = updatedTask.status;
+          this.updateRemainingTime();
+          this.loadActivityLog();
+          // Optionally, show a success message
+        },
+        (error) => {
+          console.error('Error updating task status:', error);
+          // Handle error (e.g., show an error message to the user)
+        }
+      );
     }
   }
 
