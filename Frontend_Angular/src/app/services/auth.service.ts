@@ -112,8 +112,9 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  getCurrentUserId(): string {
-    return localStorage.getItem('userId') || '';
+  getCurrentUserId(): string | null {
+    const user = this.getUser();
+    return user ? user.id : null;
   }
 
   getCurrentUsername(): string {

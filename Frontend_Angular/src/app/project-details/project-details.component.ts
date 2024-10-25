@@ -99,8 +99,8 @@ export class ProjectDetailsComponent implements OnInit {
 
     // Get current user information
     this.currentUser = {
-      _id: this.authService.getCurrentUserId(),
-      username: this.authService.getCurrentUsername()
+      _id: this.authService.getCurrentUserId() ?? '',
+      username: this.authService.getCurrentUsername(),
     };
   }
 
@@ -152,7 +152,7 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Member added successfully', 'Close', {
             duration: 3000,
           });
-          
+
           // Add a new activity log entry locally
           if (this.currentUser) {
             const newLogEntry = {
@@ -195,8 +195,12 @@ export class ProjectDetailsComponent implements OnInit {
 
   removeMemberFromProject(memberId: string) {
     // Find the member's username before removing
-    const memberToRemove = this.project.members.find((member: any) => member._id === memberId);
-    const memberUsername = memberToRemove ? memberToRemove.username : 'Unknown user';
+    const memberToRemove = this.project.members.find(
+      (member: any) => member._id === memberId
+    );
+    const memberUsername = memberToRemove
+      ? memberToRemove.username
+      : 'Unknown user';
 
     this.projectService
       .removeMemberFromProject(this.project._id, memberId)
@@ -206,7 +210,7 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Member removed successfully', 'Close', {
             duration: 3000,
           });
-          
+
           // Add a new activity log entry locally
           if (this.currentUser) {
             const newLogEntry = {
@@ -269,10 +273,14 @@ export class ProjectDetailsComponent implements OnInit {
           // Generate changelog
           const changes = [];
           if (originalProject.name !== editedProject.name) {
-            changes.push(`name changed from "${originalProject.name}" to "${editedProject.name}"`);
+            changes.push(
+              `name changed from "${originalProject.name}" to "${editedProject.name}"`
+            );
           }
           if (originalProject.description !== editedProject.description) {
-            changes.push(`description changed from "${originalProject.description}" to "${editedProject.description}"`);
+            changes.push(
+              `description changed from "${originalProject.description}" to "${editedProject.description}"`
+            );
           }
 
           // Add a new activity log entry locally
@@ -367,7 +375,7 @@ export class ProjectDetailsComponent implements OnInit {
         },
       });
   }
-    
+
   updateKanbanBoard() {
     if (this.kanbanBoard) {
       this.kanbanBoard.tasks = this.project.tasks;
@@ -445,7 +453,10 @@ export class ProjectDetailsComponent implements OnInit {
 
   toggleActivityLog() {
     this.isActivityLogVisible = !this.isActivityLogVisible;
-    if (this.isActivityLogVisible && (!this.activityLog || this.activityLog.length === 0)) {
+    if (
+      this.isActivityLogVisible &&
+      (!this.activityLog || this.activityLog.length === 0)
+    ) {
       this.loadActivityLog();
     }
   }

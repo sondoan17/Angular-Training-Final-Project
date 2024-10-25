@@ -238,14 +238,18 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
       this.projectService.getProjectDetails(this.projectId).subscribe(
         (project) => {
           const currentUserId = this.authService.getCurrentUserId();
-          const projectCreatorId = project.createdBy;
+          const projectCreatorId = typeof project.createdBy === 'object' ? project.createdBy._id : project.createdBy;
+          
+          
+          
           if (currentUserId) {
-            this.isProjectCreator =
-              projectCreatorId._id.toString() === currentUserId.toString();
+            this.isProjectCreator = projectCreatorId.toString() === currentUserId.toString();
           } else {
             this.isProjectCreator = false;
-            console.warn('ID not available.');
+            console.warn('Current user ID not available.');
           }
+          
+      
         },
         (error) => {
           console.error('Error checking project creator:', error);
