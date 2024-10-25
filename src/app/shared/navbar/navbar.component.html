@@ -12,9 +12,11 @@
       <div class="flex items-center">
         <button [matMenuTriggerFor]="userMenu" class="ml-3 flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           <span class="sr-only">Open user menu</span>
-          <div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium">
-            {{ userInitial }}
-          </div>
+          <img 
+            class="h-8 w-8 rounded-full"
+            [src]="'https://ui-avatars.com/api/?name=' + (username || 'User') + '&background=random'"
+            [alt]="username || 'User'"
+          >
         </button>
       </div>
     </div>

@@ -13,26 +13,70 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatListModule, MatButtonModule, MatFormFieldModule, MatInputModule, FormsModule, MatIconModule],
   template: `
-    <h2 mat-dialog-title>Project Members</h2>
-    <mat-dialog-content>
-      <mat-list>
-        <mat-list-item *ngFor="let member of data.members">
-          {{ member.username }}
-          <button mat-icon-button color="warn" (click)="onRemoveMember(member)" *ngIf="member._id !== data.creatorId">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </mat-list-item>
-      </mat-list>
-      <mat-form-field>
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">Project Members</h2>
+      <div class="max-h-60 overflow-y-auto mb-4">
+        <ul class="divide-y divide-gray-200">
+          <li *ngFor="let member of data.members" class="py-3 flex items-center justify-between">
+            <div class="flex items-center">
+              <img class="h-10 w-10 rounded-full bg-gray-300" src="https://ui-avatars.com/api/?name={{member.username}}&background=random" alt="{{member.username}}">
+              <span class="ml-3 font-medium text-gray-900">{{ member.username }}</span>
+            </div>
+            <button 
+              *ngIf="member._id !== data.creatorId"
+              mat-icon-button 
+              color="warn" 
+              (click)="onRemoveMember(member)"
+              class="text-red-500 hover:text-red-700"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <mat-form-field appearance="outline" class="w-full mb-4 custom-form-field">
         <mat-label>New Member Username</mat-label>
-        <input matInput [(ngModel)]="newMemberUsername">
+        <input matInput [(ngModel)]="newMemberUsername" placeholder="Enter username">
       </mat-form-field>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-button (click)="onClose()">Close</button>
-      <button mat-raised-button color="primary" (click)="onAddMember()">Add Member</button>
-    </mat-dialog-actions>
+      <div class="flex justify-end space-x-2">
+        <button mat-button (click)="onClose()" class="text-gray-600 hover:bg-gray-100">
+          Close
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="onAddMember()"
+          [disabled]="!newMemberUsername"
+          class="bg-blue-500 text-white hover:bg-blue-600"
+        >
+          Add Member
+        </button>
+      </div>
+    </div>
   `,
+  styles: [`
+    :host {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+    }
+    .mat-mdc-form-field {
+      width: 100%;
+    }
+    ::ng-deep .custom-form-field .mdc-notched-outline__leading,
+    ::ng-deep .custom-form-field .mdc-notched-outline__notch,
+    ::ng-deep .custom-form-field .mdc-notched-outline__trailing {
+      border-color: transparent !important;
+    }
+    ::ng-deep .custom-form-field .mat-mdc-text-field-wrapper {
+      background-color: #f3f4f6;
+      border-radius: 0.375rem;
+    }
+    ::ng-deep .custom-form-field .mat-mdc-form-field-flex {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  `]
 })
 export class ProjectMembersDialogComponent {
   newMemberUsername: string = '';
