@@ -42,7 +42,7 @@ import { AuthService } from '../services/auth.service';
   ],
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css'],
-  providers: [DatePipe]
+  providers: [DatePipe],
 })
 export class ProjectDetailsComponent implements OnInit {
   project: any;
@@ -63,6 +63,8 @@ export class ProjectDetailsComponent implements OnInit {
   totalPages: number = 1;
   totalLogs: number = 0;
   pageSize: number = 5;
+
+  currentUser: { _id: string; username: string } | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -92,6 +94,12 @@ export class ProjectDetailsComponent implements OnInit {
           console.error('Error loading project:', error);
         },
       });
+
+    // Get current user information
+    this.currentUser = {
+      _id: this.authService.getCurrentUserId(),
+      username: this.authService.getCurrentUsername()
+    };
   }
 
   getCreatorUsername(): string {
@@ -142,7 +150,20 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Member added successfully', 'Close', {
             duration: 3000,
           });
-          this.loadActivityLog(1); // Refresh activity log and reset to first page
+          
+          // Add a new activity log entry locally
+          if (this.currentUser) {
+            const newLogEntry = {
+              action: `Member ${username} added to the project`,
+              performedBy: this.currentUser,
+              timestamp: new Date(),
+            };
+            this.activityLog.unshift(newLogEntry);
+            if (this.activityLog.length > this.pageSize) {
+              this.activityLog.pop();
+            }
+            this.totalLogs++;
+          }
         },
         error: (error) => {
           console.error('Error adding member:', error);
@@ -156,11 +177,7 @@ export class ProjectDetailsComponent implements OnInit {
   openMembersDialog() {
     const dialogRef = this.dialog.open(ProjectMembersDialogComponent, {
       width: '300px',
-      data: {
-        members: this.project.members,
-        projectId: this.project._id,
-        creatorId: this.project.creator,
-      },
+      data: { members: this.project.members },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -175,6 +192,10 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   removeMemberFromProject(memberId: string) {
+    // Find the member's username before removing
+    const memberToRemove = this.project.members.find((member: any) => member._id === memberId);
+    const memberUsername = memberToRemove ? memberToRemove.username : 'Unknown user';
+
     this.projectService
       .removeMemberFromProject(this.project._id, memberId)
       .subscribe({
@@ -183,7 +204,20 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Member removed successfully', 'Close', {
             duration: 3000,
           });
-          this.loadActivityLog(1); // Refresh activity log and reset to first page
+          
+          // Add a new activity log entry locally
+          if (this.currentUser) {
+            const newLogEntry = {
+              action: `Member ${memberUsername} removed from the project`,
+              performedBy: this.currentUser,
+              timestamp: new Date(),
+            };
+            this.activityLog.unshift(newLogEntry);
+            if (this.activityLog.length > this.pageSize) {
+              this.activityLog.pop();
+            }
+            this.totalLogs++;
+          }
         },
         error: (error) => {
           console.error('Error removing member:', error);
@@ -211,6 +245,7 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   saveChanges(editedProject: { name: string; description: string }) {
+    const originalProject = { ...this.project };
     this.projectService
       .updateProject(this.project._id, editedProject)
       .subscribe({
@@ -228,20 +263,31 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Project updated successfully', 'Close', {
             duration: 3000,
           });
-          // Add a new activity log entry locally
-          const newLogEntry = {
-            action: `Project details updated`,
-            performedBy: { 
-              _id: this.authService.getCurrentUserId(),
-              username: this.authService.getCurrentUsername()
-            },
-            timestamp: new Date()
-          };
-          this.activityLog.unshift(newLogEntry);
-          if (this.activityLog.length > this.pageSize) {
-            this.activityLog.pop();
+
+          // Generate changelog
+          const changes = [];
+          if (originalProject.name !== editedProject.name) {
+            changes.push(`name changed from "${originalProject.name}" to "${editedProject.name}"`);
           }
-          this.totalLogs++;
+          if (originalProject.description !== editedProject.description) {
+            changes.push(`description changed from "${originalProject.description}" to "${editedProject.description}"`);
+          }
+
+          // Add a new activity log entry locally
+          if (this.currentUser) {
+            const newLogEntry = {
+              action: `Project updated: ${changes.join(', ')}`,
+              performedBy: this.currentUser,
+              timestamp: new Date(),
+            };
+            this.activityLog.unshift(newLogEntry);
+            if (this.activityLog.length > this.pageSize) {
+              this.activityLog.pop();
+            }
+            this.totalLogs++;
+          } else {
+            console.error('Current user information is not available');
+          }
         },
         error: (error) => {
           console.error('Error updating project:', error);
@@ -316,11 +362,10 @@ export class ProjectDetailsComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error updating task:', error);
-        }
+        },
       });
   }
-
-  // Thêm phương thức mới để cập nhật Kanban board
+    
   updateKanbanBoard() {
     if (this.kanbanBoard) {
       this.kanbanBoard.tasks = this.project.tasks;
@@ -330,18 +375,20 @@ export class ProjectDetailsComponent implements OnInit {
 
   loadActivityLog(page: number = this.currentPage): void {
     if (this.project && this.project._id) {
-      this.projectService.getProjectActivityLog(this.project._id, page, this.pageSize).subscribe(
-        (response) => {
-          console.log('Loaded activity log:', response);
-          this.activityLog = response.logs;
-          this.currentPage = response.currentPage;
-          this.totalPages = response.totalPages;
-          this.totalLogs = response.totalLogs;
-        },
-        (error) => {
-          console.error('Error loading activity log:', error);
-        }
-      );
+      this.projectService
+        .getProjectActivityLog(this.project._id, page, this.pageSize)
+        .subscribe(
+          (response) => {
+            console.log('Loaded activity log:', response);
+            this.activityLog = response.logs;
+            this.currentPage = response.currentPage;
+            this.totalPages = response.totalPages;
+            this.totalLogs = response.totalLogs;
+          },
+          (error) => {
+            console.error('Error loading activity log:', error);
+          }
+        );
     }
   }
 
@@ -352,22 +399,38 @@ export class ProjectDetailsComponent implements OnInit {
 
   formatActivityAction(action: string): SafeHtml {
     const changes = action.split('. ');
-    
-    const formattedChanges = changes.map(change => {
+
+    const formattedChanges = changes.map((change) => {
       if (change.includes('changed from')) {
         const [field, values] = change.split(' changed from ');
         const [oldValue, newValue] = values.split(' to ');
-        return `<strong>${field}</strong> changed from <span class="text-red-500">${this.formatDateIfNeeded(oldValue)}</span> to <span class="text-green-500">${this.formatDateIfNeeded(newValue)}</span>`;
+        return `<strong>${field}</strong> changed from <span class="text-red-500">${this.formatDateIfNeeded(
+          oldValue
+        )}</span> to <span class="text-green-500">${this.formatDateIfNeeded(
+          newValue
+        )}</span>`;
       } else if (change.includes('Added members:')) {
-        return change.replace('Added members:', '<strong>Added members:</strong> <span class="text-green-500">') + '</span>';
+        return (
+          change.replace(
+            'Added members:',
+            '<strong>Added members:</strong> <span class="text-green-500">'
+          ) + '</span>'
+        );
       } else if (change.includes('Removed members:')) {
-        return change.replace('Removed members:', '<strong>Removed members:</strong> <span class="text-red-500">') + '</span>';
+        return (
+          change.replace(
+            'Removed members:',
+            '<strong>Removed members:</strong> <span class="text-red-500">'
+          ) + '</span>'
+        );
       } else {
         return `<strong>${change}</strong>`;
       }
     });
 
-    return this.sanitizer.bypassSecurityTrustHtml(formattedChanges.join('<br>'));
+    return this.sanitizer.bypassSecurityTrustHtml(
+      formattedChanges.join('<br>')
+    );
   }
 
   formatDateIfNeeded(value: string): string {

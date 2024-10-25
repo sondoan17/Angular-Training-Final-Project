@@ -99,4 +99,8 @@ export class ProjectMembersDialogComponent {
   onRemoveMember(member: any): void {
     this.dialogRef.close({ action: 'remove', memberId: member._id });
   }
+
+  removeMember(member: any) {
+    this.dialogRef.close({ action: 'remove', memberId: member._id });
+  }
 }

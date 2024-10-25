@@ -128,7 +128,7 @@ export class ProjectService {
         }),
         catchError(error => {
           console.error('Error in updateTaskStatus:', error);
-          return throwError('An error occurred while updating the task status.');
+          return throwError(() => new Error('An error occurred while updating the task status.'));
         })
       );
   }

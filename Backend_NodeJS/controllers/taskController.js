@@ -107,7 +107,7 @@ exports.updateTask = async (req, res) => {
       await logTaskActivity(
         projectId,
         taskId,
-        `Task updated: ${changes.join(', ')}`,
+        `updated: ${changes.join(', ')}`,
         req.user.userId
       );
     }
@@ -193,4 +193,41 @@ exports.getTaskActivity = async (req, res) => {
   }
 };
 
+exports.getProjectActivity = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 5;
 
+    const project = await Project.findById(projectId, { activityLog: 1 });
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const totalLogs = project.activityLog.length;
+    const totalPages = Math.ceil(totalLogs / pageSize);
+    const skip = (page - 1) * pageSize;
+
+    const paginatedLogs = project.activityLog
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(skip, skip + pageSize);
+
+    await Project.populate(paginatedLogs, {
+      path: "performedBy",
+      select: "username _id",
+    });
+
+    res.json({
+      logs: paginatedLogs,
+      currentPage: page,
+      totalPages: totalPages,
+      totalLogs: totalLogs,
+    });
+  } catch (error) {
+    console.error("Error fetching project activity log:", error);
+    res.status(500).json({
+      message: "Error fetching project activity log",
+      error: error.toString(),
+    });
+  }
+};

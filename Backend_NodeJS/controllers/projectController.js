@@ -172,7 +172,10 @@ exports.updateProject = async (req, res) => {
       );
     }
 
-    project = await Project.findById(id).populate("createdBy", "username");
+    // Fetch the updated project with populated fields
+    project = await Project.findById(id)
+      .populate("createdBy", "username")
+      .populate("members", "username");
 
     res.json(project);
   } catch (error) {

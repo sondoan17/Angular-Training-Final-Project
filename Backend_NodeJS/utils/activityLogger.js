@@ -8,8 +8,16 @@ const logTaskActivity = async (projectId, taskId, action, userId) => {
     const task = project.tasks.id(taskId);
     if (!task) return;
 
+    // Add to task activity log
     task.activityLog.push({
       action,
+      performedBy: userId,
+      timestamp: new Date(),
+    });
+
+    // Add to project activity log
+    project.activityLog.push({
+      action: `Task ${task.title}: ${action}`,
       performedBy: userId,
       timestamp: new Date(),
     });

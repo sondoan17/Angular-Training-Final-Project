@@ -112,14 +112,12 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  getCurrentUserId(): string | null {
-    const user = this.getUser();
-    return user ? user.id : null;
+  getCurrentUserId(): string {
+    return localStorage.getItem('userId') || '';
   }
 
-  getCurrentUsername(): string | null {
-    const user = this.getUser();
-    return user ? user.username : null;
+  getCurrentUsername(): string {
+    return localStorage.getItem('username') || '';
   }
 
   private getUser(): any {
