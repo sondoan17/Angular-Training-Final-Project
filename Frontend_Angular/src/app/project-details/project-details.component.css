@@ -49,3 +49,97 @@ mat-list-item div[mat-line] {
 mat-icon {
   margin-right: 10px;
 }
+
+.activity-log-container {
+  max-height: 1000px; /* Adjust this value based on your needs */
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.activity-log-container.hidden {
+  max-height: 0;
+}
+
+.mat-paginator-sticky {
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  z-index: 10;
+}
+
+@media (max-width: 600px) {
+  ::ng-deep .mat-paginator-container {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  ::ng-deep .mat-paginator-range-label {
+    margin: 0 10px 10px 0;
+  }
+
+  ::ng-deep .mat-paginator-navigation-previous,
+  ::ng-deep .mat-paginator-navigation-next {
+    margin-top: 10px;
+  }
+
+  .edit-button .button-text,
+  .members-button .button-text {
+    display: none;
+  }
+
+  .edit-button,
+  .members-button {
+    min-width: 0;
+    padding: 0 8px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .edit-button .mat-icon,
+  .members-button .mat-icon {
+    margin: 0;
+  }
+}
+
+.edit-button,
+.members-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-text {
+  margin-left: 8px;
+}
+
+.activity-log-toggle-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.activity-log-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.activity-log-toggle .button-text {
+  margin-left: 8px;
+}
+
+@media (max-width: 600px) {
+  .activity-log-toggle .button-text {
+    display: none;
+  }
+
+  .activity-log-toggle {
+    min-width: 0;
+    padding: 0 8px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .activity-log-toggle .mat-icon {
+    margin: 0;
+  }
+}

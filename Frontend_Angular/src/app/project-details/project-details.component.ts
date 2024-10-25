@@ -66,6 +66,8 @@ export class ProjectDetailsComponent implements OnInit {
 
   currentUser: { _id: string; username: string } | null = null;
 
+  isActivityLogVisible: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
@@ -439,5 +441,12 @@ export class ProjectDetailsComponent implements OnInit {
       return this.datePipe.transform(value, 'dd/MM/yyyy') || value;
     }
     return value;
+  }
+
+  toggleActivityLog() {
+    this.isActivityLogVisible = !this.isActivityLogVisible;
+    if (this.isActivityLogVisible && (!this.activityLog || this.activityLog.length === 0)) {
+      this.loadActivityLog();
+    }
   }
 }
