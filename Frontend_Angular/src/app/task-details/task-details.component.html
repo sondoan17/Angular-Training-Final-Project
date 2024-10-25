@@ -1,7 +1,7 @@
 <div class="max-w-4xl mx-auto p-6" *ngIf="task">
   <div class="mb-8">
     <div class="flex justify-between items-start mb-4">
-      <h1 class="text-3xl font-bold text-gray-800">{{ task.title }}</h1>
+      <h1 class="text-3xl font-bold text-gray-800">{{ task?.title }}</h1>
       <div class="flex space-x-2" *ngIf="isProjectCreator">
         <button mat-icon-button color="primary" (click)="editTask()" class=" bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-full">
           <mat-icon >edit</mat-icon>
@@ -17,7 +17,7 @@
         [ngClass]="getStatusClass(task.status)" 
         class="px-3 py-1 rounded-full text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
-        <span class="mr-1">{{ task.status }}</span>
+        <span class="mr-1">{{ task?.status }}</span>
         <mat-icon class="text-sm">arrow_drop_down</mat-icon>
       </button>
       <mat-menu #statusMenu="matMenu" class="custom-menu">
@@ -39,10 +39,10 @@
         </button>
       </mat-menu>
       <span [ngClass]="getPriorityClass(task.priority)" class="px-3 py-1 rounded-full text-sm font-medium">
-        {{ task.priority }}
+        {{ task?.priority }}
       </span>
       <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
-        {{ task.type }}
+        {{ task?.type }}
       </span>
     </div>
   </div>
@@ -50,7 +50,7 @@
   <div class="bg-white shadow rounded-lg overflow-hidden mb-8">
     <div class="p-6">
       <h2 class="text-xl font-semibold text-gray-800 mb-4">Description</h2>
-      <p class="text-gray-600">{{ task.description }}</p>
+      <p class="text-gray-600">{{ task?.description }}</p>
     </div>
     <div class="border-t border-gray-200 p-6">
       <h2 class="text-xl font-semibold text-gray-800 mb-4">Timeline</h2>
@@ -60,14 +60,14 @@
             <mat-icon class="text-blue-500 mr-2">event</mat-icon>
             <span class="font-semibold text-blue-700">Start Date</span>
           </div>
-          <p class="text-blue-800">{{ task.timeline.start | date:'dd/MM/yyyy' }}</p>
+          <p class="text-blue-800">{{ task?.timeline?.start | date:'dd/MM/yyyy' }}</p>
         </div>
         <div class="bg-green-50 p-4 rounded-lg">
           <div class="flex items-center mb-2">
             <mat-icon class="text-green-500 mr-2">event</mat-icon>
             <span class="font-semibold text-green-700">End Date</span>
           </div>
-          <p class="text-green-800">{{ task.timeline.end | date:'dd/MM/yyyy' }}</p>
+          <p class="text-green-800">{{ task?.timeline?.end | date:'dd/MM/yyyy' }}</p>
         </div>
         <div class="bg-purple-50 p-4 rounded-lg">
           <div class="flex items-center mb-2">

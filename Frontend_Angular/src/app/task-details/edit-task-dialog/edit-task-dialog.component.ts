@@ -88,6 +88,11 @@ export class EditTaskDialogComponent implements OnInit {
     );
   }
 
+  onSave(): void {
+    // This method should be called when the save button is clicked
+    this.dialogRef.close(this.data);
+  }
+
   onNoClick(): void {
     this.dialogRef.close();
   }

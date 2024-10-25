@@ -81,6 +81,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     if (this.projectId && this.taskId) {
       this.projectService.getTaskDetails(this.projectId!, this.taskId!).subscribe(
         (task) => {
+          console.log('Loaded task details:', task);
           this.task = task;
           this.updateRemainingTime();
           this.startRemainingTimeCounter();
@@ -97,6 +98,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     if (this.projectId && this.taskId) {
       this.projectService.getTaskActivityLog(this.projectId, this.taskId, page).subscribe(
         (response) => {
+          console.log('Loaded activity log:', response);
           this.activityLog = response.logs;
           this.currentPage = response.currentPage;
           this.totalPages = response.totalPages;
@@ -253,13 +255,15 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   }
 
   updateTaskStatus(newStatus: string): void {
-    if (this.projectId && this.taskId) {
+    if (this.projectId && this.taskId && this.task) {
+      const updatedTask = { ...this.task, status: newStatus };
       this.projectService
-        .updateTaskStatus(this.projectId, this.taskId, newStatus)
+        .updateTask(this.projectId, this.taskId, updatedTask)
         .subscribe(
           (updatedTask) => {
             this.task = updatedTask;
-            this.loadActivityLog(); // This will now use the current page
+            this.updateRemainingTime();
+            this.loadActivityLog();
             // Optionally, show a success message
           },
           (error) => {

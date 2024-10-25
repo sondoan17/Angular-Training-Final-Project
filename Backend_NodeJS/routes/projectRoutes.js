@@ -362,126 +362,12 @@ router.get("/:projectId/tasks/:taskId", authMiddleware, async (req, res) => {
   }
 });
 
-router.patch("/:projectId/tasks/:taskId", authMiddleware, async (req, res) => {
-  try {
-    const { projectId, taskId } = req.params;
-    const { status } = req.body;
-
-    const project = await Project.findById(projectId);
-    if (!project) {
-      return res.status(404).json({ message: "Project not found" });
-    }
-
-    const task = project.tasks.id(taskId);
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    const oldStatus = task.status;
-    task.status = status;
-    task.updatedAt = new Date();
-
-    // Add activity log entry
-    const user = await User.findById(req.user.userId);
-    project.activityLog.push({
-      action: `Task "${task.title}" status changed from "${oldStatus}" to "${status}"`,
-      performedBy: req.user.userId,
-      timestamp: new Date()
-    });
-
-    await project.save();
-
-    // Populate the performedBy field in the response
-    const populatedTask = await Project.populate(task, {
-      path: 'assignedTo',
-      select: 'username _id'
-    });
-
-    res.json({
-      task: populatedTask,
-      activityLog: {
-        action: `Task "${task.title}" status changed from "${oldStatus}" to "${status}"`,
-        performedBy: { _id: user._id, username: user.username },
-        timestamp: new Date()
-      }
-    });
-  } catch (error) {
-    console.error("Error updating task status:", error);
-    res.status(500).json({ message: "Error updating task status", error: error.toString() });
-  }
-});
-
-router.delete("/:projectId", authMiddleware, async (req, res) => {
-  try {
-    const { projectId } = req.params;
-    const userId = req.user.userId;
-
-    const project = await Project.findOne({
-      _id: projectId,
-      createdBy: userId,
-    });
-
-    if (!project) {
-      return res.status(404).json({
-        message: "Project not found or you don't have permission to delete it",
-      });
-    }
-
-    await Project.findByIdAndDelete(projectId);
-
-    res.json({ message: "Project deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting project:", error);
-    res
-      .status(500)
-      .json({ message: "Error deleting project", error: error.message });
-  }
-});
-
-router.put("/:projectId", authMiddleware, async (req, res) => {
-  try {
-    const { projectId } = req.params;
-    const updates = req.body;
-    const userId = req.user.userId;
-
-    const project = await Project.findOne({
-      _id: projectId,
-      createdBy: userId,
-    });
-
-    if (!project) {
-      return res.status(404).json({
-        message: "Project not found or you don't have permission to edit it",
-      });
-    }
-
-    if (updates.tasks) {
-      updates.tasks.forEach((task) => {
-        if (task.assignedTo && !Array.isArray(task.assignedTo)) {
-          task.assignedTo = [task.assignedTo];
-        }
-      });
-    }
-
-    Object.assign(project, updates);
-    await project.save();
-
-    res.json(project);
-  } catch (error) {
-    console.error("Error updating project:", error);
-    res
-      .status(500)
-      .json({ message: "Error updating project", error: error.message });
-  }
-});
-
 // Update a task
 router.put("/:projectId/tasks/:taskId", authMiddleware, async (req, res) => {
   try {
     const { projectId, taskId } = req.params;
     const updateData = req.body;
 
-    // Find the project and get the current task state
     const project = await Project.findById(projectId);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
@@ -549,11 +435,13 @@ router.put("/:projectId/tasks/:taskId", authMiddleware, async (req, res) => {
     currentTask.updatedAt = new Date();
 
     // Add the detailed activity log
-    currentTask.activityLog.push({
-      action: activityLogEntries.join('. '),
-      performedBy: req.user.userId,
-      timestamp: new Date()
-    });
+    if (activityLogEntries.length > 0) {
+      currentTask.activityLog.push({
+        action: activityLogEntries.join('. '),
+        performedBy: req.user.userId,
+        timestamp: new Date()
+      });
+    }
 
     await project.save();
 
