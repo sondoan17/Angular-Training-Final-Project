@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
@@ -20,6 +20,11 @@ import { switchMap } from 'rxjs/operators';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AuthService } from '../../services/auth.service';
+import { NgChartsModule } from 'ng2-charts';
+import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-project-details',
@@ -39,10 +44,14 @@ import { AuthService } from '../../services/auth.service';
     MatListModule,
     KanbanBoardComponent,
     MatPaginatorModule,
+    NgChartsModule,
+    ScrollingModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css'],
   providers: [DatePipe],
+  changeDetection: ChangeDetectionStrategy.OnPush // Add this line
 })
 export class ProjectDetailsComponent implements OnInit {
   project: any;
@@ -68,6 +77,54 @@ export class ProjectDetailsComponent implements OnInit {
 
   isActivityLogVisible: boolean = false;
 
+  chartData: ChartData<'pie'> = {
+    labels: [],
+    datasets: [{
+      data: [],
+      backgroundColor: [],
+      hoverBackgroundColor: []
+    }]
+  };
+
+  chartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          boxWidth: 10,
+          font: {
+            size: 10,
+          },
+        },
+      },
+      title: {
+        display: false,
+      },
+    },
+    animation: {
+      duration: 0
+    },
+    transitions: {
+      active: {
+        animation: {
+          duration: 0
+        }
+      }
+    },
+    hover: {
+      mode: 'nearest',
+      intersect: true
+    }
+  };
+
+  @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
+
+  isLoadingActivityLog: boolean = false;
+
+  itemSize: number = 0; // Adjust this value based on the actual height of your list items
+
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
@@ -76,7 +133,8 @@ export class ProjectDetailsComponent implements OnInit {
     private router: Router,
     private sanitizer: DomSanitizer,
     private datePipe: DatePipe,
-    private authService: AuthService
+    private authService: AuthService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -91,6 +149,7 @@ export class ProjectDetailsComponent implements OnInit {
         next: (project) => {
           this.project = project;
           this.loadActivityLog();
+          this.prepareChartData(); // Move this here
         },
         error: (error) => {
           console.error('Error loading project:', error);
@@ -102,6 +161,8 @@ export class ProjectDetailsComponent implements OnInit {
       _id: this.authService.getCurrentUserId() ?? '',
       username: this.authService.getCurrentUsername(),
     };
+
+    this.prepareChartData();
   }
 
   getCreatorUsername(): string {
@@ -179,7 +240,10 @@ export class ProjectDetailsComponent implements OnInit {
   openMembersDialog() {
     const dialogRef = this.dialog.open(ProjectMembersDialogComponent, {
       width: '300px',
-      data: { members: this.project.members },
+      data: {
+        members: this.project.members,
+        creatorId: this.project.createdBy._id, // Ensure this is correctly set
+      },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -187,7 +251,14 @@ export class ProjectDetailsComponent implements OnInit {
         if (result.action === 'add') {
           this.addMemberToProject(result.username);
         } else if (result.action === 'remove') {
-          this.removeMemberFromProject(result.memberId);
+          // Add an additional check here
+          if (result.memberId !== this.project.createdBy._id) {
+            this.removeMemberFromProject(result.memberId);
+          } else {
+            this.snackBar.open('Cannot remove the project creator', 'Close', {
+              duration: 3000,
+            });
+          }
         }
       }
     });
@@ -351,40 +422,69 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   onTaskMoved(event: { task: any; newStatus: string }) {
-    this.projectService
-      .updateTaskStatus(this.project._id, event.task._id, event.newStatus)
-      .subscribe({
-        next: (response) => {
-          if (response && response._id) {
-            const taskIndex = this.project.tasks.findIndex(
-              (t: any) => t._id === response._id
-            );
-            if (taskIndex !== -1) {
-              this.project.tasks[taskIndex] = response;
+    const { task, newStatus } = event;
+    const taskIndex = this.project.tasks.findIndex((t: any) => t._id === task._id);
+    if (taskIndex !== -1) {
+      this.project.tasks[taskIndex].status = newStatus;
+      this.updateChartData();
+      
+      // Fetch the latest activity log entry
+      this.projectService.getProjectActivityLog(this.project._id, 1, 1).subscribe(
+        (response) => {
+          if (response.logs && response.logs.length > 0) {
+            // Add the new activity log entry to the beginning of the array
+            this.activityLog.unshift(response.logs[0]);
+            
+            // If we're showing a limited number of logs, remove the last one
+            if (this.activityLog.length > this.pageSize) {
+              this.activityLog.pop();
             }
-            // Reload activity logs after updating task
-            this.loadActivityLog(1);
-            // Update the Kanban board
-            this.updateKanbanBoard();
-          } else {
-            console.error('Invalid response structure:', response);
+            
+            // Update total logs count
+            this.totalLogs++;
+            
+            // Trigger change detection
+            this.changeDetectorRef.detectChanges();
           }
         },
-        error: (error) => {
-          console.error('Error updating task:', error);
-        },
-      });
+        (error) => {
+          console.error('Error fetching latest activity log:', error);
+        }
+      );
+    }
   }
 
   updateKanbanBoard() {
-    if (this.kanbanBoard) {
+    if (this.kanbanBoard && this.project) {
       this.kanbanBoard.tasks = this.project.tasks;
       this.kanbanBoard.distributeTasksToColumns();
+      this.updateChartData();
+    }
+  }
+
+  updateChartData() {
+    if (!this.project || !this.project.tasks) {
+      console.warn('Project or tasks not loaded yet');
+      return;
+    }
+
+    const taskStatuses = ['Not Started', 'In Progress', 'Stuck', 'Done'];
+    const statusCounts = taskStatuses.map(
+      (status) => this.project.tasks.filter((task: any) => task.status === status).length
+    );
+
+    if (this.chartData && this.chartData.datasets && this.chartData.datasets[0]) {
+      this.chartData.datasets[0].data = statusCounts;
+      
+      if (this.chart && this.chart.chart) {
+        this.chart.chart.update();
+      }
     }
   }
 
   loadActivityLog(page: number = this.currentPage): void {
-    if (this.project && this.project._id) {
+    if (this.project && this.project._id && !this.isLoadingActivityLog) {
+      this.isLoadingActivityLog = true;
       this.projectService
         .getProjectActivityLog(this.project._id, page, this.pageSize)
         .subscribe(
@@ -394,9 +494,17 @@ export class ProjectDetailsComponent implements OnInit {
             this.currentPage = response.currentPage;
             this.totalPages = response.totalPages;
             this.totalLogs = response.totalLogs;
+            this.isLoadingActivityLog = false;
+            
+            console.log('Number of items received:', this.activityLog.length);
+            
+            // Force view update
+            this.changeDetectorRef.detectChanges();
           },
           (error) => {
             console.error('Error loading activity log:', error);
+            this.isLoadingActivityLog = false;
+            this.changeDetectorRef.detectChanges();
           }
         );
     }
@@ -404,43 +512,28 @@ export class ProjectDetailsComponent implements OnInit {
 
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
     this.loadActivityLog(this.currentPage);
   }
 
-  formatActivityAction(action: string): SafeHtml {
+  formatActivityAction(action: string): string {
     const changes = action.split('. ');
 
     const formattedChanges = changes.map((change) => {
       if (change.includes('changed from')) {
         const [field, values] = change.split(' changed from ');
         const [oldValue, newValue] = values.split(' to ');
-        return `<strong>${field}</strong> changed from <span class="text-red-500">${this.formatDateIfNeeded(
-          oldValue
-        )}</span> to <span class="text-green-500">${this.formatDateIfNeeded(
-          newValue
-        )}</span>`;
+        return `<strong>${field}</strong> changed from <span class="text-red-500">${this.formatDateIfNeeded(oldValue)}</span> to <span class="text-green-500">${this.formatDateIfNeeded(newValue)}</span>`;
       } else if (change.includes('Added members:')) {
-        return (
-          change.replace(
-            'Added members:',
-            '<strong>Added members:</strong> <span class="text-green-500">'
-          ) + '</span>'
-        );
+        return change.replace('Added members:', '<strong>Added members:</strong> <span class="text-green-500">') + '</span>';
       } else if (change.includes('Removed members:')) {
-        return (
-          change.replace(
-            'Removed members:',
-            '<strong>Removed members:</strong> <span class="text-red-500">'
-          ) + '</span>'
-        );
+        return change.replace('Removed members:', '<strong>Removed members:</strong> <span class="text-red-500">') + '</span>';
       } else {
         return `<strong>${change}</strong>`;
       }
     });
 
-    return this.sanitizer.bypassSecurityTrustHtml(
-      formattedChanges.join('<br>')
-    );
+    return formattedChanges.join('<br>');
   }
 
   formatDateIfNeeded(value: string): string {
@@ -453,11 +546,74 @@ export class ProjectDetailsComponent implements OnInit {
 
   toggleActivityLog() {
     this.isActivityLogVisible = !this.isActivityLogVisible;
-    if (
-      this.isActivityLogVisible &&
-      (!this.activityLog || this.activityLog.length === 0)
-    ) {
+    if (this.isActivityLogVisible && (!this.activityLog || this.activityLog.length === 0)) {
       this.loadActivityLog();
     }
+  }
+
+  prepareChartData() {
+    if (!this.project || !this.project.tasks) {
+      console.warn('Project or tasks not loaded yet');
+      return;
+    }
+
+    const taskStatuses = ['Not Started', 'In Progress', 'Stuck', 'Done'];
+    const statusCounts = taskStatuses.map(
+      (status) => this.project.tasks.filter((task: any) => task.status === status).length
+    );
+
+    this.chartData = {
+      labels: taskStatuses,
+      datasets: [
+        {
+          data: statusCounts,
+          backgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+          hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+        },
+      ],
+    };
+
+    // If the chart is already initialized, update it
+    if (this.chart && this.chart.chart) {
+      this.chart.chart.update();
+    }
+  }
+
+  getTaskCountByStatus(status: string): number {
+    return this.project.tasks.filter((task: any) => task.status === status)
+      .length;
+  }
+
+  getProjectDuration(): string {
+    const start = new Date(this.project.createdAt);
+    const end = new Date();
+    const durationInDays = Math.floor(
+      (end.getTime() - start.getTime()) / (1000 * 3600 * 24)
+    );
+    return `${durationInDays} days`;
+  }
+
+  getCompletionRate(): number {
+    const completedTasks = this.getTaskCountByStatus('Done');
+    const totalTasks = this.project.tasks.length;
+    return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  }
+
+  getDaysRemaining(): number {
+    if (!this.project.dueDate) {
+      return 0; // or handle this case as appropriate for your application
+    }
+    const today = new Date();
+    const dueDate = new Date(this.project.dueDate);
+    const timeDiff = dueDate.getTime() - today.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+  }
+
+  trackByActivityId(index: number, activity: any): string {
+    return activity._id;
+  }
+
+  trackByTaskId(index: number, task: any): string {
+    return task._id;
   }
 }

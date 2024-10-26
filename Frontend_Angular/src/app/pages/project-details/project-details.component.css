@@ -143,3 +143,28 @@ mat-icon {
     margin: 0;
   }
 }
+
+.chart-container {
+  display: inline-block;
+  margin: auto;
+}
+
+.edit-button, .members-button {
+  transition: all 0.3s ease;
+}
+
+.edit-button:hover, .members-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .button-text {
+    display: none;
+  }
+}
+
+.activity-log-viewport {
+  height: 400px; /* Adjust this value based on your needs */
+  width: 100%;
+}

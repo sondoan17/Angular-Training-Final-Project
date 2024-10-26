@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
@@ -23,7 +23,7 @@ import { MatIconModule } from '@angular/material/icon';
               <span class="ml-3 font-medium text-gray-900">{{ member.username }}</span>
             </div>
             <button 
-              *ngIf="member._id !== data.creatorId"
+              *ngIf="!isCreator(member)"
               mat-icon-button 
               color="warn" 
               (click)="onRemoveMember(member)"
@@ -31,11 +31,12 @@ import { MatIconModule } from '@angular/material/icon';
             >
               <mat-icon>delete</mat-icon>
             </button>
+            <span *ngIf="isCreator(member)" class="text-sm text-gray-500">Creator</span>
           </li>
         </ul>
       </div>
       <mat-form-field appearance="outline" class="w-full mb-4 custom-form-field">
-        <mat-label>New Member Username</mat-label>
+        <mat-label>Username</mat-label>
         <input matInput [(ngModel)]="newMemberUsername" placeholder="Enter username">
       </mat-form-field>
       <div class="flex justify-end space-x-2">
@@ -78,13 +79,18 @@ import { MatIconModule } from '@angular/material/icon';
     }
   `]
 })
-export class ProjectMembersDialogComponent {
+export class ProjectMembersDialogComponent implements OnInit {
   newMemberUsername: string = '';
 
   constructor(
     public dialogRef: MatDialogRef<ProjectMembersDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { members: any[], projectId: string, creatorId: string }
+    @Inject(MAT_DIALOG_DATA) public data: { members: any[], creatorId: string }
   ) {}
+
+  ngOnInit() {
+    console.log('Creator ID:', this.data.creatorId);
+    console.log('Members:', this.data.members);
+  }
 
   onClose(): void {
     this.dialogRef.close();
@@ -97,10 +103,12 @@ export class ProjectMembersDialogComponent {
   }
 
   onRemoveMember(member: any): void {
-    this.dialogRef.close({ action: 'remove', memberId: member._id });
+    if (!this.isCreator(member)) {
+      this.dialogRef.close({ action: 'remove', memberId: member._id });
+    }
   }
 
-  removeMember(member: any) {
-    this.dialogRef.close({ action: 'remove', memberId: member._id });
+  isCreator(member: any): boolean {
+    return member._id === this.data.creatorId;
   }
 }
