@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { ProjectService } from '../services/project.service';
+import { ProjectService } from '../../services/project.service';
 import { MatMenuModule } from '@angular/material/menu';
 
 interface TasksByProject {

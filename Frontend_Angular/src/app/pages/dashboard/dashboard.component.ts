@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from './create-project-dialog/create-project-dialog.component';
-import { ProjectService, Project } from '../services/project.service';
+import { ProjectService, Project } from '../../services/project.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { EditProjectDialogComponent } from '../project-details/edit-project-dialog/edit-project-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-dashboard',

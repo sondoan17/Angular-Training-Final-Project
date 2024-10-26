@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ProjectService } from '../services/project.service';
+import { ProjectService } from '../../services/project.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,7 +19,7 @@ import { KanbanBoardComponent } from './kanban-board/kanban-board.component';
 import { switchMap } from 'rxjs/operators';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-project-details',

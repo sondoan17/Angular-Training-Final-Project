@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
-import { CreateProjectDialogComponent } from '../../dashboard/create-project-dialog/create-project-dialog.component';
+import { CreateProjectDialogComponent } from '../../pages/dashboard/create-project-dialog/create-project-dialog.component';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({

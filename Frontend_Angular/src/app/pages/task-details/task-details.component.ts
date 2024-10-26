@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProjectService } from '../services/project.service';
+import { ProjectService } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EditTaskDialogComponent } from './edit-task-dialog/edit-task-dialog.component';
 import { CommonModule } from '@angular/common';
@@ -9,8 +9,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
-import { AuthService } from '../services/auth.service';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { AuthService } from '../../services/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { interval } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
