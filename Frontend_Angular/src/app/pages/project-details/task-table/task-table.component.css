@@ -1,0 +1,31 @@
+::ng-deep .mat-mdc-select-trigger {
+  padding: 4px 8px;
+  border-radius: 9999px;
+}
+
+::ng-deep .mat-mdc-select-value {
+  max-width: 100%;
+  width: auto;
+}
+
+::ng-deep .mat-mdc-select-arrow-wrapper {
+  display: none;
+}
+
+.mat-mdc-row:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.mat-mdc-row:hover {
+  background-color: #f3f4f6;
+}
+
+.mat-mdc-header-cell {
+  font-weight: bold;
+  color: #374151;
+}
+
+.mat-mdc-cell {
+  color: #4b5563;
+}
+

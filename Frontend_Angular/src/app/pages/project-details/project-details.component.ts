@@ -20,6 +20,8 @@ import { switchMap } from 'rxjs/operators';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AuthService } from '../../services/auth.service';
+import { NgChartsModule } from 'ng2-charts';
+import { TaskTableComponent } from './task-table/task-table.component';
 
 @Component({
   selector: 'app-project-details',
@@ -39,6 +41,8 @@ import { AuthService } from '../../services/auth.service';
     MatListModule,
     KanbanBoardComponent,
     MatPaginatorModule,
+    NgChartsModule,
+    TaskTableComponent,
   ],
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css'],
@@ -68,6 +72,11 @@ export class ProjectDetailsComponent implements OnInit {
 
   isActivityLogVisible: boolean = false;
 
+  chartData: any;
+  chartOptions: any;
+
+  isKanbanView: boolean = true;
+
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
@@ -91,6 +100,7 @@ export class ProjectDetailsComponent implements OnInit {
         next: (project) => {
           this.project = project;
           this.loadActivityLog();
+          this.prepareChartData(); // Move this here
         },
         error: (error) => {
           console.error('Error loading project:', error);
@@ -102,6 +112,8 @@ export class ProjectDetailsComponent implements OnInit {
       _id: this.authService.getCurrentUserId() ?? '',
       username: this.authService.getCurrentUsername(),
     };
+
+    this.prepareChartData();
   }
 
   getCreatorUsername(): string {
@@ -152,7 +164,6 @@ export class ProjectDetailsComponent implements OnInit {
           this.snackBar.open('Member added successfully', 'Close', {
             duration: 3000,
           });
-
           // Add a new activity log entry locally
           if (this.currentUser) {
             const newLogEntry = {
@@ -179,7 +190,10 @@ export class ProjectDetailsComponent implements OnInit {
   openMembersDialog() {
     const dialogRef = this.dialog.open(ProjectMembersDialogComponent, {
       width: '300px',
-      data: { members: this.project.members },
+      data: {
+        members: this.project.members,
+        creatorId: this.project.createdBy._id, // Ensure this is correctly set
+      },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -187,7 +201,14 @@ export class ProjectDetailsComponent implements OnInit {
         if (result.action === 'add') {
           this.addMemberToProject(result.username);
         } else if (result.action === 'remove') {
-          this.removeMemberFromProject(result.memberId);
+          // Add an additional check here
+          if (result.memberId !== this.project.createdBy._id) {
+            this.removeMemberFromProject(result.memberId);
+          } else {
+            this.snackBar.open('Cannot remove the project creator', 'Close', {
+              duration: 3000,
+            });
+          }
         }
       }
     });
@@ -350,36 +371,31 @@ export class ProjectDetailsComponent implements OnInit {
     return assignedMember ? assignedMember.username : 'Unassigned';
   }
 
-  onTaskMoved(event: { task: any; newStatus: string }) {
-    this.projectService
-      .updateTaskStatus(this.project._id, event.task._id, event.newStatus)
-      .subscribe({
-        next: (response) => {
-          if (response && response._id) {
-            const taskIndex = this.project.tasks.findIndex(
-              (t: any) => t._id === response._id
-            );
-            if (taskIndex !== -1) {
-              this.project.tasks[taskIndex] = response;
-            }
-            // Reload activity logs after updating task
-            this.loadActivityLog(1);
-            // Update the Kanban board
-            this.updateKanbanBoard();
-          } else {
-            console.error('Invalid response structure:', response);
-          }
+  onTaskMoved(event: { task: any, newStatus: string }) {
+    // Update the task status in your data model
+    const taskIndex = this.project.tasks.findIndex((t: { _id: any; }) => t._id === event.task._id);
+    if (taskIndex !== -1) {
+      this.project.tasks[taskIndex].status = event.newStatus;
+      
+      // Call your service method to update the task on the server
+      this.projectService.updateTask(this.project._id, event.task._id, { status: event.newStatus }).subscribe(
+        updatedTask => {
+          console.log('Task updated successfully', updatedTask);
+          // Optionally, update the local task with the response from the server
         },
-        error: (error) => {
-          console.error('Error updating task:', error);
-        },
-      });
+        error => {
+          console.error('Error updating task', error);
+          // Handle the error (e.g., show a notification to the user)
+        }
+      );
+    }
   }
 
   updateKanbanBoard() {
-    if (this.kanbanBoard) {
+    if (this.kanbanBoard && this.project) {
       this.kanbanBoard.tasks = this.project.tasks;
       this.kanbanBoard.distributeTasksToColumns();
+      this.prepareChartData(); // This will only be called if the project is loaded
     }
   }
 
@@ -459,5 +475,82 @@ export class ProjectDetailsComponent implements OnInit {
     ) {
       this.loadActivityLog();
     }
+  }
+
+  prepareChartData() {
+    if (!this.project || !this.project.tasks) {
+      console.warn('Project or tasks not loaded yet');
+      return;
+    }
+
+    const taskStatuses = ['Not Started', 'In Progress', 'Stuck', 'Done'];
+    const statusCounts = taskStatuses.map(
+      (status) =>
+        this.project.tasks.filter((task: any) => task.status === status).length
+    );
+
+    this.chartData = {
+      labels: taskStatuses,
+      datasets: [
+        {
+          data: statusCounts,
+          backgroundColor: ['#D1D5DB', '#61A5FA', '#F97575', '#4BDE80'],
+          hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F97575', '#4BDE80'],
+        },
+      ],
+    };
+
+    this.chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 10,
+            font: {
+              size: 10,
+            },
+          },
+        },
+        title: {
+          display: false,
+        },
+      },
+      layout: {
+        padding: 5,
+      },
+    };
+  }
+
+  getTaskCountByStatus(status: string): number {
+    return this.project.tasks.filter((task: any) => task.status === status).length;
+  }
+
+  getProjectDuration(): string {
+    const start = new Date(this.project.createdAt);
+    const end = new Date();
+    const durationInDays = Math.floor((end.getTime() - start.getTime()) / (1000 * 3600 * 24));
+    return `${durationInDays} days`;
+  }
+
+  getCompletionRate(): number {
+    const completedTasks = this.getTaskCountByStatus('Done');
+    const totalTasks = this.project.tasks.length;
+    return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  }
+
+  getDaysRemaining(): number {
+    if (!this.project.dueDate) {
+      return 0; // or handle this case as appropriate for your application
+    }
+    const today = new Date();
+    const dueDate = new Date(this.project.dueDate);
+    const timeDiff = dueDate.getTime() - today.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+  }
+
+  toggleView() {
+    this.isKanbanView = !this.isKanbanView;
   }
 }

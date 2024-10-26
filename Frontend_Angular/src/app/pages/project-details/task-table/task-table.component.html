@@ -1,0 +1,49 @@
+<p>task-table works!</p>
+
+<table mat-table [dataSource]="tasks" class="mat-elevation-z8 w-full">
+  <ng-container matColumnDef="title">
+    <th mat-header-cell *matHeaderCellDef> Title </th>
+    <td mat-cell *matCellDef="let task"> {{task.title}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef> Status </th>
+    <td mat-cell *matCellDef="let task">
+      <mat-select [(ngModel)]="task.status" (selectionChange)="moveTask(task, $event.value)"
+                  [ngClass]="getStatusColor(task.status)"
+                  class="py-1 px-2 rounded-full text-sm font-medium">
+        <mat-option *ngFor="let status of statuses" [value]="status">
+          {{status}}
+        </mat-option>
+      </mat-select>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="priority">
+    <th mat-header-cell *matHeaderCellDef> Priority </th>
+    <td mat-cell *matCellDef="let task"> {{task.priority}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="assignedTo">
+    <th mat-header-cell *matHeaderCellDef> Assigned To </th>
+    <td mat-cell *matCellDef="let task">{{ getAssignedUsernames(task) }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef> Actions </th>
+    <td mat-cell *matCellDef="let task">
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="moveTask(task, 'Not Started')">Move to Not Started</button>
+        <button mat-menu-item (click)="moveTask(task, 'In Progress')">Move to In Progress</button>
+        <button mat-menu-item (click)="moveTask(task, 'Stuck')">Move to Stuck</button>
+        <button mat-menu-item (click)="moveTask(task, 'Done')">Move to Done</button>
+      </mat-menu>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
