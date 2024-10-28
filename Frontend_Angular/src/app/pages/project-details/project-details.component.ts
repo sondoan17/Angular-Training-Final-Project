@@ -77,12 +77,18 @@ export class ProjectDetailsComponent implements OnInit {
 
   isActivityLogVisible: boolean = false;
 
-  chartData: ChartData<'pie'> = {
+  chartData: ChartData<'bar'> = {
     labels: [],
     datasets: [{
       data: [],
-      backgroundColor: [],
-      hoverBackgroundColor: []
+      backgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+      borderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
+      borderWidth: 1,
+      borderRadius: 4,
+      // Add this to maintain colors during hover
+      hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+      hoverBorderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
+      hoverBorderWidth: 1,
     }]
   };
 
@@ -91,31 +97,58 @@ export class ProjectDetailsComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom',
-        labels: {
-          boxWidth: 10,
-          font: {
-            size: 10,
-          },
-        },
+        display: false
       },
       title: {
         display: false,
       },
+      tooltip: {
+        enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        cornerRadius: 4,
+        padding: 10
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1
+        },
+        grid: {
+          drawBorder: false,
+          color: 'rgba(0, 0, 0, 0.1)'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        }
+      }
     },
     animation: {
-      duration: 0
+      duration: 750, 
+      easing: 'easeInOutQuart', 
     },
     transitions: {
       active: {
         animation: {
-          duration: 0
+          duration: 750
         }
       }
     },
     hover: {
-      mode: 'nearest',
-      intersect: true
+      mode: 'index',
+      intersect: false,
+    },
+    elements: {
+      bar: {
+        
+        hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+        borderRadius: 4, 
+      }
     }
   };
 
@@ -473,11 +506,18 @@ export class ProjectDetailsComponent implements OnInit {
       (status) => this.project.tasks.filter((task: any) => task.status === status).length
     );
 
+    // Update data with animation
     if (this.chartData && this.chartData.datasets && this.chartData.datasets[0]) {
-      this.chartData.datasets[0].data = statusCounts;
+      this.chartData = {
+        ...this.chartData,
+        datasets: [{
+          ...this.chartData.datasets[0],
+          data: statusCounts
+        }]
+      };
       
       if (this.chart && this.chart.chart) {
-        this.chart.chart.update();
+        this.chart.chart.update('active'); // Use 'active' mode for smooth transitions
       }
     }
   }
@@ -568,12 +608,17 @@ export class ProjectDetailsComponent implements OnInit {
         {
           data: statusCounts,
           backgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+          borderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
+          borderWidth: 1,
+          borderRadius: 4,
+          // Add this to maintain colors during hover
           hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+          hoverBorderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
+          hoverBorderWidth: 1,
         },
       ],
     };
 
-    // If the chart is already initialized, update it
     if (this.chart && this.chart.chart) {
       this.chart.chart.update();
     }

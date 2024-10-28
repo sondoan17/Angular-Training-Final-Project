@@ -92,19 +92,12 @@
           <!-- Doughnut Chart -->
           <div
             class="chart-container"
-            style="
-              position: relative;
-              height: 200px;
-              width: 200px;
-              margin: auto;
-            "
-          >
+            style="position: relative; height: 200px; width: 100%; margin: auto;">
             <canvas
               baseChart
               [data]="chartData"
               [options]="chartOptions"
-              [type]="'pie'"
-            >
+              [type]="'bar'">
             </canvas>
           </div>
         </div>

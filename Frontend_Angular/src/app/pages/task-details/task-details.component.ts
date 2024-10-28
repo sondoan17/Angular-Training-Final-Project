@@ -367,4 +367,12 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     // If it's not a date, return the original value
     return value;
   }
+
+  goBack(): void {
+    if (this.projectId) {
+      this.router.navigate(['/projects', this.projectId]);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 }

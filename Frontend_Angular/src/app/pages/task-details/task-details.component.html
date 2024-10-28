@@ -1,5 +1,14 @@
-<div class="max-w-4xl mx-auto p-6" *ngIf="task">
-  <div class="mb-8">
+<!-- Add this at the very top of the template, before the main content -->
+<div class="max-w-4xl mx-auto p-6">
+  <button
+    mat-button
+    (click)="goBack()"
+    class="mb-4 flex items-center text-gray-600 hover:text-gray-800"
+  >
+    <mat-icon class="mr-2">arrow_back</mat-icon> Back to Project
+  </button>
+
+  <div class="mb-8" *ngIf="task">
     <div class="flex justify-between items-start mb-4">
       <h1 class="text-3xl font-bold text-gray-800">{{ task?.title }}</h1>
       <div class="flex space-x-2" *ngIf="isProjectCreator">
