@@ -176,24 +176,27 @@
       </div>
 
       <!-- Activity Log Toggle -->
-      <div class="activity-log-toggle-container mt-6">
+      <div class="flex justify-end mt-6">
         <button
           mat-raised-button
           color="primary"
           (click)="toggleActivityLog()"
-          class="activity-log-toggle"
+          class="flex items-center justify-center space-x-2 px-4 py-2"
         >
-          <mat-icon>{{
+          <mat-icon class="mr-2">{{
             isActivityLogVisible ? "visibility_off" : "visibility"
           }}</mat-icon>
-          {{ isActivityLogVisible ? "Hide Activity Log" : "Show Activity Log" }}
+          <span>{{ isActivityLogVisible ? "Hide Activity Log" : "Show Activity Log" }}</span>
         </button>
       </div>
 
       <!-- Activity Log -->
-      <div class="bg-white shadow rounded-lg overflow-hidden mt-8" [class.hidden]="!isActivityLogVisible">
-        <div class="p-6">
-          <h2 class="text-2xl font-semibold text-gray-800 mb-6">Activity Log</h2>
+      <div 
+        class="bg-white shadow rounded-lg overflow-hidden mt-8" 
+        [class.hidden]="!isActivityLogVisible"
+      >
+        <div class="p-4 sm:p-6">
+          <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-6">Activity Log</h2>
           <div *ngIf="isLoadingActivityLog" class="flex justify-center items-center h-20">
             <mat-spinner diameter="40"></mat-spinner>
           </div>
