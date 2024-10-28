@@ -183,4 +183,37 @@ export class ProjectService {
   getProjectActivityLog(projectId: string, page: number = 1, pageSize: number = 5): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${projectId}/activity?page=${page}&pageSize=${pageSize}`);
   }
+
+  getTaskComments(projectId: string, taskId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${projectId}/tasks/${taskId}/comments`);
+  }
+
+  addTaskComment(projectId: string, taskId: string, commentData: { content: string }): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/${projectId}/tasks/${taskId}/comments`,
+      commentData
+    );
+  }
+
+  updateTaskComment(
+    projectId: string,
+    taskId: string,
+    commentId: string,
+    data: { content: string }
+  ): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiUrl}/${projectId}/tasks/${taskId}/comments/${commentId}`,
+      data
+    );
+  }
+
+  deleteTaskComment(
+    projectId: string,
+    taskId: string,
+    commentId: string
+  ): Observable<any> {
+    return this.http.delete<any>(
+      `${this.apiUrl}/${projectId}/tasks/${taskId}/comments/${commentId}`
+    );
+  }
 }

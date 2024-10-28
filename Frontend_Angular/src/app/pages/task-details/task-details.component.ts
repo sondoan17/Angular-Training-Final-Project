@@ -17,6 +17,10 @@ import { takeWhile } from 'rxjs/operators';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DatePipe } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-task-details',
@@ -30,6 +34,10 @@ import { DatePipe } from '@angular/common';
     MatDialogModule,
     MatMenuModule,
     MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './task-details.component.html',
   styleUrls: ['./task-details.component.css'],
@@ -47,6 +55,16 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   currentPage: number = 1;
   totalPages: number = 1;
   totalLogs: number = 0;
+  comments: any[] = [];
+  newComment: string = '';
+  isLoadingComments = false;
+
+  // Optional: Add maxLength constant
+  readonly maxCommentLength = 1000;
+
+  // Add new properties
+  editingCommentId: string | null = null;
+  editCommentText: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -69,6 +87,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
         this.updateRemainingTime();
         this.startRemainingTimeCounter();
         this.loadActivityLog();
+        this.loadComments();
       }
     });
   }
@@ -264,7 +283,6 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
         (updatedTask) => {
           this.task.status = updatedTask.status;
           this.updateRemainingTime();
-          // Reload activity log after updating task status
           this.loadActivityLog(1);
         },
         (error) => {
@@ -335,10 +353,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   }
 
   formatActivityAction(action: string): SafeHtml {
-    // Split the action string into separate changes
     const changes = action.split('. ');
-    
-    // Format each change
     const formattedChanges = changes.map(change => {
       if (change.includes('changed from')) {
         const [field, values] = change.split(' changed from ');
@@ -364,7 +379,6 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
       // If it's a date, format it as DD/MM/YYYY
       return this.datePipe.transform(value, 'dd/MM/yyyy') || value;
     }
-    // If it's not a date, return the original value
     return value;
   }
 
@@ -374,5 +388,107 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/dashboard']);
     }
+  }
+
+  loadComments(): void {
+    if (this.projectId && this.taskId) {
+      this.isLoadingComments = true;
+      this.projectService.getTaskComments(this.projectId, this.taskId).subscribe(
+        (comments) => {
+          this.comments = comments;
+          this.isLoadingComments = false;
+        },
+        (error) => {
+          console.error('Error loading comments:', error);
+          this.isLoadingComments = false;
+        }
+      );
+    }
+  }
+
+  addComment(): void {
+    if (this.projectId && this.taskId && this.newComment?.trim()) {
+      const commentContent = this.newComment.trim();
+      this.newComment = ''; // Clear immediately for better UX
+      
+      this.projectService.addTaskComment(
+        this.projectId,
+        this.taskId,
+        { content: commentContent }
+      ).subscribe(
+        (comment) => {
+          this.comments.unshift(comment);
+          this.loadActivityLog();
+        },
+        (error) => {
+          console.error('Error adding comment:', error);
+          // Optionally restore the comment text if there was an error
+          this.newComment = commentContent;
+        }
+      );
+    }
+  }
+
+  isCommentAuthor(comment: any): boolean {
+    return comment.author?._id === this.authService.getCurrentUserId();
+  }
+
+  editComment(comment: any): void {
+    this.editingCommentId = comment._id;
+    this.editCommentText = comment.content;
+  }
+
+  cancelEdit(): void {
+    this.editingCommentId = null;
+    this.editCommentText = '';
+  }
+
+  saveEdit(comment: any): void {
+    if (!this.editCommentText?.trim()) return;
+
+    this.projectService.updateTaskComment(
+      this.projectId!,
+      this.taskId!,
+      comment._id,
+      { content: this.editCommentText.trim() }
+    ).subscribe(
+      (updatedComment) => {
+        const index = this.comments.findIndex(c => c._id === comment._id);
+        if (index !== -1) {
+          this.comments[index] = updatedComment;
+        }
+        this.cancelEdit();
+      },
+      (error) => {
+        console.error('Error updating comment:', error);
+      }
+    );
+  }
+
+  deleteComment(comment: any): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Delete Comment',
+        message: 'Are you sure you want to delete this comment?'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.projectService.deleteTaskComment(
+          this.projectId!,
+          this.taskId!,
+          comment._id
+        ).subscribe(
+          () => {
+            this.comments = this.comments.filter(c => c._id !== comment._id);
+          },
+          (error) => {
+            console.error('Error deleting comment:', error);
+          }
+        );
+      }
+    });
   }
 }
