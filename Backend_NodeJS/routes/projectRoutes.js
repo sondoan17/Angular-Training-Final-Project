@@ -22,4 +22,10 @@ router.put("/:projectId/tasks/:taskId", authMiddleware, taskController.updateTas
 router.delete("/:projectId/tasks/:taskId", authMiddleware, taskController.deleteTask);
 router.get("/:projectId/tasks/:taskId/activity", authMiddleware, taskController.getTaskActivity);
 
+// Comment routes
+router.get("/:projectId/tasks/:taskId/comments", authMiddleware, taskController.getTaskComments);
+router.post("/:projectId/tasks/:taskId/comments", authMiddleware, taskController.addTaskComment);
+router.put("/:projectId/tasks/:taskId/comments/:commentId", authMiddleware, taskController.updateComment);
+router.delete("/:projectId/tasks/:taskId/comments/:commentId", authMiddleware, taskController.deleteComment);
+
 module.exports = router;
