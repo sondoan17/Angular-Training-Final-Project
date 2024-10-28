@@ -353,23 +353,29 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   }
 
   formatActivityAction(action: string): SafeHtml {
-    const changes = action.split('. ');
-    const formattedChanges = changes.map(change => {
-      if (change.includes('changed from')) {
-        const [field, values] = change.split(' changed from ');
-        const [oldValue, newValue] = values.split(' to ');
-        return `<strong>${field}</strong> changed from <span class="text-red-500">${this.formatDateIfNeeded(oldValue)}</span> to <span class="text-green-500">${this.formatDateIfNeeded(newValue)}</span>`;
-      } else if (change.includes('Added members:')) {
-        return change.replace('Added members:', '<strong>Added members:</strong> <span class="text-green-500">') + '</span>';
-      } else if (change.includes('Removed members:')) {
-        return change.replace('Removed members:', '<strong>Removed members:</strong> <span class="text-red-500">') + '</span>';
-      } else {
-        return `<strong>${change}</strong>`;
-      }
-    });
+    if (!action) return '';
 
-    // Join the formatted changes and sanitize the HTML
-    return this.sanitizer.bypassSecurityTrustHtml(formattedChanges.join('<br>'));
+    // For timeline changes
+    if (action.includes('timeline updated:')) {
+      return this.sanitizer.bypassSecurityTrustHtml(
+        action.replace(
+          /(from\s)([^,\s]+)(\sto\s)([^,\s]+)/g,
+          '$1<span class="text-red-500">$2</span>$3<span class="text-green-500">$4</span>'
+        )
+      );
+    }
+
+    // For other changes (status, priority, etc.)
+    if (action.includes('changed from')) {
+      return this.sanitizer.bypassSecurityTrustHtml(
+        action.replace(
+          /(changed from\s")(.*?)("\sto\s")(.*?)(")/g,
+          '$1<span class="text-red-500">$2</span>$3<span class="text-green-500">$4</span>$5'
+        )
+      );
+    }
+
+    return action;
   }
 
   formatDateIfNeeded(value: string): string {

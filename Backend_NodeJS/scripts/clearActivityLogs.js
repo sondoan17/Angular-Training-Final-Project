@@ -9,13 +9,42 @@ mongoose.connect(databaseUrl, { useNewUrlParser: true, useUnifiedTopology: true 
 
 async function clearActivityLogs() {
   try {
+    // Get counts before clearing
+    const projectsWithLogs = await Project.aggregate([
+      {
+        $project: {
+          projectLogCount: { $size: "$activityLog" },
+          taskLogsCount: {
+            $reduce: {
+              input: "$tasks",
+              initialValue: 0,
+              in: { 
+                $add: [
+                  "$$value",
+                  { $size: "$$this.activityLog" }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalProjectLogs: { $sum: "$projectLogCount" },
+          totalTaskLogs: { $sum: "$taskLogsCount" }
+        }
+      }
+    ]);
+
+    const totalProjectLogs = projectsWithLogs[0]?.totalProjectLogs || 0;
+    const totalTaskLogs = projectsWithLogs[0]?.totalTaskLogs || 0;
+
     // Clear project-level activity logs
     const projectResult = await Project.updateMany(
       {},
       { $set: { activityLog: [] } }
     );
-
-    console.log(`Cleared activity logs for ${projectResult.modifiedCount} projects`);
 
     // Clear task-level activity logs
     const taskResult = await Project.updateMany(
@@ -23,9 +52,14 @@ async function clearActivityLogs() {
       { $set: { "tasks.$[].activityLog": [] } }
     );
 
-    console.log(`Cleared task activity logs in ${taskResult.modifiedCount} projects`);
+    console.log('Activity Logs Clearing Summary:');
+    console.log('--------------------------------');
+    console.log(`Projects affected: ${projectResult.modifiedCount}`);
+    console.log(`Project-level logs deleted: ${totalProjectLogs}`);
+    console.log(`Task-level logs deleted: ${totalTaskLogs}`);
+    console.log(`Total logs deleted: ${totalProjectLogs + totalTaskLogs}`);
+    console.log('--------------------------------');
 
-    console.log('All project and task activity logs have been cleared');
   } catch (error) {
     console.error('Error clearing activity logs:', error);
   } finally {

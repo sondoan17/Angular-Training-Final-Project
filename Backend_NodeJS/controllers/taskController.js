@@ -90,31 +90,68 @@ exports.updateTask = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Log changes
+    // Function to format date for logging
+    const formatDate = (date) => {
+      if (!date) return 'unset';
+      return new Date(date).toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
+    };
+
+    // Track changes for activity log
     const changes = [];
-    for (const [key, value] of Object.entries(updateData)) {
-      if (task[key] !== value) {
-        changes.push(`${key} changed from ${task[key]} to ${value}`);
+    
+    // Check timeline changes
+    if (updateData.timeline) {
+      const oldStart = formatDate(task.timeline?.start);
+      const oldEnd = formatDate(task.timeline?.end);
+      const newStart = formatDate(updateData.timeline.start);
+      const newEnd = formatDate(updateData.timeline.end);
+
+      if (oldStart !== newStart || oldEnd !== newEnd) {
+        changes.push(`timeline updated: Start date from ${oldStart} to ${newStart}, End date from ${oldEnd} to ${newEnd}`);
       }
     }
 
-    // Update task
+    // Check other field changes
+    const fieldsToTrack = ['title', 'description', 'status', 'priority', 'type'];
+    fieldsToTrack.forEach(field => {
+      if (updateData[field] && updateData[field] !== task[field]) {
+        changes.push(`${field} changed from "${task[field]}" to "${updateData[field]}"`);
+      }
+    });
+
+    // Check assignedTo changes
+    if (updateData.assignedTo) {
+      const oldAssignees = task.assignedTo.map(id => id.toString()).sort();
+      const newAssignees = updateData.assignedTo.map(id => id.toString()).sort();
+      
+      if (JSON.stringify(oldAssignees) !== JSON.stringify(newAssignees)) {
+        changes.push('assigned members updated');
+      }
+    }
+
+    // Update the task
     Object.assign(task, updateData);
+    
+    // Log each change separately
+    for (const change of changes) {
+      task.activityLog.push({
+        action: change,
+        performedBy: req.user.userId,
+        timestamp: new Date()
+      });
+    }
+
     await project.save();
 
-    // Log activity
-    if (changes.length > 0) {
-      await logTaskActivity(
-        projectId,
-        taskId,
-        `updated: ${changes.join(', ')}`,
-        req.user.userId
-      );
-    }
+    // Populate necessary fields before sending response
+    await Project.populate(task, {
+      path: 'assignedTo',
+      select: 'username _id'
+    });
 
     res.json(task);
   } catch (error) {
-    console.error('Error updating task:', error);
+    console.error("Error updating task:", error);
     res.status(500).json({ message: "Error updating task", error: error.message });
   }
 };
@@ -405,3 +442,4 @@ exports.deleteComment = async (req, res) => {
     });
   }
 };
+
