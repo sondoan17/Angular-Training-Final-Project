@@ -28,90 +28,8 @@ interface Column {
   selector: 'app-kanban-board',
   standalone: true,
   imports: [CommonModule, DragDropModule, MatCardModule],
-  template: `
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div
-        *ngFor="let column of columns"
-        class="p-4 rounded-lg shadow"
-        [ngClass]="getColumnClass(column.id)"
-        cdkDropList
-        [cdkDropListData]="column.tasks"
-        (cdkDropListDropped)="drop($event)"
-        [id]="column.id"
-        [cdkDropListConnectedTo]="getConnectedList()"
-      >
-        <h3 class="text-lg font-semibold mb-4 text-gray-700">{{ column.title }}</h3>
-        <div
-          *ngFor="let task of column.tasks"
-          cdkDrag
-          (click)="onTaskClick(task)"
-          class="bg-white p-4 rounded shadow-sm mb-3 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4"
-          [ngClass]="getTaskBorderClass(task.priority)"
-        >
-          <h4 class="font-medium mb-2 text-gray-800">{{ task.title }}</h4>
-          <p class="text-sm text-gray-600 mb-2 task-description" [title]="task.description">
-            {{ task.description }}
-          </p>
-          <div class="flex justify-end items-center text-xs">
-            <span class="px-2 py-1 rounded font-medium" [ngClass]="getTaskPriorityClass(task.priority)">
-              {{ task.priority }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      .kanban-board {
-        display: flex;
-        justify-content: space-around;
-      }
-      .kanban-column {
-        width: 200px;
-        min-height: 300px;
-        border: 1px solid #ccc;
-        padding: 10px;
-      }
-      mat-card {
-        margin-bottom: 10px;
-        cursor: move;
-      }
-      .cdk-drag-preview {
-        box-sizing: border-box;
-        border-radius: 4px;
-        box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-          0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
-      }
-      .cdk-drag-placeholder {
-        opacity: 0;
-      }
-      .cdk-drag-animating {
-        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-      }
-      .column-drop-zone {
-        transition: background-color 0.2s ease;
-      }
-      .column-drop-zone.cdk-drop-list-dragging {
-        background-color: rgba(0, 0, 0, 0.04);
-      }
-      .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .task-description {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        word-wrap: break-word;
-        white-space: pre-wrap;
-        max-height: 4.5em; /* Approximately 3 lines of text */
-      }
-    `,
-  ],
+  templateUrl: './kanban-board.component.html',
+  styleUrls: ['./kanban-board.component.css'],
 })
 export class KanbanBoardComponent implements OnInit {
   private _tasks: Task[] = [];
@@ -232,24 +150,26 @@ export class KanbanBoardComponent implements OnInit {
   }
 
   updateTaskStatus(task: Task, newStatus: string) {
-    this.projectService.updateTaskStatus(this.projectId, task._id, newStatus).subscribe(
-      (updatedTask) => {
-        console.log('Task status updated:', updatedTask);
-        if (updatedTask && updatedTask._id) {
-          // Update the local task object
-          Object.assign(task, updatedTask);
-          this.taskMoved.emit({ task: updatedTask, newStatus });
-        } else {
-          console.error('Invalid task data returned from server:', updatedTask);
-          // Optionally, revert the UI change or show an error message
+    this.projectService
+      .updateTaskStatus(this.projectId, task._id, newStatus)
+      .subscribe(
+        (updatedTask) => {
+          if (updatedTask && updatedTask._id) {
+            // Update the local task object
+            Object.assign(task, updatedTask);
+            this.taskMoved.emit({ task: updatedTask, newStatus });
+          } else {
+            console.error(
+              'Invalid task data returned from server:',
+              updatedTask
+            );
+          }
+        },
+        (error) => {
+          console.error('Error updating task status:', error);
+
+          this.distributeTasksToColumns();
         }
-      },
-      (error) => {
-        console.error('Error updating task status:', error);
-        // Revert the UI change
-        this.distributeTasksToColumns();
-        // Optionally, show an error message to the user
-      }
-    );
+      );
   }
 }

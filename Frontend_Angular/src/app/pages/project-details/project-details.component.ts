@@ -1,30 +1,42 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+// Angular Core
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ProjectService } from '../../services/project.service';
-import { MatSidenav } from '@angular/material/sidenav';
+import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+// Angular Router
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+
+// RxJS
+import { switchMap } from 'rxjs/operators';
+
+// Angular Material
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.component';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ProjectMembersDialogComponent } from './project-members-dialog/project-members-dialog.component';
-import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
-import { CreateTaskDialogComponent } from './create-task-dialog/create-task-dialog.component';
 import { MatListModule } from '@angular/material/list';
-import { KanbanBoardComponent } from './kanban-board/kanban-board.component';
-import { switchMap } from 'rxjs/operators';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { AuthService } from '../../services/auth.service';
-import { NgChartsModule } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts';
-import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenav } from '@angular/material/sidenav';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
+// Chart.js
+import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
+import { BaseChartDirective, NgChartsModule } from 'ng2-charts';
+
+// Services
+import { AuthService } from '../../services/auth.service';
+import { ProjectService } from '../../services/project.service';
+
+// Components
+import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.component';
+import { CreateTaskDialogComponent } from './create-task-dialog/create-task-dialog.component';
+import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
+import { KanbanBoardComponent } from './kanban-board/kanban-board.component';
+import { ProjectMembersDialogComponent } from './project-members-dialog/project-members-dialog.component';
 
 @Component({
   selector: 'app-project-details',
@@ -51,7 +63,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css'],
   providers: [DatePipe],
-  changeDetection: ChangeDetectionStrategy.OnPush // Add this line
+  changeDetection: ChangeDetectionStrategy.OnPush 
 })
 export class ProjectDetailsComponent implements OnInit {
   project: any;
@@ -85,7 +97,6 @@ export class ProjectDetailsComponent implements OnInit {
       borderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
       borderWidth: 1,
       borderRadius: 4,
-      // Add this to maintain colors during hover
       hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
       hoverBorderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
       hoverBorderWidth: 1,
@@ -156,7 +167,7 @@ export class ProjectDetailsComponent implements OnInit {
 
   isLoadingActivityLog: boolean = false;
 
-  itemSize: number = 0; // Adjust this value based on the actual height of your list items
+  itemSize: number = 0; // height of list items
 
   constructor(
     private route: ActivatedRoute,
@@ -182,7 +193,7 @@ export class ProjectDetailsComponent implements OnInit {
         next: (project) => {
           this.project = project;
           this.loadActivityLog();
-          this.prepareChartData(); // Move this here
+          this.prepareChartData(); 
         },
         error: (error) => {
           console.error('Error loading project:', error);
@@ -275,7 +286,7 @@ export class ProjectDetailsComponent implements OnInit {
       width: '300px',
       data: {
         members: this.project.members,
-        creatorId: this.project.createdBy._id, // Ensure this is correctly set
+        creatorId: this.project.createdBy._id, 
       },
     });
 
@@ -284,7 +295,7 @@ export class ProjectDetailsComponent implements OnInit {
         if (result.action === 'add') {
           this.addMemberToProject(result.username);
         } else if (result.action === 'remove') {
-          // Add an additional check here
+        
           if (result.memberId !== this.project.createdBy._id) {
             this.removeMemberFromProject(result.memberId);
           } else {
@@ -506,7 +517,7 @@ export class ProjectDetailsComponent implements OnInit {
       (status) => this.project.tasks.filter((task: any) => task.status === status).length
     );
 
-    // Update data with animation
+  
     if (this.chartData && this.chartData.datasets && this.chartData.datasets[0]) {
       this.chartData = {
         ...this.chartData,
@@ -517,7 +528,7 @@ export class ProjectDetailsComponent implements OnInit {
       };
       
       if (this.chart && this.chart.chart) {
-        this.chart.chart.update('active'); // Use 'active' mode for smooth transitions
+        this.chart.chart.update('active'); //  'active' smooth transitions
       }
     }
   }
@@ -529,16 +540,16 @@ export class ProjectDetailsComponent implements OnInit {
         .getProjectActivityLog(this.project._id, page, this.pageSize)
         .subscribe(
           (response) => {
-            console.log('Loaded activity log:', response);
+            
             this.activityLog = response.logs;
             this.currentPage = response.currentPage;
             this.totalPages = response.totalPages;
             this.totalLogs = response.totalLogs;
             this.isLoadingActivityLog = false;
             
-            console.log('Number of items received:', this.activityLog.length);
             
-            // Force view update
+            
+          
             this.changeDetectorRef.detectChanges();
           },
           (error) => {
@@ -611,7 +622,7 @@ export class ProjectDetailsComponent implements OnInit {
           borderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
           borderWidth: 1,
           borderRadius: 4,
-          // Add this to maintain colors during hover
+        
           hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
           hoverBorderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
           hoverBorderWidth: 1,
@@ -646,7 +657,7 @@ export class ProjectDetailsComponent implements OnInit {
 
   getDaysRemaining(): number {
     if (!this.project.dueDate) {
-      return 0; // or handle this case as appropriate for your application
+      return 0; 
     }
     const today = new Date();
     const dueDate = new Date(this.project.dueDate);

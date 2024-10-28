@@ -14,7 +14,7 @@ router.post("/:id/members", authMiddleware, projectController.addMemberToProject
 router.delete("/:projectId/members/:memberId", authMiddleware, projectController.removeMemberFromProject);
 router.get("/:projectId/activity", authMiddleware, projectController.getProjectActivity);
 
-// Task routes (these should be moved to taskController.js and updated accordingly)
+// Task routes
 router.post("/:projectId/tasks", authMiddleware, taskController.createTask);
 router.get("/:projectId/tasks", authMiddleware, taskController.getAllTasks);
 router.get("/:projectId/tasks/:taskId", authMiddleware, taskController.getTaskById);

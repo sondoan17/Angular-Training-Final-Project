@@ -9,7 +9,7 @@ exports.search = async (req, res) => {
       return res.status(400).json({ message: "Search term is required" });
     }
 
-    // Tìm kiếm projects
+    // Search projects
     const projectQuery = {
       $and: [
         {
@@ -26,7 +26,7 @@ exports.search = async (req, res) => {
       "_id name description"
     );
 
-    // Tìm kiếm tasks
+    // Search tasks
     const taskQuery = {
       $and: [
         {
@@ -54,7 +54,7 @@ exports.search = async (req, res) => {
       "_id name tasks"
     );
 
-    // kết quả
+    // results
     const results = [
       ...projects.map((project) => ({
         type: "project",

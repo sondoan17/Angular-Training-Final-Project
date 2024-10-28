@@ -1,0 +1,30 @@
+<div class="edit-project-dialog w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
+  <h1 mat-dialog-title class="dialog-title text-2xl md:text-3xl font-semibold mb-6 text-indigo-700 text-center">
+    Edit Project
+  </h1>
+  
+  <div mat-dialog-content class="dialog-content space-y-5">
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Project Name</mat-label>
+      <input matInput [(ngModel)]="editedProject.name" required placeholder="Enter project name">
+      <mat-icon matSuffix>edit</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Project Description</mat-label>
+      <textarea matInput [(ngModel)]="editedProject.description" rows="4" placeholder="Enter project description"></textarea>
+      <mat-icon matSuffix>description</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions flex justify-end items-center space-x-2 mt-6">
+    <button mat-stroked-button color="warn" (click)="onCancel()" class="action-button">
+      <mat-icon class="text-sm">cancel</mat-icon>
+      <span class="ml-1">Cancel</span>
+    </button>
+    <button mat-raised-button color="primary" (click)="onSave()" class="action-button">
+      <mat-icon class="text-sm">save</mat-icon>
+      <span class="ml-1">Save</span>
+    </button>
+  </div>
+</div>

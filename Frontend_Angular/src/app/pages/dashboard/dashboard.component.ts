@@ -130,7 +130,7 @@ export class DashboardComponent implements OnInit {
       if (result) {
         this.projectService.updateProject(project._id, result).subscribe({
           next: (updatedProject) => {
-            console.log('Project updated:', updatedProject);
+           
             const index = this.userProjects.findIndex(
               (p) => p._id === updatedProject._id
             );

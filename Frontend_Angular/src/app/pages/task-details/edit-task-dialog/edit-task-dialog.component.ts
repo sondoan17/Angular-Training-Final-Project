@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ProjectService } from '../../../services/project.service';
 import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 
-// Custom date formats
+
 export const MY_DATE_FORMATS = {
   parse: {
     dateInput: 'DD/MM/YYYY',

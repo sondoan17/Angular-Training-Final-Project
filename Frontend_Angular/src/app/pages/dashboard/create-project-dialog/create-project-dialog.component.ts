@@ -15,30 +15,8 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule,
     MatDialogModule,
   ],
-  template: `
-    <h2 mat-dialog-title>Create New Project</h2>
-    <mat-dialog-content>
-      <mat-form-field>
-        <mat-label>Project Name</mat-label>
-        <input matInput [(ngModel)]="projectName" required />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Description</mat-label>
-        <textarea matInput [(ngModel)]="projectDescription"></textarea>
-      </mat-form-field>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onSubmit()"
-        [disabled]="!projectName"
-      >
-        Create
-      </button>
-    </mat-dialog-actions>
-  `,
+  templateUrl: './create-project-dialog.component.html',
+  styleUrls: ['./create-project-dialog.component.css']
 })
 export class CreateProjectDialogComponent {
   projectName: string = '';

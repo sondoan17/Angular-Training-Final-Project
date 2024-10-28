@@ -41,7 +41,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   ],
   templateUrl: './task-details.component.html',
   styleUrls: ['./task-details.component.css'],
-  providers: [DatePipe] // Add DatePipe to providers
+  providers: [DatePipe] 
 })
 export class TaskDetailsComponent implements OnInit, OnDestroy {
   task: any;
@@ -59,7 +59,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   newComment: string = '';
   isLoadingComments = false;
 
-  // Optional: Add maxLength constant
+  //Add maxLength constant
   readonly maxCommentLength = 1000;
 
   // Add new properties
@@ -100,7 +100,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     if (this.projectId && this.taskId) {
       this.projectService.getTaskDetails(this.projectId!, this.taskId!).subscribe(
         (task) => {
-          console.log('Loaded task details:', task);
+          
           this.task = task;
           this.updateRemainingTime();
           this.startRemainingTimeCounter();
@@ -117,7 +117,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     if (this.projectId && this.taskId) {
       this.projectService.getTaskActivityLog(this.projectId, this.taskId, page).subscribe(
         (response) => {
-          console.log('Loaded activity log:', response);
+          
           this.activityLog = response.logs;
           this.currentPage = response.currentPage;
           this.totalPages = response.totalPages;
@@ -200,7 +200,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
           },
           (error) => {
             console.error('Error deleting task:', error);
-            // Handle error (e.g., show an error message to the user)
+           
           }
         );
       }
@@ -218,8 +218,8 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
         this.projectService.updateTask(this.projectId!, this.taskId!, result).subscribe(
           updatedTask => {
             this.task = updatedTask;
-            this.loadActivityLog(); // This will now use the current page
-            // Show success message
+            this.loadActivityLog(); 
+           
           },
           error => {
             console.error('Error updating task:', error);
@@ -415,7 +415,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   addComment(): void {
     if (this.projectId && this.taskId && this.newComment?.trim()) {
       const commentContent = this.newComment.trim();
-      this.newComment = ''; // Clear immediately for better UX
+      this.newComment = ''; 
       
       this.projectService.addTaskComment(
         this.projectId,
@@ -496,5 +496,36 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
         );
       }
     });
+  }
+
+  getAssignedMembers(): any[] {
+    if (!this.task?.assignedTo || !Array.isArray(this.task.assignedTo)) {
+      return [];
+    }
+
+    return this.task.assignedTo
+      .filter((member: any) => member !== null && member !== undefined)
+      .map((member: any) => {
+        if (typeof member === 'object' && member !== null && member.username) {
+          return member;
+        } else if (typeof member === 'string') {
+          const foundMember = this.projectMembers.find((m) => m._id === member);
+          return foundMember || { 
+            username: 'Unknown User', 
+            status: 'unknown',
+            _id: member 
+          };
+        }
+        return { 
+          username: 'Unknown User', 
+          status: 'unknown' 
+        };
+      });
+  }
+
+  // Add this helper method
+  getMemberName(memberId: string): string {
+    const member = this.projectMembers.find(m => m._id === memberId);
+    return member ? member.username : 'Former Member';  // Return 'Former Member' instead of showing 'unknown'
   }
 }

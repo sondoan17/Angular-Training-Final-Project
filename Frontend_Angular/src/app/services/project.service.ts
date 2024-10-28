@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { map, Observable, catchError, throwError } from 'rxjs';
+import { map, Observable, catchError, throwError, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface Project {
@@ -91,7 +91,12 @@ export class ProjectService {
     projectId: string,
     memberId: string
   ): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${projectId}/members/${memberId}`);
+    return this.http.delete(`${this.apiUrl}/${projectId}/members/${memberId}`).pipe(
+      tap(() => {
+        // Refresh project data after member removal
+        this.getProjectDetails(projectId).subscribe();  // Using getProjectDetails instead of getProjectById
+      })
+    );
   }
 
   createTask(projectId: string, taskData: Omit<Task, '_id'>): Observable<Task> {
@@ -102,7 +107,7 @@ export class ProjectService {
     return this.http.put<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}`, { status })
       .pipe(
         map(response => {
-          console.log('Server response:', response); // Log the entire response
+          console.log('Server response:', response); 
           if (!response) {
             throw new Error('No response from server');
           }

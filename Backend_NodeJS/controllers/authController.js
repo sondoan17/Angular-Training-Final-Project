@@ -1,3 +1,4 @@
+require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
@@ -80,10 +81,9 @@ exports.googleAuth = async (req, res) => {
     const payload = ticket.getPayload();
     const userId = payload["sub"];
 
-    // Here you should implement the logic to create or update the user in your database
-    // and generate a JWT token for your application
+ 
 
-    res.json({ token: "your_jwt_token" });
+    res.json({ token: token });
   } catch (error) {
     res.status(401).json({ error: "Invalid token" });
   }

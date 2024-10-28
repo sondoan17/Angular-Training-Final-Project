@@ -247,64 +247,27 @@ exports.removeMemberFromProject = async (req, res) => {
   try {
     const { projectId, memberId } = req.params;
 
-    let project = await Project.findById(projectId);
+    const project = await Project.findById(projectId);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    if (project.createdBy.toString() !== req.user.userId) {
-      return res.status(403).json({
-        message:
-          "You don't have permission to remove members from this project",
-      });
-    }
+    // Remove member from project members array
+    project.members.pull(memberId);
 
-    if (!project.members.includes(memberId)) {
-      return res
-        .status(400)
-        .json({ message: "User is not a member of this project" });
-    }
+    // Add this block: Remove member from all tasks in the project
+    project.tasks.forEach(task => {
+      if (task.assignedTo && task.assignedTo.includes(memberId)) {
+        task.assignedTo = task.assignedTo.filter(id => id.toString() !== memberId);
+      }
+    });
 
-    project.members = project.members.filter(
-      (member) => member.toString() !== memberId
-    );
     await project.save();
 
-    project = await Project.findById(projectId)
-      .populate("createdBy", "username")
-      .populate("members", "username");
-
-    const populatedMembers = await Promise.all(
-      project.members.map(async (member) => {
-        if (
-          typeof member === "string" ||
-          member instanceof mongoose.Types.ObjectId
-        ) {
-          const user = await User.findById(member).select("username");
-          return user
-            ? { _id: user._id, username: user.username }
-            : { _id: member, username: "Unknown" };
-        }
-        return member;
-      })
-    );
-
-    const projectObject = project.toObject();
-    projectObject.members = populatedMembers;
-
-    res.json(projectObject);
-
-    const removedUser = await User.findById(memberId);
-    await logProjectActivity(
-      projectId,
-      `Member ${removedUser.username} removed from the project`,
-      req.user.userId
-    );
+    res.json({ message: "Member removed successfully", project });
   } catch (error) {
-    res.status(500).json({
-      message: "Error removing member from project",
-      error: error.message,
-    });
+    console.error("Error removing member:", error);
+    res.status(500).json({ message: "Error removing member", error: error.toString() });
   }
 };
 

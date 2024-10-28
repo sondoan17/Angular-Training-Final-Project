@@ -2,6 +2,16 @@ const Project = require("../models/Project");
 const User = require("../models/User");
 const { logTaskActivity } = require("../utils/activityLogger");
 
+const populateTaskWithValidMembers = async (task, project) => {
+  if (task.assignedTo && task.assignedTo.length > 0) {
+    // Add null check when filtering
+    task.assignedTo = task.assignedTo.filter(memberId => 
+      memberId && project.members.includes(memberId.toString())
+    );
+  }
+  return task;
+};
+
 exports.createTask = async (req, res) => {
   try {
     const { projectId } = req.params;
@@ -37,19 +47,24 @@ exports.getAllTasks = async (req, res) => {
   try {
     const { projectId } = req.params;
 
-    const project = await Project.findById(projectId).populate(
-      "tasks.assignedTo",
-      "username"
-    );
+    const project = await Project.findById(projectId);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
 
+    // Clean up invalid member references for all tasks
+    for (let task of project.tasks) {
+      await populateTaskWithValidMembers(task, project);
+    }
+
+    await Project.populate(project.tasks, {
+      path: 'assignedTo',
+      select: 'username _id'
+    });
+
     res.json(project.tasks);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching tasks", error: error.message });
+    res.status(500).json({ message: "Error fetching tasks", error: error.message });
   }
 };
 
@@ -67,12 +82,24 @@ exports.getTaskById = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
+    // Add null check for assignedTo array
+    if (task.assignedTo) {
+      task.assignedTo = task.assignedTo.filter(id => id != null);
+    }
+
+    // Clean up invalid member references
+    await populateTaskWithValidMembers(task, project);
+    
+    // Populate remaining valid members
+    await Project.populate(task, {
+      path: 'assignedTo',
+      select: 'username _id'
+    });
+
     res.json(task);
   } catch (error) {
     console.error("Error fetching task:", error);
-    res
-      .status(500)
-      .json({ message: "Error fetching task", error: error.message });
+    res.status(500).json({ message: "Error fetching task", error: error.message });
   }
 };
 exports.updateTask = async (req, res) => {
@@ -90,7 +117,7 @@ exports.updateTask = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Function to format date for logging
+    
     const formatDate = (date) => {
       if (!date) return 'unset';
       return new Date(date).toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
@@ -289,7 +316,7 @@ exports.getTaskComments = async (req, res) => {
       select: "username _id"
     });
 
-    // Sort comments by creation date (newest first)
+    // Sort comments by creation date 
     const sortedComments = task.comments.sort((a, b) => b.createdAt - a.createdAt);
 
     res.json(sortedComments);
@@ -333,7 +360,7 @@ exports.addTaskComment = async (req, res) => {
     task.comments.unshift(newComment);
     await project.save();
 
-    // Get the newly added comment (first one in the array after unshift)
+    // Get the newly added comment 
     const addedComment = task.comments[0];
 
     // Populate author information

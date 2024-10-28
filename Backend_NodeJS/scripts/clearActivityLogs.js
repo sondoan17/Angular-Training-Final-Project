@@ -2,14 +2,13 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Project = require('../models/Project');
 
-// Replace this with your actual MongoDB connection string
 const databaseUrl = process.env.MONGODB_URI;
 
 mongoose.connect(databaseUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 
 async function clearActivityLogs() {
   try {
-    // Get counts before clearing
+    
     const projectsWithLogs = await Project.aggregate([
       {
         $project: {
@@ -40,13 +39,13 @@ async function clearActivityLogs() {
     const totalProjectLogs = projectsWithLogs[0]?.totalProjectLogs || 0;
     const totalTaskLogs = projectsWithLogs[0]?.totalTaskLogs || 0;
 
-    // Clear project-level activity logs
+   
     const projectResult = await Project.updateMany(
       {},
       { $set: { activityLog: [] } }
     );
 
-    // Clear task-level activity logs
+   
     const taskResult = await Project.updateMany(
       {},
       { $set: { "tasks.$[].activityLog": [] } }

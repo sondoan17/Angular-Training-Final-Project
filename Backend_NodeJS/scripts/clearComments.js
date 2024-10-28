@@ -8,7 +8,7 @@ mongoose.connect(databaseUrl, { useNewUrlParser: true, useUnifiedTopology: true 
 
 async function clearComments() {
   try {
-    // Get counts before clearing
+
     const projectsWithComments = await Project.aggregate([
       {
         $project: {
@@ -38,7 +38,7 @@ async function clearComments() {
     const totalComments = projectsWithComments[0]?.totalComments || 0;
     const totalProjects = projectsWithComments[0]?.totalProjects || 0;
 
-    // Clear all comments from tasks
+
     const result = await Project.updateMany(
       {},
       { $set: { "tasks.$[].comments": [] } }
