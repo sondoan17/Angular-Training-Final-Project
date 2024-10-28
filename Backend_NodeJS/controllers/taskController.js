@@ -231,3 +231,177 @@ exports.getProjectActivity = async (req, res) => {
     });
   }
 };
+
+exports.getTaskComments = async (req, res) => {
+  try {
+    const { projectId, taskId } = req.params;
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const task = project.tasks.id(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Populate author information for each comment
+    await Project.populate(task.comments, {
+      path: "author",
+      select: "username _id"
+    });
+
+    // Sort comments by creation date (newest first)
+    const sortedComments = task.comments.sort((a, b) => b.createdAt - a.createdAt);
+
+    res.json(sortedComments);
+  } catch (error) {
+    console.error("Error fetching task comments:", error);
+    res.status(500).json({
+      message: "Error fetching task comments",
+      error: error.toString()
+    });
+  }
+};
+
+exports.addTaskComment = async (req, res) => {
+  try {
+    const { projectId, taskId } = req.params;
+    const { content } = req.body;
+    const userId = req.user.userId;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ message: "Comment content is required" });
+    }
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const task = project.tasks.id(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Create new comment
+    const newComment = {
+      content: content.trim(),
+      author: userId,
+      createdAt: new Date()
+    };
+
+    // Add comment to task
+    task.comments.unshift(newComment);
+    await project.save();
+
+    // Get the newly added comment (first one in the array after unshift)
+    const addedComment = task.comments[0];
+
+    // Populate author information
+    await Project.populate(addedComment, {
+      path: "author",
+      select: "username _id"
+    });
+
+    // Log activity
+    await logTaskActivity(
+      projectId,
+      taskId,
+      `New comment added`,
+      userId
+    );
+
+    res.status(201).json(addedComment);
+  } catch (error) {
+    console.error("Error adding task comment:", error);
+    res.status(500).json({
+      message: "Error adding task comment",
+      error: error.toString()
+    });
+  }
+};
+
+exports.updateComment = async (req, res) => {
+  try {
+    const { projectId, taskId, commentId } = req.params;
+    const { content } = req.body;
+    const userId = req.user.userId;
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const task = project.tasks.id(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const comment = task.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    // Check if the user is the author of the comment
+    if (comment.author.toString() !== userId) {
+      return res.status(403).json({ message: "You can only edit your own comments" });
+    }
+
+    comment.content = content.trim();
+    await project.save();
+
+    // Populate author information
+    await Project.populate(comment, {
+      path: "author",
+      select: "username _id"
+    });
+
+    res.json(comment);
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    res.status(500).json({
+      message: "Error updating comment",
+      error: error.toString()
+    });
+  }
+};
+
+exports.deleteComment = async (req, res) => {
+  try {
+    const { projectId, taskId, commentId } = req.params;
+    const userId = req.user.userId;
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const task = project.tasks.id(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const comment = task.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    // Check if the user is the author of the comment
+    if (comment.author.toString() !== userId) {
+      return res.status(403).json({ message: "You can only delete your own comments" });
+    }
+
+    task.comments.pull(commentId);
+    await project.save();
+
+    res.json({ message: "Comment deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    res.status(500).json({
+      message: "Error deleting comment",
+      error: error.toString()
+    });
+  }
+};
