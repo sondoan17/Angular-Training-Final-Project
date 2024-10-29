@@ -106,6 +106,7 @@ exports.updateTask = async (req, res) => {
   try {
     const { projectId, taskId } = req.params;
     const updateData = req.body;
+    const userId = req.user.userId;
 
     const project = await Project.findById(projectId);
     if (!project) {
@@ -117,69 +118,84 @@ exports.updateTask = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    
-    const formatDate = (date) => {
-      if (!date) return 'unset';
-      return new Date(date).toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
-    };
-
-    // Track changes for activity log
+    // Track changes for activity logs
     const changes = [];
     
-    // Check timeline changes
-    if (updateData.timeline) {
-      const oldStart = formatDate(task.timeline?.start);
-      const oldEnd = formatDate(task.timeline?.end);
-      const newStart = formatDate(updateData.timeline.start);
-      const newEnd = formatDate(updateData.timeline.end);
+    // Handle all field updates including status
+    const fieldsToTrack = {
+      status: 'status',
+      title: 'title',
+      description: 'description',
+      priority: 'priority',
+      type: 'type',
+      assignedTo: 'assignees'
+    };
 
-      if (oldStart !== newStart || oldEnd !== newEnd) {
-        changes.push(`timeline updated: Start date from ${oldStart} to ${newStart}, End date from ${oldEnd} to ${newEnd}`);
+    for (const [field, displayName] of Object.entries(fieldsToTrack)) {
+      if (updateData[field] && JSON.stringify(updateData[field]) !== JSON.stringify(task[field])) {
+        let changeMessage = '';
+        
+        if (field === 'assignedTo') {
+          // Special handling for assignedTo array
+          const oldAssignees = task.assignedTo.map(id => id.toString()).sort();
+          const newAssignees = updateData.assignedTo.map(id => id.toString()).sort();
+          if (JSON.stringify(oldAssignees) !== JSON.stringify(newAssignees)) {
+            changeMessage = `Task assignees updated`;
+          }
+        } else {
+          changeMessage = `${displayName} changed from "${task[field]}" to "${updateData[field]}"`;
+        }
+       
+        if (changeMessage) {
+          // Add to task's activity log
+          task.activityLog.push({
+            action: changeMessage,
+            performedBy: userId,
+            timestamp: new Date()
+          });
+
+          // Add to project's activity log with task title context
+          project.activityLog.push({
+            action: `Task "${task.title}": ${changeMessage}`,
+            performedBy: userId,
+            timestamp: new Date()
+          });
+
+          changes.push(changeMessage);
+        }
       }
     }
 
-    // Check other field changes
-    const fieldsToTrack = ['title', 'description', 'status', 'priority', 'type'];
-    fieldsToTrack.forEach(field => {
-      if (updateData[field] && updateData[field] !== task[field]) {
-        changes.push(`${field} changed from "${task[field]}" to "${updateData[field]}"`);
-      }
-    });
-
-    // Check assignedTo changes
-    if (updateData.assignedTo) {
-      const oldAssignees = task.assignedTo.map(id => id.toString()).sort();
-      const newAssignees = updateData.assignedTo.map(id => id.toString()).sort();
-      
-      if (JSON.stringify(oldAssignees) !== JSON.stringify(newAssignees)) {
-        changes.push('assigned members updated');
-      }
-    }
-
-    // Update the task
+    // Update task fields
     Object.assign(task, updateData);
-    
-    // Log each change separately
-    for (const change of changes) {
-      task.activityLog.push({
-        action: change,
-        performedBy: req.user.userId,
+    task.updatedAt = new Date();
+
+    // Add an additional project activity log entry for status changes
+    if (updateData.status && updateData.status !== task.status) {
+      project.activityLog.push({
+        action: `Task "${task.title}" moved to ${updateData.status}`,
+        performedBy: userId,
         timestamp: new Date()
       });
     }
 
     await project.save();
 
-    // Populate necessary fields before sending response
-    await Project.populate(task, {
-      path: 'assignedTo',
-      select: 'username _id'
-    });
+    // Populate the response data
+    const populatedProject = await Project.findById(projectId)
+      .populate('tasks.activityLog.performedBy', 'username')
+      .populate('activityLog.performedBy', 'username')
+      .populate('tasks.assignedTo', 'username');
 
-    res.json(task);
+    const updatedTask = populatedProject.tasks.id(taskId);
+
+    res.json(updatedTask);
   } catch (error) {
     console.error("Error updating task:", error);
-    res.status(500).json({ message: "Error updating task", error: error.message });
+    res.status(500).json({ 
+      message: "Error updating task", 
+      error: error.toString() 
+    });
   }
 };
 exports.deleteTask = async (req, res) => {
@@ -466,6 +482,29 @@ exports.deleteComment = async (req, res) => {
     res.status(500).json({
       message: "Error deleting comment",
       error: error.toString()
+    });
+  }
+};
+
+exports.updateTaskStatus = async (req, res) => {
+  try {
+    const { projectId, taskId } = req.params;
+    const { status } = req.body;
+    
+    // Call the existing updateTask function with the status update
+    return await exports.updateTask(
+      { 
+        params: { projectId, taskId }, 
+        body: { status },
+        user: { userId: req.user.userId }
+      }, 
+      res
+    );
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    res.status(500).json({ 
+      message: "Error updating task status", 
+      error: error.toString() 
     });
   }
 };

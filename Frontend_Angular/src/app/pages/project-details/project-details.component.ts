@@ -467,35 +467,41 @@ export class ProjectDetailsComponent implements OnInit {
 
   onTaskMoved(event: { task: any; newStatus: string }) {
     const { task, newStatus } = event;
-    const taskIndex = this.project.tasks.findIndex((t: any) => t._id === task._id);
-    if (taskIndex !== -1) {
-      this.project.tasks[taskIndex].status = newStatus;
-      this.updateChartData();
-      
-      // Fetch the latest activity log entry
-      this.projectService.getProjectActivityLog(this.project._id, 1, 1).subscribe(
-        (response) => {
-          if (response.logs && response.logs.length > 0) {
-            // Add the new activity log entry to the beginning of the array
-            this.activityLog.unshift(response.logs[0]);
+    
+    // Use projectService to update task status
+    this.projectService.updateTaskStatus(this.project._id, task._id, newStatus)
+      .subscribe({
+        next: (updatedTask) => {
+          // Update local task data
+          const taskIndex = this.project.tasks.findIndex((t: any) => t._id === task._id);
+          if (taskIndex !== -1) {
+            this.project.tasks[taskIndex] = { ...this.project.tasks[taskIndex], ...updatedTask };
             
-            // If we're showing a limited number of logs, remove the last one
-            if (this.activityLog.length > this.pageSize) {
-              this.activityLog.pop();
+            // Update UI components
+            this.updateChartData();
+            this.loadActivityLog(1);
+            
+            // Update kanban board if needed
+            if (this.kanbanBoard) {
+              this.kanbanBoard.distributeTasksToColumns();
             }
             
-            // Update total logs count
-            this.totalLogs++;
-            
-            // Trigger change detection
             this.changeDetectorRef.detectChanges();
           }
         },
-        (error) => {
-          console.error('Error fetching latest activity log:', error);
+        error: (error) => {
+          console.error('Error updating task status:', error);
+          // Revert UI changes
+          if (this.kanbanBoard) {
+            this.kanbanBoard.distributeTasksToColumns();
+          }
+          // Show error message to user
+          this.snackBar.open('Failed to update task status', 'Close', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
         }
-      );
-    }
+      });
   }
 
   updateKanbanBoard() {

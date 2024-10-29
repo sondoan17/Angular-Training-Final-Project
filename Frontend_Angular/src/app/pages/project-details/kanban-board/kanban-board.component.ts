@@ -79,15 +79,19 @@ export class KanbanBoardComponent implements OnInit {
         event.currentIndex
       );
     } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-      const task = event.container.data[event.currentIndex];
+      const task = event.previousContainer.data[event.previousIndex];
       const newStatus = this.getStatusFromColumnId(event.container.id);
-      this.updateTaskStatus(task, newStatus);
+      
+      if (task.status !== newStatus) {
+        transferArrayItem(
+          event.previousContainer.data,
+          event.container.data,
+          event.previousIndex,
+          event.currentIndex
+        );
+        
+        this.taskMoved.emit({ task, newStatus });
+      }
     }
   }
 
@@ -147,29 +151,5 @@ export class KanbanBoardComponent implements OnInit {
       default:
         return 'bg-gray-100 text-gray-800';
     }
-  }
-
-  updateTaskStatus(task: Task, newStatus: string) {
-    this.projectService
-      .updateTaskStatus(this.projectId, task._id, newStatus)
-      .subscribe(
-        (updatedTask) => {
-          if (updatedTask && updatedTask._id) {
-            // Update the local task object
-            Object.assign(task, updatedTask);
-            this.taskMoved.emit({ task: updatedTask, newStatus });
-          } else {
-            console.error(
-              'Invalid task data returned from server:',
-              updatedTask
-            );
-          }
-        },
-        (error) => {
-          console.error('Error updating task status:', error);
-
-          this.distributeTasksToColumns();
-        }
-      );
   }
 }
