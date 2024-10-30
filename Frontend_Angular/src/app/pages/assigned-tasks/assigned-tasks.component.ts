@@ -11,6 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectChange } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface TasksByProject {
   [projectId: string]: {
@@ -18,6 +20,11 @@ interface TasksByProject {
     tasks: any[];
   };
 }
+
+type SortOption = 'status' | 'priority' | 'title';
+type SortDirection = 'asc' | 'desc';
+type TaskStatus = 'Not Started' | 'In Progress' | 'Stuck' | 'Done';
+type TaskPriority = 'Critical' | 'High' | 'Medium' | 'Low';
 
 @Component({
   selector: 'app-assigned-tasks',
@@ -34,6 +41,7 @@ interface TasksByProject {
     FormsModule,
     RouterModule,
     MatMenuModule,
+    MatTooltipModule,
   ],
   templateUrl: './assigned-tasks.component.html',
   styleUrls: ['./assigned-tasks.component.css'],
@@ -41,8 +49,18 @@ interface TasksByProject {
 export class AssignedTasksComponent implements OnInit {
   tasksByProject: TasksByProject = {};
   statuses = ['Not Started', 'In Progress', 'Stuck', 'Done'];
+  priorities = ['Critical', 'High', 'Medium', 'Low'];
 
-  constructor(private projectService: ProjectService) {}
+  sortBy: SortOption = 'status';
+  sortDirection: SortDirection = 'asc';
+
+  sortOptions = [
+    { value: 'status', label: 'Status', icon: 'list_alt' },
+    { value: 'priority', label: 'Priority', icon: 'priority_high' },
+    { value: 'title', label: 'Title', icon: 'sort_by_alpha' }
+  ];
+
+  constructor(private projectService: ProjectService) { }
 
   ngOnInit() {
     this.loadAssignedTasks();
@@ -52,6 +70,7 @@ export class AssignedTasksComponent implements OnInit {
     this.projectService.getAssignedTasks().subscribe({
       next: (tasks) => {
         this.organizeTasksByProject(tasks);
+        this.sortTasks();
       },
       error: (error) => {
         console.error('Error loading assigned tasks:', error);
@@ -70,6 +89,63 @@ export class AssignedTasksComponent implements OnInit {
       acc[task.projectId].tasks.push(task);
       return acc;
     }, {});
+  }
+
+  sortTasks() {
+    Object.values(this.tasksByProject).forEach(project => {
+      project.tasks.sort((a, b) => {
+        let comparison = 0;
+
+        switch (this.sortBy) {
+          case 'status':
+            comparison = this.compareStatus(a.status, b.status);
+            break;
+          case 'priority':
+            comparison = this.comparePriority(a.priority, b.priority);
+            break;
+          case 'title':
+            comparison = a.title.localeCompare(b.title);
+            break;
+        }
+
+        return this.sortDirection === 'asc' ? comparison : -comparison;
+      });
+    });
+  }
+
+  private compareStatus(a: string, b: string): number {
+    const statusOrder: Record<TaskStatus, number> = {
+      'Not Started': 0,
+      'In Progress': 1,
+      'Stuck': 2,
+      'Done': 3
+    };
+
+    return (statusOrder[a as TaskStatus] ?? 0) - (statusOrder[b as TaskStatus] ?? 0);
+  }
+
+  private comparePriority(a: string, b: string): number {
+    const priorityOrder: Record<string, number> = {
+      'critical': 0,
+      'high': 1,
+      'medium': 2,
+      'low': 3
+    };
+
+    const priorityA = a.toLowerCase();
+    const priorityB = b.toLowerCase();
+
+    return (priorityOrder[priorityA] ?? 999) - (priorityOrder[priorityB] ?? 999);
+  }
+
+  onSortChange(event: MatSelectChange) {
+    this.sortBy = event.value;
+    this.sortTasks();
+  }
+
+  toggleSortDirection() {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.sortTasks();
   }
 
   get objectKeys() {
@@ -122,5 +198,55 @@ export class AssignedTasksComponent implements OnInit {
       default:
         return 'bg-gray-500 text-white';
     }
+  }
+
+  getSortIcon(sortValue: string): string {
+    const iconMap: Record<string, string> = {
+      'status': 'list_alt',
+      'priority': 'priority_high',
+      'title': 'sort_by_alpha'
+    };
+    return iconMap[sortValue] || 'sort';
+  }
+
+  getTotalTasks(): number {
+    return Object.values(this.tasksByProject).reduce(
+      (total, project) => total + project.tasks.length, 
+      0
+    );
+  }
+
+  getCompletedTasks(): number {
+    return Object.values(this.tasksByProject).reduce(
+      (total, project) => total + project.tasks.filter(
+        task => task.status === 'Done'
+      ).length, 
+      0
+    );
+  }
+
+  getStuckTasks(): number {
+    return Object.values(this.tasksByProject).reduce(
+      (total, project) => total + project.tasks.filter(
+        task => task.status === 'Stuck'
+      ).length, 
+      0
+    );
+  }
+  getInProgressTasks(): number {
+    return Object.values(this.tasksByProject).reduce(
+      (total, project) => total + project.tasks.filter(
+        task => task.status === 'In Progress'
+      ).length, 
+      0
+    );
+  }
+  getNotStartedTasks(): number {
+    return Object.values(this.tasksByProject).reduce(
+      (total, project) => total + project.tasks.filter(
+        task => task.status === 'Not Started'
+      ).length, 
+      0
+    );
   }
 }

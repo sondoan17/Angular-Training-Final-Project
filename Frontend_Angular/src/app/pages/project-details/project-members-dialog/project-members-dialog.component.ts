@@ -29,7 +29,11 @@ export class ProjectMembersDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<ProjectMembersDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { members: any[], creatorId: string }
+    @Inject(MAT_DIALOG_DATA) public data: { 
+      members: any[], 
+      creatorId: string,
+      currentUserId: string
+    }
   ) {}
 
   onClose(): void {
@@ -43,12 +47,20 @@ export class ProjectMembersDialogComponent {
   }
 
   onRemoveMember(member: any): void {
-    if (!this.isCreator(member)) {
+    if (this.isCurrentUserCreator() && !this.isCreator(member)) {
       this.dialogRef.close({ action: 'remove', memberId: member._id });
     }
   }
 
   isCreator(member: any): boolean {
     return member._id === this.data.creatorId;
+  }
+
+  isCurrentUserCreator(): boolean {
+    return this.data.currentUserId === this.data.creatorId;
+  }
+
+  canRemoveMember(member: any): boolean {
+    return this.isCurrentUserCreator() && !this.isCreator(member);
   }
 }

@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const emailService = require('../services/emailService');
+const crypto = require('crypto');
 
 exports.register = async (req, res, next) => {
   try {
@@ -61,13 +63,17 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "5h",
+      expiresIn: "24h",
     });
 
-    res.json({ token, userId: user._id, username: user.username });
+    res.json({
+      token,
+      userId: user._id,
+      username: user.username
+    });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
 
@@ -86,5 +92,71 @@ exports.googleAuth = async (req, res) => {
     res.json({ token: token });
   } catch (error) {
     res.status(401).json({ error: "Invalid token" });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
+
+    // Save token to user
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetTokenExpiry;
+    await user.save();
+
+    // Send reset email
+    await emailService.sendPasswordResetEmail(email, resetToken);
+
+    res.json({ message: 'Password reset email sent successfully' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ 
+      message: 'Error processing password reset request',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Find user with valid reset token
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    // Clear reset token fields
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ 
+      message: 'Error resetting password',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };

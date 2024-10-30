@@ -9,6 +9,9 @@ import { Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Subject, Subscription, of } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-search',
@@ -20,9 +23,22 @@ import { Subject, Subscription, of } from 'rxjs';
     MatSelectModule,
     FormsModule,
     ReactiveFormsModule,
+    MatButtonModule,
+    MatIconModule,
   ],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css'],
+  animations: [
+    trigger('slideInOut', [
+      transition(':enter', [
+        style({ opacity: 0, height: 0 }),
+        animate('200ms ease-out', style({ opacity: 1, height: '*' }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ opacity: 0, height: 0 }))
+      ])
+    ])
+  ]
 })
 export class SearchComponent implements OnInit, OnDestroy {
   searchForm = new FormGroup({
@@ -39,6 +55,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   statusOptions = ['Not Started', 'In Progress', 'Stuck', 'Done'];
   priorityOptions = ['none', 'low', 'medium', 'high', 'critical'];
   typeOptions = ['task', 'bug'];
+
+  isFiltersVisible = false;
 
   constructor(private searchService: SearchService, private router: Router) {}
 
@@ -84,5 +102,9 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   navigateToTask(projectId: string, taskId: string) {
     this.router.navigate(['/projects', projectId, 'tasks', taskId]);
+  }
+
+  toggleFilters() {
+    this.isFiltersVisible = !this.isFiltersVisible;
   }
 }

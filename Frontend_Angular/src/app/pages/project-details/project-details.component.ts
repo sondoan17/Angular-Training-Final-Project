@@ -90,7 +90,7 @@ export class ProjectDetailsComponent implements OnInit {
   isActivityLogVisible: boolean = false;
 
   chartData: ChartData<'bar'> = {
-    labels: [],
+    labels: ['Not Started', 'In Progress', 'Stuck', 'Done'],
     datasets: [{
       data: [],
       backgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
@@ -109,9 +109,6 @@ export class ProjectDetailsComponent implements OnInit {
     plugins: {
       legend: {
         display: false
-      },
-      title: {
-        display: false,
       },
       tooltip: {
         enabled: true,
@@ -169,6 +166,8 @@ export class ProjectDetailsComponent implements OnInit {
 
   itemSize: number = 0; // height of list items
 
+  isProjectCreator: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
@@ -182,23 +181,25 @@ export class ProjectDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.paramMap
-      .pipe(
-        switchMap((params: ParamMap) => {
-          const id = params.get('id');
-          return this.projectService.getProjectDetails(id!);
-        })
-      )
-      .subscribe({
-        next: (project) => {
-          this.project = project;
-          this.loadActivityLog();
-          this.prepareChartData(); 
-        },
-        error: (error) => {
-          console.error('Error loading project:', error);
-        },
-      });
+    this.route.params.subscribe(params => {
+      const projectId = params['id'];
+      if (projectId) {
+        this.projectService.getProjectDetails(projectId).subscribe({
+          next: (project) => {
+            this.project = project;
+            const currentUserId = this.authService.getCurrentUserId();
+            this.isProjectCreator = currentUserId === project.createdBy._id;
+            this.prepareChartData();
+            this.changeDetectorRef.detectChanges();
+          },
+          error: (error) => {
+            console.error('Error loading project:', error);
+            this.error = 'Error loading project details';
+            this.changeDetectorRef.detectChanges();
+          }
+        });
+      }
+    });
 
     // Get current user information
     this.currentUser = {
@@ -466,9 +467,18 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   onTaskMoved(event: { task: any; newStatus: string }) {
+    if (!this.isProjectCreator) {
+      this.snackBar.open('Only project creator can move tasks', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      // Refresh board to revert changes
+      this.updateKanbanBoard();
+      return;
+    }
+
     const { task, newStatus } = event;
     
-    // Use projectService to update task status
     this.projectService.updateTaskStatus(this.project._id, task._id, newStatus)
       .subscribe({
         next: (updatedTask) => {
@@ -491,11 +501,7 @@ export class ProjectDetailsComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error updating task status:', error);
-          // Revert UI changes
-          if (this.kanbanBoard) {
-            this.kanbanBoard.distributeTasksToColumns();
-          }
-          // Show error message to user
+          this.updateKanbanBoard(); // Revert changes on error
           this.snackBar.open('Failed to update task status', 'Close', {
             duration: 3000,
             panelClass: ['error-snackbar']
@@ -513,6 +519,10 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   updateChartData() {
+    this.prepareChartData();
+  }
+
+  prepareChartData() {
     if (!this.project || !this.project.tasks) {
       console.warn('Project or tasks not loaded yet');
       return;
@@ -520,23 +530,16 @@ export class ProjectDetailsComponent implements OnInit {
 
     const taskStatuses = ['Not Started', 'In Progress', 'Stuck', 'Done'];
     const statusCounts = taskStatuses.map(
-      (status) => this.project.tasks.filter((task: any) => task.status === status).length
+      status => this.project.tasks.filter((task: any) => task.status === status).length
     );
 
-  
-    if (this.chartData && this.chartData.datasets && this.chartData.datasets[0]) {
-      this.chartData = {
-        ...this.chartData,
-        datasets: [{
-          ...this.chartData.datasets[0],
-          data: statusCounts
-        }]
-      };
-      
-      if (this.chart && this.chart.chart) {
-        this.chart.chart.update('active'); //  'active' smooth transitions
-      }
+    this.chartData.datasets[0].data = statusCounts;
+
+    // Force chart update
+    if (this.chart) {
+      this.chart.update();
     }
+    this.changeDetectorRef.detectChanges();
   }
 
   loadActivityLog(page: number = this.currentPage): void {
@@ -605,39 +608,6 @@ export class ProjectDetailsComponent implements OnInit {
     this.isActivityLogVisible = !this.isActivityLogVisible;
     if (this.isActivityLogVisible && (!this.activityLog || this.activityLog.length === 0)) {
       this.loadActivityLog();
-    }
-  }
-
-  prepareChartData() {
-    if (!this.project || !this.project.tasks) {
-      console.warn('Project or tasks not loaded yet');
-      return;
-    }
-
-    const taskStatuses = ['Not Started', 'In Progress', 'Stuck', 'Done'];
-    const statusCounts = taskStatuses.map(
-      (status) => this.project.tasks.filter((task: any) => task.status === status).length
-    );
-
-    this.chartData = {
-      labels: taskStatuses,
-      datasets: [
-        {
-          data: statusCounts,
-          backgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
-          borderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
-          borderWidth: 1,
-          borderRadius: 4,
-        
-          hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
-          hoverBorderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
-          hoverBorderWidth: 1,
-        },
-      ],
-    };
-
-    if (this.chart && this.chart.chart) {
-      this.chart.chart.update();
     }
   }
 

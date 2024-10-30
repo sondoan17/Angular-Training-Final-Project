@@ -201,3 +201,26 @@ mat-form-field {
     margin-bottom: 4px;
   }
 }
+
+/* Add these styles to your component's CSS file */
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+mat-form-field.sort-select {
+  width: 120px;
+}
+
+@media (max-width: 640px) {
+  .sort-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  mat-form-field.sort-select {
+    width: 100%;
+  }
+}

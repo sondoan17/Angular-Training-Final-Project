@@ -1,5 +1,63 @@
 <div class="content max-w-6xl mx-auto p-2 sm:p-4 md:p-6">
-  <h2 class="page-title text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4 md:mb-6">Tasks Assigned to You</h2>
+  <!-- Header and Sorting Section -->
+  <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <!-- Title -->
+      <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+        Tasks Assigned to You
+      </h2>
+
+      <!-- Sorting Controls -->
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <mat-form-field appearance="fill" class="w-full sm:w-48 sorting-field">
+          <mat-label>Sort by</mat-label>
+          <mat-select [value]="sortBy" (selectionChange)="onSortChange($event)" panelClass="sort-select-panel">
+            <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+              <div class="flex items-center gap-2">
+
+                {{ option.label }}
+              </div>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-icon-button (click)="toggleSortDirection()"
+          [matTooltip]="'Sort ' + (sortDirection === 'asc' ? 'Ascending' : 'Descending')" class="sort-direction-btn"
+          [ngClass]="{'text-primary': true}">
+          <mat-icon class="transform transition-transform duration-200"
+            [ngClass]="{'rotate-180': sortDirection === 'desc'}">
+            sort
+          </mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Optional: Add summary stats -->
+    <div class="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-gray-400">assignment</mat-icon>
+        <span>Total Tasks: {{getTotalTasks()}}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-green-500">check_circle</mat-icon>
+        <span>Completed: {{getCompletedTasks()}}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-red-500">cancel</mat-icon>
+        <span>Stuck: {{getStuckTasks()}}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-blue-500">pending</mat-icon>
+        <span>In Progress: {{getInProgressTasks()}}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-gray-500">not_started</mat-icon>
+        <span>Not Started: {{getNotStartedTasks()}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing accordion content -->
   <mat-accordion multi>
     <mat-expansion-panel *ngFor="let projectId of objectKeys(tasksByProject)" [expanded]="true" class="mb-3 sm:mb-4">
       <mat-expansion-panel-header class="bg-gray-100">
@@ -11,13 +69,14 @@
         </mat-panel-description> -->
       </mat-expansion-panel-header>
 
-      <div class="task-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mt-3 sm:mt-4 md:mt-6">
+      <div
+        class="task-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mt-3 sm:mt-4 md:mt-6">
         <mat-card *ngFor="let task of tasksByProject[projectId].tasks" class="task-card flex flex-col h-full">
           <div class="flex justify-between items-start mb-2">
             <mat-card-header class="p-0">
               <mat-card-title class="text-base sm:text-lg md:text-xl font-semibold">{{ task.title }}</mat-card-title>
             </mat-card-header>
-            <button mat-icon-button [routerLink]="['/projects', task.projectId, 'tasks', task._id]" 
+            <button mat-icon-button [routerLink]="['/projects', task.projectId, 'tasks', task._id]"
               class="text-blue-600 hover:text-blue-800 transition-colors duration-200 -mt-2 -mr-2"
               aria-label="View task details">
               <mat-icon class="text-sm sm:text-base md:text-lg">visibility</mat-icon>
@@ -28,24 +87,24 @@
           </mat-card-content>
           <div class="task-details mt-auto">
             <div class="flex items-center justify-between">
-              <button 
-                [matMenuTriggerFor]="statusMenu" 
-                [ngClass]="getStatusClass(task.status)"
-                class="px-2 py-1 rounded-tl-full rounded-bl-full text-xs sm:text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
+              <button [matMenuTriggerFor]="statusMenu" [ngClass]="getStatusClass(task.status)"
+                class="px-2 py-1 rounded-tl-full rounded-bl-full text-xs sm:text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 <span class="mr-1">{{ task.status }}</span>
                 <mat-icon class="text-xs sm:text-sm">arrow_drop_down</mat-icon>
               </button>
               <mat-menu #statusMenu="matMenu" class="custom-menu">
-                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Not Started')" class="flex items-center">
+                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Not Started')"
+                  class="flex items-center">
                   <span class="w-3 h-3 rounded-full bg-gray-500 mr-3"></span>
                   Not Started
                 </button>
-                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'In Progress')" class="flex items-center">
+                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'In Progress')"
+                  class="flex items-center">
                   <span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>
                   In Progress
                 </button>
-                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Stuck')" class="flex items-center">
+                <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Stuck')"
+                  class="flex items-center">
                   <span class="w-3 h-3 rounded-full bg-red-500 mr-3"></span>
                   Stuck
                 </button>
@@ -54,7 +113,8 @@
                   Done
                 </button>
               </mat-menu>
-              <span [ngClass]="getPriorityClass(task.priority)" class="px-3 py-2 sm:py-1.5 rounded-tr-full rounded-br-full text-xs sm:text-sm font-medium">
+              <span [ngClass]="getPriorityClass(task.priority)"
+                class="px-3 py-2 sm:py-1.5 rounded-tr-full rounded-br-full text-xs sm:text-sm font-medium">
                 {{ task.priority }}
               </span>
             </div>

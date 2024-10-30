@@ -11,6 +11,7 @@ import { RouterLink, RouterModule } from '@angular/router';
 import { EditProjectDialogComponent } from '../project-details/edit-project-dialog/edit-project-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,11 +32,13 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
-  userProjects: Project[] = [];
+  createdProjects: Project[] = [];
+  memberProjects: Project[] = [];
 
   constructor(
     private dialog: MatDialog,
     private projectService: ProjectService,
+    private authService: AuthService,
     private snackBar: MatSnackBar
   ) {}
 
@@ -44,20 +47,30 @@ export class DashboardComponent implements OnInit {
   }
 
   loadUserProjects() {
+    const currentUserId = this.authService.getCurrentUserId();
+
+    if (!currentUserId) {
+      console.error('No user ID found - redirecting to login');
+      return;
+    }
+
     this.projectService.getUserProjects().subscribe({
       next: (projects: Project[]) => {
-        this.userProjects = projects;
+        this.createdProjects = projects.filter(project => 
+          project.createdBy && project.createdBy._id === currentUserId
+        );
+        
+        this.memberProjects = projects.filter(project => 
+          project.createdBy && 
+          project.createdBy._id !== currentUserId && 
+          project.members?.some(member => member._id === currentUserId)
+        );
       },
       error: (error) => {
         console.error('Error loading user projects:', error);
-        if (error.error instanceof ErrorEvent) {
-          console.error('Client-side error:', error.error.message);
-        } else {
-          console.error(
-            `Backend returned code ${error.status}, body was:`,
-            error.error
-          );
-        }
+        this.snackBar.open('Error loading projects', 'Close', {
+          duration: 3000,
+        });
       },
     });
   }
@@ -75,6 +88,9 @@ export class DashboardComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error creating project:', error);
+            this.snackBar.open('Error creating project', 'Close', {
+              duration: 3000,
+            });
           },
         });
       }
@@ -130,12 +146,11 @@ export class DashboardComponent implements OnInit {
       if (result) {
         this.projectService.updateProject(project._id, result).subscribe({
           next: (updatedProject) => {
-           
-            const index = this.userProjects.findIndex(
+            const index = this.createdProjects.findIndex(
               (p) => p._id === updatedProject._id
             );
             if (index !== -1) {
-              this.userProjects[index] = updatedProject;
+              this.createdProjects[index] = updatedProject;
             }
             this.snackBar.open('Project updated successfully', 'Close', {
               duration: 3000,

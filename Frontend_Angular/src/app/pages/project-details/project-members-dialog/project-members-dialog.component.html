@@ -11,7 +11,7 @@
           <span class="ml-3 font-medium text-gray-900">{{ member.username }}</span>
         </div>
         <button 
-          *ngIf="!isCreator(member)"
+          *ngIf="canRemoveMember(member)"
           mat-icon-button 
           color="warn" 
           (click)="onRemoveMember(member)"
@@ -22,21 +22,28 @@
       </li>
     </ul>
   </div>
-  <mat-form-field appearance="outline" class="w-full mb-4 custom-form-field">
-    <mat-label>Username</mat-label>
-    <input matInput [(ngModel)]="newMemberUsername" placeholder="Enter username">
-  </mat-form-field>
-  <div class="flex justify-end space-x-2">
+  <div *ngIf="isCurrentUserCreator()">
+    <mat-form-field appearance="outline" class="w-full mb-4 custom-form-field">
+      <mat-label>Username</mat-label>
+      <input matInput [(ngModel)]="newMemberUsername" placeholder="Enter username">
+    </mat-form-field>
+    <div class="flex justify-end space-x-2">
+      <button mat-button (click)="onClose()" class="text-gray-600 hover:bg-gray-100">
+        Close
+      </button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="onAddMember()"
+        [disabled]="!newMemberUsername"
+        class="bg-blue-500 text-white hover:bg-blue-600">
+        Add Member
+      </button>
+    </div>
+  </div>
+  <div *ngIf="!isCurrentUserCreator()" class="flex justify-end">
     <button mat-button (click)="onClose()" class="text-gray-600 hover:bg-gray-100">
       Close
-    </button>
-    <button 
-      mat-raised-button 
-      color="primary" 
-      (click)="onAddMember()"
-      [disabled]="!newMemberUsername"
-      class="bg-blue-500 text-white hover:bg-blue-600">
-      Add Member
     </button>
   </div>
 </div>

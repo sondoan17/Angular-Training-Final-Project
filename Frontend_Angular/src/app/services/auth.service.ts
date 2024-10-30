@@ -38,10 +38,9 @@ export class AuthService {
       .post<any>(`${this.apiUrl}/login`, { username, password })
       .pipe(
         tap((response) => {
-          if (response && response.token) {
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('username', response.username);
-          }
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('userId', response.userId);
+          localStorage.setItem('username', response.username);
         })
       );
   }
@@ -113,8 +112,7 @@ export class AuthService {
   }
 
   getCurrentUserId(): string | null {
-    const user = this.getUser();
-    return user ? user.id : null;
+    return localStorage.getItem('userId');
   }
 
   getCurrentUsername(): string {
@@ -128,5 +126,31 @@ export class AuthService {
       return { id: payload.userId, username: payload.username };
     }
     return null;
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email })
+      .pipe(
+        tap(() => {
+          console.log('Password reset email sent successfully');
+        }),
+        catchError(error => {
+          console.error('Error sending password reset email:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword })
+      .pipe(
+        tap(() => {
+          console.log('Password reset successfully');
+        }),
+        catchError(error => {
+          console.error('Error resetting password:', error);
+          return throwError(() => error);
+        })
+      );
   }
 }

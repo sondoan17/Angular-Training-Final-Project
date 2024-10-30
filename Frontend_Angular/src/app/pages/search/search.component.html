@@ -1,41 +1,170 @@
-<div class="search-container">
-  <form [formGroup]="searchForm" class="search-form">
-    <mat-form-field appearance="outline">
-      <mat-label>Search</mat-label>
-      <input matInput formControlName="searchTerm" placeholder="Search for projects or tasks">
-    </mat-form-field>
+<div class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Search Container -->
+    <div class="bg-white backdrop-blur-lg rounded-2xl p-8 shadow-lg border border-gray-100">
+      <h2 class="text-3xl font-bold text-gray-800 mb-2 text-center">Search</h2>
+      <p class="text-gray-500 text-center mb-8">Find projects and tasks across your workspace</p>
+      
+      <!-- Search Form -->
+      <form [formGroup]="searchForm" class="space-y-6">
+        <!-- Centered Search Row with Filter Toggle -->
+        <div class="flex justify-center items-center max-w-2xl mx-auto relative">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Search projects & tasks</mat-label>
+            <input matInput 
+                   formControlName="searchTerm" 
+                   placeholder="Type to search...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Status</mat-label>
-      <mat-select formControlName="status">
-        <mat-option value="">All</mat-option>
-        <mat-option *ngFor="let status of statusOptions" [value]="status">{{status}}</mat-option>
-      </mat-select>
-    </mat-form-field>
+          <button mat-icon-button
+                  type="button"
+                  [color]="isFiltersVisible ? 'primary' : ''"
+                  (click)="toggleFilters()"
+                  class="ml-2 filter-toggle-btn">
+            <mat-icon>filter_list</mat-icon>
+          </button>
+        </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Priority</mat-label>
-      <mat-select formControlName="priority">
-        <mat-option value="">All</mat-option>
-        <mat-option *ngFor="let priority of priorityOptions" [value]="priority">{{priority}}</mat-option>
-      </mat-select>
-    </mat-form-field>
+        <!-- Filters Section -->
+        <div class="bg-gray-50 rounded-xl p-6" 
+             [@slideInOut]="isFiltersVisible"
+             *ngIf="isFiltersVisible">
+          <div class="flex space-x-4">
+            <!-- Status Filter -->
+            <mat-form-field appearance="fill" class="w-1/3">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="">All Statuses</mat-option>
+                <mat-option *ngFor="let status of statusOptions" [value]="status">
+                  <div class="flex items-center">
+                    <span class="w-2 h-2 rounded-full mr-2"
+                          [ngClass]="{
+                            'bg-gray-400': status === 'Not Started',
+                            'bg-blue-400': status === 'In Progress',
+                            'bg-red-400': status === 'Stuck',
+                            'bg-green-400': status === 'Done'
+                          }"></span>
+                    {{status}}
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>flag</mat-icon>
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Type</mat-label>
-      <mat-select formControlName="type">
-        <mat-option value="">All</mat-option>
-        <mat-option *ngFor="let type of typeOptions" [value]="type">{{type}}</mat-option>
-      </mat-select>
-    </mat-form-field>
-  </form>
+            <!-- Type Filter -->
+            <mat-form-field appearance="fill" class="w-1/3">
+              <mat-label>Type</mat-label>
+              <mat-select formControlName="type">
+                <mat-option value="">All Types</mat-option>
+                <mat-option *ngFor="let type of typeOptions" [value]="type">
+                  <div class="flex items-center">
+                    <mat-icon class="mr-2">{{type === 'task' ? 'task_alt' : 'bug_report'}}</mat-icon>
+                    {{type | titlecase}}
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>category</mat-icon>
+            </mat-form-field>
 
-  <div class="search-results">
-    <div *ngFor="let result of searchResults" class="search-result-item">
-      <h3>{{result.name}}</h3>
-      <p>{{result.description}}</p>
-      <button mat-button color="primary" (click)="navigateToProject(result._id)" *ngIf="result.type === 'project'">View Project</button>
-      <button mat-button color="primary" (click)="navigateToTask(result.projectId, result._id)" *ngIf="result.type === 'task'">View Task</button>
+            <!-- Priority Filter -->
+            <mat-form-field appearance="fill" class="w-1/3">
+              <mat-label>Priority</mat-label>
+              <mat-select formControlName="priority">
+                <mat-option value="">All Priorities</mat-option>
+                <mat-option *ngFor="let priority of priorityOptions" [value]="priority">
+                  <div class="flex items-center">
+                    <mat-icon class="mr-2 text-sm" [ngClass]="{
+                      'text-gray-400': priority === 'none',
+                      'text-green-400': priority === 'low',
+                      'text-yellow-400': priority === 'medium',
+                      'text-orange-400': priority === 'high',
+                      'text-red-400': priority === 'critical'
+                    }">{{ priority === 'none' ? 'remove' : 'priority_high' }}</mat-icon>
+                    {{priority | titlecase}}
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>priority_high</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+
+      <!-- Results Section -->
+      <div class="mt-8 space-y-4">
+        <!-- Results Header -->
+        <div *ngIf="searchResults.length > 0" class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-medium text-gray-700">
+            Results ({{searchResults.length}})
+          </h3>
+          <div class="text-sm text-gray-500">
+            Showing all matches
+          </div>
+        </div>
+
+        <!-- Results Cards -->
+        <div class="space-y-4">
+          <div *ngFor="let result of searchResults" 
+               class="bg-white border rounded-lg p-4 hover:shadow-md transition-all duration-200">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center mb-2">
+                  <mat-icon class="mr-2 text-gray-400">
+                    {{result.type === 'task' ? 'task_alt' : 'folder'}}
+                  </mat-icon>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    {{result.type === 'task' || result.type === 'bug' ? result.title : result.name}}
+                  </h3>
+                </div>
+                <p class="text-gray-600 mb-3">{{result.description}}</p>
+                
+                <div class="flex gap-2">
+                  <span *ngIf="result.status" 
+                        class="px-2 py-1 text-sm rounded-full"
+                        [ngClass]="{
+                          'bg-gray-100 text-gray-600': result.status === 'Not Started',
+                          'bg-blue-100 text-blue-600': result.status === 'In Progress',
+                          'bg-red-100 text-red-600': result.status === 'Stuck',
+                          'bg-green-100 text-green-600': result.status === 'Done'
+                        }">
+                    {{result.status}}
+                  </span>
+                  <span *ngIf="result.priority" 
+                        class="px-2 py-1 text-sm rounded-full"
+                        [ngClass]="{
+                          'bg-gray-100 text-gray-600': result.priority === 'none',
+                          'bg-green-100 text-green-600': result.priority === 'low',
+                          'bg-yellow-100 text-yellow-600': result.priority === 'medium',
+                          'bg-orange-100 text-orange-600': result.priority === 'high',
+                          'bg-red-100 text-red-600': result.priority === 'critical'
+                        }">
+                    {{result.priority | titlecase}}
+                  </span>
+                  <span class="px-2 py-1 text-sm rounded-full bg-gray-100 text-gray-600">
+                    {{result.type | titlecase}}
+                  </span>
+                </div>
+              </div>
+              
+              <button mat-flat-button color="primary" 
+                      class="ml-4"
+                      (click)="result.type === 'project' ? navigateToProject(result._id) : navigateToTask(result.projectId, result._id)">
+                <mat-icon class="mr-2">{{result.type === 'project' ? 'visibility' : 'task'}}</mat-icon>
+                View {{result.type | titlecase}}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div *ngIf="searchResults.length === 0 && searchForm.get('searchTerm')?.value" 
+             class="text-center py-12">
+          <mat-icon class="text-gray-300 text-6xl mb-4">search_off</mat-icon>
+          <p class="text-gray-500 text-lg">No results found</p>
+          <p class="text-gray-400 text-sm mt-2">Try adjusting your search or filters</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

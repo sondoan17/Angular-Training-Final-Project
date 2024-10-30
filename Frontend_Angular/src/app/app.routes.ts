@@ -4,6 +4,8 @@ import { ProjectDetailsComponent } from './pages/project-details/project-details
 import { TaskDetailsComponent } from './pages/task-details/task-details.component';
 import { AssignedTasksComponent } from './pages/assigned-tasks/assigned-tasks.component';
 import { SearchComponent } from './pages/search/search.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -50,4 +52,14 @@ export const routes: Routes = [
     component: SearchComponent,
     canActivate: [AuthGuard],
   },
+  {
+    path: 'forgot-password',
+    component: ForgotPasswordComponent,
+    title: 'Forgot Password'
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent,
+    title: 'Reset Password'
+  }
 ];

@@ -14,3 +14,15 @@ mat-form-field {
   width: 100%;
   max-width: 500px;
 }
+
+::ng-deep .mat-flat-button {
+  line-height: 46px !important;
+}
+
+.filter-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-button:hover {
+  transform: translateY(-1px);
+}

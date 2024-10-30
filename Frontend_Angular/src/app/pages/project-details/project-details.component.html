@@ -169,6 +169,7 @@
         <app-kanban-board
           [tasks]="project.tasks"
           [projectId]="project._id"
+          [isProjectCreator]="isProjectCreator"
           (taskMoved)="onTaskMoved($event)">
         </app-kanban-board>
 

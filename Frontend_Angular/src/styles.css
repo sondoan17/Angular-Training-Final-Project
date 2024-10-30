@@ -126,3 +126,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .auto-hide-scrollbar:hover::-webkit-scrollbar-thumb:hover {
   background-color: rgba(155, 155, 155, 0.7);
 }
+
+.error-snackbar {
+  background: #ef4444;
+  color: white;
+}
+
+.error-snackbar .mat-simple-snackbar-action {
+  color: white;
+}

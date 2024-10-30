@@ -55,14 +55,39 @@ exports.getAssignedTasks = async (req, res) => {
 exports.getAllProjects = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const projects = await Project.find({ createdBy: userId }).sort({
-      createdAt: -1,
+
+    const projects = await Project.find({
+      $or: [
+        { createdBy: userId },
+        { members: userId }
+      ]
+    })
+    .populate('createdBy', 'username')
+    .populate('members', 'username')
+    .sort({ createdAt: -1 });
+
+    const transformedProjects = projects.map(project => {
+      const projectObj = project.toObject();
+      return {
+        ...projectObj,
+        createdBy: {
+          _id: projectObj.createdBy._id.toString(),
+          username: projectObj.createdBy.username
+        },
+        members: projectObj.members.map(member => ({
+          _id: member._id.toString(),
+          username: member.username
+        }))
+      };
     });
-    res.json(projects);
+
+    res.json(transformedProjects);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching projects", error: error.message });
+    console.error('Error in getAllProjects:', error);
+    res.status(500).json({ 
+      message: "Error fetching projects", 
+      error: error.message 
+    });
   }
 };
 
@@ -306,6 +331,42 @@ exports.getProjectActivity = async (req, res) => {
     res.status(500).json({
       message: "Error fetching project activity log",
       error: error.toString(),
+    });
+  }
+};
+
+exports.deleteProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    // Find the project
+    const project = await Project.findById(id);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    // Check if the user is the creator of the project
+    if (project.createdBy.toString() !== userId) {
+      return res.status(403).json({ 
+        message: "You don't have permission to delete this project" 
+      });
+    }
+
+    // Delete the project
+    await Project.findByIdAndDelete(id);
+
+    res.json({ 
+      message: "Project deleted successfully",
+      projectId: id 
+    });
+
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    res.status(500).json({ 
+      message: "Error deleting project", 
+      error: error.message 
     });
   }
 };

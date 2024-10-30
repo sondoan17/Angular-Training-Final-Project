@@ -7,6 +7,7 @@ import {
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ProjectService } from '../../../services/project.service';
 
@@ -27,7 +28,7 @@ interface Column {
 @Component({
   selector: 'app-kanban-board',
   standalone: true,
-  imports: [CommonModule, DragDropModule, MatCardModule],
+  imports: [CommonModule, DragDropModule, MatCardModule, MatSnackBarModule],
   templateUrl: './kanban-board.component.html',
   styleUrls: ['./kanban-board.component.css'],
 })
@@ -44,6 +45,7 @@ export class KanbanBoardComponent implements OnInit {
   }
 
   @Input() projectId!: string;
+  @Input() isProjectCreator: boolean = false;
   @Output() taskMoved = new EventEmitter<{ task: Task; newStatus: string }>();
 
   columns: Column[] = [
@@ -53,7 +55,11 @@ export class KanbanBoardComponent implements OnInit {
     { id: 'done', title: 'Done', tasks: [] },
   ];
 
-  constructor(private router: Router, private projectService: ProjectService) {}
+  constructor(
+    private router: Router,
+    private projectService: ProjectService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit() {
     this.distributeTasksToColumns();
@@ -72,6 +78,16 @@ export class KanbanBoardComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<Task[]>) {
+    if (!this.isProjectCreator) {
+      this.snackBar.open('Only project creator can move tasks', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar'],
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom'
+      });
+      return;
+    }
+
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,

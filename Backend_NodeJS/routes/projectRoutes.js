@@ -13,6 +13,7 @@ router.put("/:id", authMiddleware, projectController.updateProject);
 router.post("/:id/members", authMiddleware, projectController.addMemberToProject);
 router.delete("/:projectId/members/:memberId", authMiddleware, projectController.removeMemberFromProject);
 router.get("/:projectId/activity", authMiddleware, projectController.getProjectActivity);
+router.delete("/:id", authMiddleware, projectController.deleteProject);
 
 // Task routes
 router.post("/:projectId/tasks", authMiddleware, taskController.createTask);

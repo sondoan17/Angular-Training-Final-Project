@@ -7,10 +7,9 @@ export interface Project {
   _id: string;
   name: string;
   description: string;
-  members?: { _id: string; name: string }[];
+  members: { _id: string; username: string }[];
+  createdBy: { _id: string; username: string };
   createdAt: Date;
-  createdBy?: { _id: string; name: string };
-  // ... other properties
 }
 
 export interface Task {
@@ -32,14 +31,14 @@ export interface Task {
 export class ProjectService {
   private apiUrl = `${environment.apiUrl}/api/projects`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getProjects(): Observable<Project[]> {
     return this.http.get<Project[]>(this.apiUrl);
   }
 
   getUserProjects(): Observable<Project[]> {
-    return this.http.get<Project[]>(`${this.apiUrl}`);
+    return this.http.get<Project[]>(`${this.apiUrl}`)
   }
 
   getProjectDetails(projectId: string): Observable<any> {
@@ -107,7 +106,7 @@ export class ProjectService {
     return this.http.put<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}`, { status })
       .pipe(
         map(response => {
-          console.log('Server response:', response); 
+          // console.log('Server response:', response);
           if (!response) {
             throw new Error('No response from server');
           }
@@ -162,7 +161,7 @@ export class ProjectService {
     // Ensure we're sending only IDs for assignedTo
     const updatedTaskData = {
       ...taskData,
-      assignedTo: taskData.assignedTo.map((member: any) => 
+      assignedTo: taskData.assignedTo.map((member: any) =>
         typeof member === 'object' ? member._id : member
       )
     };
