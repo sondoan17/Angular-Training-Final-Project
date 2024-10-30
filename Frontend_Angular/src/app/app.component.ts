@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
   }
 
   updateNavAndSidebarVisibility(url: string) {
-    this.showNavAndSidebar = !['/home', '/login', '/register'].includes(url);
+    this.showNavAndSidebar = !['/home', '/login', '/register', '/forgot-password', '/reset-password'].includes(url);
   }
 
   toggleSidebar() {

@@ -87,7 +87,7 @@ exports.googleAuth = async (req, res) => {
     const payload = ticket.getPayload();
     const userId = payload["sub"];
 
- 
+
 
     res.json({ token: token });
   } catch (error) {
@@ -120,7 +120,7 @@ exports.forgotPassword = async (req, res) => {
     res.json({ message: 'Password reset email sent successfully' });
   } catch (error) {
     console.error('Forgot password error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error processing password reset request',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -154,7 +154,7 @@ exports.resetPassword = async (req, res) => {
     res.json({ message: 'Password reset successful' });
   } catch (error) {
     console.error('Reset password error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error resetting password',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
