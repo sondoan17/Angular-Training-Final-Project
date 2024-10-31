@@ -5,11 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSnackBarModule, MatProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, MatSnackBarModule, MatProgressSpinnerModule, RouterModule],
   templateUrl: './reset-password.component.html'
 })
 export class ResetPasswordComponent implements OnInit {
