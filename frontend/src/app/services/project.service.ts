@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { map, Observable, catchError, throwError, tap } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.development';
 
 export interface Project {
   _id: string;
