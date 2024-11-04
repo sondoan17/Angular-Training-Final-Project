@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    flex-direction: column;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .half-width {
+    width: 50%;
+  }
+}

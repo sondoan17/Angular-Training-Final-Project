@@ -39,7 +39,7 @@ export class ProfileComponent implements OnInit {
   username: string = '';
   email: string = '';
   name: string = '';
-  birthDate: string = '';
+  birthDate: Date | null = null;
   isLoading: boolean = false;
   socialMedia: {
     twitter?: string;
@@ -68,7 +68,9 @@ export class ProfileComponent implements OnInit {
         this.username = profile.username;
         this.email = profile.email;
         this.name = profile.name || '';
-        this.birthDate = profile.birthDate ? new Date(profile.birthDate).toISOString().split('T')[0] : '';
+        
+        this.birthDate = profile.birthDate ? new Date(profile.birthDate) : null;
+
         this.socialMedia = profile.socialMedia || {
           twitter: '',
           instagram: '',
@@ -85,10 +87,11 @@ export class ProfileComponent implements OnInit {
 
   onSubmit(): void {
     this.isLoading = true;
-    const updateData = {
+    
+    const updateData: Partial<UserProfile> = {
       email: this.email,
       name: this.name || undefined,
-      birthDate: this.birthDate ? new Date(this.birthDate) : undefined,
+      birthDate: this.birthDate || undefined,
       socialMedia: {
         twitter: this.socialMedia.twitter || undefined,
         instagram: this.socialMedia.instagram || undefined,
@@ -101,6 +104,7 @@ export class ProfileComponent implements OnInit {
       next: (profile) => {
         this.snackBar.open('Profile updated successfully', 'Close', { duration: 3000 });
         this.isLoading = false;
+        this.loadUserProfile();
       },
       error: (error) => {
         console.error('Error updating profile:', error);
