@@ -35,3 +35,58 @@ exports.getAllUsers = async (req, res) => {
     res.status(500).json({ message: "Error fetching users", error: error.toString() });
   }
 };
+
+exports.getCurrentUserProfile = async (req, res) => {
+  try {
+    console.log('Getting profile for user ID:', req.user.userId);
+    
+    const user = await User.findById(req.user.userId)
+      .select('username email name birthDate socialMedia');
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ 
+      message: "Error fetching user profile", 
+      error: error.message 
+    });
+  }
+};
+
+exports.updateUserProfile = async (req, res) => {
+  try {
+    console.log('Updating profile for user ID:', req.user.userId);
+    console.log('Update data:', req.body);
+
+    const { email, name, birthDate, socialMedia } = req.body;
+    
+    // Create update object with only allowed fields
+    const updateData = {};
+    if (email) updateData.email = email;
+    if (name) updateData.name = name;
+    if (birthDate) updateData.birthDate = birthDate;
+    if (socialMedia) updateData.socialMedia = socialMedia;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('username email name birthDate socialMedia');
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ 
+      message: "Error updating user profile", 
+      error: error.message 
+    });
+  }
+};

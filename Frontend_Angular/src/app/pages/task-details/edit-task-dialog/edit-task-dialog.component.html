@@ -53,6 +53,10 @@
       </mat-form-field>
     </div>
 
+    <div *ngIf="dateError" class="error-message" style="color: red; margin-bottom: 16px;">
+      {{ dateError }}
+    </div>
+
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>Assigned Members</mat-label>
       <mat-select multiple [(ngModel)]="data.assignedTo">
@@ -68,7 +72,7 @@
     <button mat-stroked-button color="warn" (click)="onNoClick()">
       <mat-icon>cancel</mat-icon> Cancel
     </button>
-    <button mat-raised-button color="primary" [mat-dialog-close]="data" cdkFocusInitial>
+    <button mat-raised-button color="primary" (click)="onSaveClick()">
       <mat-icon>save</mat-icon> Save Changes
     </button>
   </div>

@@ -51,6 +51,7 @@ export const MY_DATE_FORMATS = {
 })
 export class EditTaskDialogComponent implements OnInit {
   projectMembers: any[] = [];
+  dateError: string = '';
 
   constructor(
     public dialogRef: MatDialogRef<EditTaskDialogComponent>,
@@ -88,12 +89,41 @@ export class EditTaskDialogComponent implements OnInit {
     );
   }
 
-  onSave(): void {
-    // This method should be called when the save button is clicked
-    this.dialogRef.close(this.data);
+  validateDates(): boolean {
+    if (!this.data.timeline.start || !this.data.timeline.end) {
+      this.dateError = 'Both start and end dates are required';
+      return false;
+    }
+
+    const startDate = new Date(this.data.timeline.start);
+    const endDate = new Date(this.data.timeline.end);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Check if dates are valid
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      this.dateError = 'Invalid date format';
+      return false;
+    }
+
+    if (endDate < startDate) {
+      this.dateError = 'End date cannot be before start date';
+      return false;
+    }
+
+    
+
+    this.dateError = '';
+    return true;
   }
 
   onNoClick(): void {
     this.dialogRef.close();
+  }
+
+  onSaveClick(): void {
+    if (this.validateDates()) {
+      this.dialogRef.close(this.data);
+    }
   }
 }

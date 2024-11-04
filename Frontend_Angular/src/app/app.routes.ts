@@ -6,6 +6,7 @@ import { AssignedTasksComponent } from './pages/assigned-tasks/assigned-tasks.co
 import { SearchComponent } from './pages/search/search.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -61,5 +62,10 @@ export const routes: Routes = [
     path: 'reset-password',
     component: ResetPasswordComponent,
     title: 'Reset Password'
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./pages/profile/profile.component')
+      .then(m => m.ProfileComponent)
   }
 ];
