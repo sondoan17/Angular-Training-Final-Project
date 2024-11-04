@@ -1,16 +1,20 @@
 {
-    "version": 2,
-    "routes": [
-      {
-        "handle": "filesystem"
-      },
-      {
-        "src": "/assets/(.*)",
-        "dest": "/assets/$1"
-      },
-      {
-        "src": "/(.*)",
-        "dest": "/index.html"
-      }
-    ]
-  }
+  "version": 2,
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*).(js|css|ico|json|png|jpg|jpeg|svg|gif)",
+      "dest": "/$1.$2"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
