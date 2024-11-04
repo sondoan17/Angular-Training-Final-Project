@@ -1,22 +1,5 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/angular-training-final-project"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(assets|favicon.ico)/(.*)",
-      "dest": "/dist/angular-training-final-project/$1/$2"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
