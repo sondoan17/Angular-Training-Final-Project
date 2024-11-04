@@ -31,7 +31,8 @@
             "scripts": [],
             "stylePreprocessorOptions": {
               "includePaths": ["node_modules"]
-            }
+            },
+            "baseHref": "/"
           },
           "configurations": {
             "production": {
