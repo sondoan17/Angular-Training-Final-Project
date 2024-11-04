@@ -2,8 +2,11 @@
   "version": 2,
   "builds": [
     {
-      "src": "dist/angular-training-final-project/**",
-      "use": "@vercel/static"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist/angular-training-final-project"
+      }
     }
   ],
   "routes": [
@@ -13,7 +16,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/angular-training-final-project/index.html"
+      "dest": "/index.html"
     }
   ]
 }
