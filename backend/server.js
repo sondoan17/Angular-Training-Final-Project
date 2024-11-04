@@ -16,7 +16,7 @@ const distPath = path.join(__dirname, '../frontend/dist/angular-training-final-p
 app.use(express.json());
 app.use(compression());
 app.use(cors({
-  origin: ['http://localhost:4200', 'https://angular-training-final-project.vercel.app'],
+  origin: ['http://localhost:4200', 'https://your-vercel-domain.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

@@ -1,0 +1,7 @@
+{
+  "name": "angular-training-final-project",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install"
+  }
+}
