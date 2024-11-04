@@ -6,7 +6,9 @@
     "node": "20.x"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "build": "cd ../frontend && npm install && npm run build && cd ../backend && npm install"
   },
   "keywords": [],
   "author": "",

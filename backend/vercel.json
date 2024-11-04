@@ -4,6 +4,10 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "../frontend/dist/angular-training-final-project/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -13,7 +17,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "../frontend/dist/angular-training-final-project/$1"
     }
   ]
 }
