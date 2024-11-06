@@ -7,10 +7,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SearchService } from '../../services/search.service';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { Subject, Subscription, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
@@ -25,6 +26,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css'],
@@ -57,8 +59,9 @@ export class SearchComponent implements OnInit, OnDestroy {
   typeOptions = ['task', 'bug'];
 
   isFiltersVisible = false;
+  isLoading: boolean = false;
 
-  constructor(private searchService: SearchService, private router: Router) {}
+  constructor(private searchService: SearchService, private router: Router) { }
 
   ngOnInit() {
     this.searchSubscription = this.searchForm.valueChanges

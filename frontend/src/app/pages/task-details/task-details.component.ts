@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,6 +21,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-task-details',
@@ -37,11 +38,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
-    MatProgressSpinnerModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './task-details.component.html',
   styleUrls: ['./task-details.component.css'],
-  providers: [DatePipe] 
+  providers: [DatePipe]
 })
 export class TaskDetailsComponent implements OnInit, OnDestroy {
   task: any;
@@ -66,6 +67,8 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   editingCommentId: string | null = null;
   editCommentText: string = '';
 
+  isLoading: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -73,10 +76,13 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private authService: AuthService,
     private sanitizer: DomSanitizer,
-    private datePipe: DatePipe
-  ) {}
+    private datePipe: DatePipe,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
+    this.isLoading = true;
+
     this.route.params.subscribe((params) => {
       this.projectId = params['projectId'];
       this.taskId = params['taskId'];
@@ -98,18 +104,25 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   loadTaskDetails(): void {
     if (this.projectId && this.taskId) {
-      this.projectService.getTaskDetails(this.projectId!, this.taskId!).subscribe(
-        (task) => {
-          
+      this.isLoading = true;
+      this.cdr.detectChanges();
+
+      this.projectService.getTaskDetails(this.projectId!, this.taskId!).pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      ).subscribe({
+        next: (task) => {
           this.task = task;
           this.updateRemainingTime();
           this.startRemainingTimeCounter();
           this.loadActivityLog();
         },
-        (error) => {
+        error: (error) => {
           console.error('Error loading task details:', error);
         }
-      );
+      });
     }
   }
 
@@ -117,7 +130,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     if (this.projectId && this.taskId) {
       this.projectService.getTaskActivityLog(this.projectId, this.taskId, page).subscribe(
         (response) => {
-          
+
           this.activityLog = response.logs;
           this.currentPage = response.currentPage;
           this.totalPages = response.totalPages;
@@ -200,7 +213,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
           },
           (error) => {
             console.error('Error deleting task:', error);
-           
+
           }
         );
       }
@@ -218,8 +231,8 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
         this.projectService.updateTask(this.projectId!, this.taskId!, result).subscribe(
           updatedTask => {
             this.task = updatedTask;
-            this.loadActivityLog(); 
-           
+            this.loadActivityLog();
+
           },
           error => {
             console.error('Error updating task:', error);
@@ -254,26 +267,23 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   checkProjectCreator(): void {
     if (this.projectId) {
-      this.projectService.getProjectDetails(this.projectId).subscribe(
-        (project) => {
+      this.projectService.getProjectDetails(this.projectId).subscribe({
+        next: (project) => {
           const currentUserId = this.authService.getCurrentUserId();
-          const projectCreatorId = typeof project.createdBy === 'object' ? project.createdBy._id : project.createdBy;
-          
-          
-          
+          const projectCreatorId = typeof project.createdBy === 'object'
+            ? project.createdBy._id
+            : project.createdBy;
+
           if (currentUserId) {
             this.isProjectCreator = projectCreatorId.toString() === currentUserId.toString();
           } else {
             this.isProjectCreator = false;
-            console.warn('Current user ID not available.');
           }
-          
-      
         },
-        (error) => {
+        error: (error) => {
           console.error('Error checking project creator:', error);
         }
-      );
+      });
     }
   }
 
@@ -415,8 +425,8 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   addComment(): void {
     if (this.projectId && this.taskId && this.newComment?.trim()) {
       const commentContent = this.newComment.trim();
-      this.newComment = ''; 
-      
+      this.newComment = '';
+
       this.projectService.addTaskComment(
         this.projectId,
         this.taskId,
@@ -510,15 +520,15 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
           return member;
         } else if (typeof member === 'string') {
           const foundMember = this.projectMembers.find((m) => m._id === member);
-          return foundMember || { 
-            username: 'Unknown User', 
+          return foundMember || {
+            username: 'Unknown User',
             status: 'unknown',
-            _id: member 
+            _id: member
           };
         }
-        return { 
-          username: 'Unknown User', 
-          status: 'unknown' 
+        return {
+          username: 'Unknown User',
+          status: 'unknown'
         };
       });
   }

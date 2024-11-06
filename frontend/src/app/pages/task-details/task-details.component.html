@@ -1,5 +1,9 @@
 <!-- Add this at the very top of the template, before the main content -->
-<div class="max-w-7xl mx-auto p-6">
+<div *ngIf="isLoading" class="flex justify-center items-center min-h-screen">
+  <mat-spinner diameter="40"></mat-spinner>
+</div>
+
+<div *ngIf="!isLoading" class="max-w-7xl mx-auto p-6">
   <!-- Back button -->
   <button
     mat-button

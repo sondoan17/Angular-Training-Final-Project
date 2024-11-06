@@ -66,6 +66,7 @@ import { ProjectMembersDialogComponent } from './project-members-dialog/project-
   changeDetection: ChangeDetectionStrategy.OnPush 
 })
 export class ProjectDetailsComponent implements OnInit {
+  isLoading: boolean = true;
   project: any;
   error: string | null = null;
   sidebarOpen = false;
@@ -168,6 +169,8 @@ export class ProjectDetailsComponent implements OnInit {
 
   isProjectCreator: boolean = false;
 
+  isChartLoading: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
@@ -181,6 +184,7 @@ export class ProjectDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.isLoading = true;
     this.route.params.subscribe(params => {
       const projectId = params['id'];
       if (projectId) {
@@ -190,11 +194,13 @@ export class ProjectDetailsComponent implements OnInit {
             const currentUserId = this.authService.getCurrentUserId();
             this.isProjectCreator = currentUserId === project.createdBy._id;
             this.prepareChartData();
+            this.isLoading = false;
             this.changeDetectorRef.detectChanges();
           },
           error: (error) => {
             console.error('Error loading project:', error);
             this.error = 'Error loading project details';
+            this.isLoading = false;
             this.changeDetectorRef.detectChanges();
           }
         });
@@ -528,45 +534,52 @@ export class ProjectDetailsComponent implements OnInit {
       return;
     }
 
-    const taskStatuses = ['Not Started', 'In Progress', 'Stuck', 'Done'];
-    const statusCounts = taskStatuses.map(
-      status => this.project.tasks.filter((task: any) => task.status === status).length
-    );
-
-    this.chartData.datasets[0].data = statusCounts;
-
-    // Force chart update
-    if (this.chart) {
-      this.chart.update();
-    }
+    // Set chart loading state
+    this.isChartLoading = true;
     this.changeDetectorRef.detectChanges();
+
+    try {
+      const taskStatuses = ['Not Started', 'In Progress', 'Stuck', 'Done'];
+      const statusCounts = taskStatuses.map(
+        status => this.project.tasks.filter((task: any) => task.status === status).length
+      );
+
+      this.chartData.datasets[0].data = statusCounts;
+
+      if (this.chart) {
+        this.chart.update();
+      }
+    } finally {
+      this.isChartLoading = false;
+      this.changeDetectorRef.detectChanges();
+    }
   }
 
   loadActivityLog(page: number = this.currentPage): void {
     if (this.project && this.project._id && !this.isLoadingActivityLog) {
       this.isLoadingActivityLog = true;
+      this.changeDetectorRef.detectChanges(); // Force update to show spinner
+
       this.projectService
         .getProjectActivityLog(this.project._id, page, this.pageSize)
-        .subscribe(
-          (response) => {
-            
+        .subscribe({
+          next: (response) => {
             this.activityLog = response.logs;
             this.currentPage = response.currentPage;
             this.totalPages = response.totalPages;
             this.totalLogs = response.totalLogs;
             this.isLoadingActivityLog = false;
-            
-            
-            
-          
             this.changeDetectorRef.detectChanges();
           },
-          (error) => {
+          error: (error) => {
             console.error('Error loading activity log:', error);
             this.isLoadingActivityLog = false;
+            this.snackBar.open('Error loading activity log', 'Close', {
+              duration: 3000
+            });
             this.changeDetectorRef.detectChanges();
           }
-        );
+        });
     }
   }
 
