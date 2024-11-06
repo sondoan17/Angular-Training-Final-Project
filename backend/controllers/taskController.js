@@ -202,30 +202,27 @@ exports.deleteTask = async (req, res) => {
   try {
     const { projectId, taskId } = req.params;
 
-    const project = await Project.findById(projectId);
+    // Use findOneAndUpdate with $pull operator for atomic operation
+    const project = await Project.findOneAndUpdate(
+      { _id: projectId },
+      { $pull: { tasks: { _id: taskId } } },
+      { new: true }
+    );
+
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    const taskIndex = project.tasks.findIndex(
-      (task) => task._id.toString() === taskId
-    );
-    if (taskIndex === -1) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    // Log the task deletion activity before removing the task
+    // Log the task deletion activity
     await logTaskActivity(projectId, taskId, `Task deleted`, req.user.userId);
-
-    project.tasks.splice(taskIndex, 1);
-    await project.save();
 
     res.json({ message: "Task deleted successfully" });
   } catch (error) {
     console.error("Error deleting task:", error);
-    res
-      .status(500)
-      .json({ message: "Error deleting task", error: error.toString() });
+    res.status(500).json({ 
+      message: "Error deleting task", 
+      error: error.toString() 
+    });
   }
 };
 exports.getTaskActivity = async (req, res) => {
