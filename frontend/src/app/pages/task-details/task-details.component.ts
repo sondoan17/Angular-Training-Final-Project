@@ -72,6 +72,8 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   hoveredMemberId: string | null = null;
   tooltipPosition = { x: 0, y: 0 };
 
+  isLoadingActivity: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -134,19 +136,28 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   loadActivityLog(page: number = this.currentPage): void {
     if (this.projectId && this.taskId) {
+      this.isLoadingActivity = true;
+      this.cdr.detectChanges();
+
       this.projectService
         .getTaskActivityLog(this.projectId, this.taskId, page)
-        .subscribe(
-          (response) => {
+        .pipe(
+          finalize(() => {
+            this.isLoadingActivity = false;
+            this.cdr.detectChanges();
+          })
+        )
+        .subscribe({
+          next: (response) => {
             this.activityLog = response.logs;
             this.currentPage = response.currentPage;
             this.totalPages = response.totalPages;
             this.totalLogs = response.totalLogs;
           },
-          (error) => {
+          error: (error) => {
             console.error('Error loading activity log:', error);
           }
-        );
+        });
     }
   }
 
