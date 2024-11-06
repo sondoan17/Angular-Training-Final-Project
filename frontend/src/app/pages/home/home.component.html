@@ -1,115 +1,357 @@
-<div class="bg-gradient-to-br from-indigo-100 to-white min-h-screen font-sans">
-  <div class="w-full max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-    <header class="flex justify-between items-center py-6">
-      <div class="flex items-center">
-        <a routerLink="/home" class="flex items-center">
-          <img [src]="'assets/images/logo.png'" alt="logo" class="h-12 w-auto mr-3" />
-        </a>
-      </div>
-      <div class="flex items-center space-x-4">
-        <a routerLink="/login" class="text-gray-600 hover:text-indigo-600 transition-colors duration-300">Login</a>
-        <a routerLink="/register" class="bg-indigo-600 text-white px-5 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-300 font-medium">
-          Get Started
-        </a>
-      </div>
-    </header>
-
-    <main class="text-center mt-20 mb-20">
-      <h1 class="text-5xl sm:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
-        Work smarter with the<br class="hidden sm:inline" />
-        <span class="text-indigo-600">#1 task management platform</span>
-      </h1>
-      <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-        Plan, manage and track all your team's tasks in one flexible platform. Boost productivity and collaboration today.
-      </p>
-      <a routerLink="/register" class="inline-block bg-indigo-600 text-white px-8 py-4 rounded-md hover:bg-indigo-700 transition-colors duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-        Get Started for Free →
-      </a>
-    </main>
-
-    <section class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-        </svg>
-        <h3 class="text-xl font-semibold mb-2">Task Organization</h3>
-        <p class="text-gray-600">Easily organize and prioritize your tasks with our intuitive interface.</p>
-      </div>
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-        <h3 class="text-xl font-semibold mb-2">Team Collaboration</h3>
-        <p class="text-gray-600">Collaborate seamlessly with your team members in real-time.</p>
-      </div>
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-        <h3 class="text-xl font-semibold mb-2">Progress Tracking</h3>
-        <p class="text-gray-600">Monitor your project progress with detailed analytics and reports.</p>
-      </div>
-    </section>
-
-    <!-- New sections for each feature -->
-    <!-- Task Organization Section -->
-    <section class="py-20">
-      <div class="flex flex-col lg:flex-row items-center justify-between">
-        <div class="lg:w-5/12 mb-10 lg:mb-0">
-          <h2 class="text-3xl font-bold mb-4 text-gray-800">Effortless Task Organization</h2>
-          <p class="text-xl text-gray-600 mb-6">Our intuitive interface makes it easy to create, prioritize, and manage tasks. Stay organized and boost your productivity with Planify.</p>
-          <ul class="list-disc list-inside text-gray-600">
-            <li>Create and assign tasks with ease</li>
-            <li>Set priorities and deadlines</li>
-            <li>Organize tasks into projects and categories</li>
-          </ul>
+<div
+  class="min-h-screen font-sans bg-gradient-to-br from-indigo-50 via-white to-indigo-50"
+>
+  <!-- Header -->
+  <header
+    class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-gray-100"
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <a routerLink="/home" class="flex items-center">
+            <img
+              [src]="
+                'https://res.cloudinary.com/db2tvcbza/image/upload/v1730869163/logo_sfhhhd.png'
+              "
+              alt="logo"
+              class="h-8 w-auto"
+            />
+          </a>
         </div>
-        <div class="lg:w-6/12">
-          <div class="relative" style="padding-top: 56.25%"> <!-- 16:9 Aspect Ratio -->
-            <img 
-              src="https://res.cloudinary.com/db2tvcbza/image/upload/v1729743933/task-organization.gif" 
-              alt="Task Organization" 
-              class="absolute top-0 left-0 w-full h-full object-contain"
+        <div class="flex items-center space-x-4">
+          <a
+            routerLink="/login"
+            class="text-gray-600 hover:text-indigo-600 font-medium transition-colors duration-300"
+          >
+            Login
+          </a>
+          <a
+            routerLink="/register"
+            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+          >
+            Get Started
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="pt-32 pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto">
+        <h1
+          class="text-5xl sm:text-6xl font-bold text-gray-900 leading-tight mb-6"
+        >
+          Work smarter with the
+          <span class="text-indigo-600 block mt-2"
+            >#1 task management platform</span
+          >
+        </h1>
+        <p class="text-xl text-gray-600 mb-10">
+          Plan, manage and track all your team's tasks in one flexible platform.
+          Boost productivity and collaboration today.
+        </p>
+        <a
+          routerLink="/register"
+          class="inline-flex items-center bg-indigo-600 text-white px-8 py-4 rounded-xl hover:bg-indigo-700 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+        >
+          Get Started for Free
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 ml-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </a>
+      </div>
+
+      <!-- Feature Cards -->
+      <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div
+          class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+        >
+          <div class="bg-indigo-100 rounded-xl p-3 inline-block">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-8 w-8 text-indigo-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+              />
+            </svg>
           </div>
+          <h3 class="text-xl font-bold mt-4 mb-2 text-gray-900">
+            Task Organization
+          </h3>
+          <p class="text-gray-600">
+            Easily organize and prioritize your tasks with our intuitive
+            interface.
+          </p>
         </div>
-      </div>
-    </section>
 
-    <!-- Team Collaboration Section -->
-    <section class="py-20 bg-gray-50">
-      <div class="flex flex-col md:flex-row-reverse items-center">
-        <div class="md:w-1/2 mb-10 md:mb-0 md:pl-10">
-          <h2 class="text-3xl font-bold mb-4 text-gray-800">Seamless Team Collaboration</h2>
-          <p class="text-xl text-gray-600 mb-6">Work together in real-time, share ideas, and stay on the same page with Planify's powerful collaboration features.</p>
-          <ul class="list-disc list-inside text-gray-600">
-            <li>Real-time updates and notifications</li>
-            <li>Comment and discuss tasks directly</li>
-            <li>Share files and documents effortlessly</li>
-          </ul>
+        <div
+          class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+        >
+          <div class="bg-indigo-100 rounded-xl p-3 inline-block">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-8 w-8 text-indigo-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mt-4 mb-2 text-gray-900">
+            Team Collaboration
+          </h3>
+          <p class="text-gray-600">
+            Collaborate seamlessly with your team members in real-time.
+          </p>
         </div>
-        <div class="md:w-1/2">
-          <img src="assets/images/team-collaboration.png" alt="Team Collaboration" class="rounded-lg shadow-lg">
-        </div>
-      </div>
-    </section>
 
-    <!-- Progress Tracking Section -->
-    <section class="py-20">
-      <div class="flex flex-col md:flex-row items-center">
-        <div class="md:w-1/2 mb-10 md:mb-0">
-          <h2 class="text-3xl font-bold mb-4 text-gray-800">Insightful Progress Tracking</h2>
-          <p class="text-xl text-gray-600 mb-6">Stay on top of your projects with detailed analytics and reports. Visualize progress and make data-driven decisions.</p>
-          <ul class="list-disc list-inside text-gray-600">
-            <li>Interactive dashboards and charts</li>
-            <li>Custom reports and analytics</li>
-            <li>Track time spent on tasks and projects</li>
-          </ul>
-        </div>
-        <div class="md:w-1/2">
-          <img src="assets/images/progress-tracking.png" alt="Progress Tracking" class="rounded-lg shadow-lg">
+        <div
+          class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+        >
+          <div class="bg-indigo-100 rounded-xl p-3 inline-block">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-8 w-8 text-indigo-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mt-4 mb-2 text-gray-900">
+            Progress Tracking
+          </h3>
+          <p class="text-gray-600">
+            Monitor your project progress with detailed analytics and reports.
+          </p>
         </div>
       </div>
-    </section>
-  </div>
+
+      <!-- Feature Sections -->
+      <div class="mt-32 space-y-32">
+        <!-- Task Organization Section -->
+        <section class="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-3xl font-bold mb-6 text-gray-900">
+              Effortless Task Organization
+            </h2>
+            <p class="text-lg text-gray-600 mb-8">
+              Our intuitive interface makes it easy to create, prioritize, and
+              manage tasks. Stay organized and boost your productivity with
+              Planify.
+            </p>
+            <ul class="space-y-4">
+              <li class="flex items-center text-gray-700">
+                <svg
+                  class="h-5 w-5 text-indigo-500 mr-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Create and assign tasks with ease
+              </li>
+              <li class="flex items-center text-gray-700">
+                <svg
+                  class="h-5 w-5 text-indigo-500 mr-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Set priorities and deadlines
+              </li>
+              <li class="flex items-center text-gray-700">
+                <svg
+                  class="h-5 w-5 text-indigo-500 mr-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Organize tasks into projects and categories
+              </li>
+            </ul>
+          </div>
+          <div class="bg-white p-4 rounded-2xl shadow-2xl">
+            <img
+              src="https://res.cloudinary.com/db2tvcbza/image/upload/v1729743933/task-organization.gif"
+              alt="Task Organization"
+              class="w-full h-auto rounded-xl"
+            />
+          </div>
+        </section>
+
+        <!-- Team Collaboration Section -->
+        <section class="grid md:grid-cols-2 gap-12 items-center">
+          <div class="order-2 md:order-1 bg-white p-4 rounded-2xl shadow-2xl">
+            <img
+              src="assets/images/team-collaboration.png"
+              alt="Team Collaboration"
+              class="w-full h-auto rounded-xl"
+            />
+          </div>
+          <div class="order-1 md:order-2">
+            <h2 class="text-3xl font-bold mb-6 text-gray-900">
+              Seamless Team Collaboration
+            </h2>
+            <p class="text-lg text-gray-600 mb-8">
+              Work together in real-time, share ideas, and stay on the same page
+              with Planify's powerful collaboration features.
+            </p>
+            <ul class="space-y-4">
+              <li class="flex items-center text-gray-700">
+                <svg
+                  class="h-5 w-5 text-indigo-500 mr-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Real-time updates and notifications
+              </li>
+              <li class="flex items-center text-gray-700">
+                <svg
+                  class="h-5 w-5 text-indigo-500 mr-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Comment and discuss tasks directly
+              </li>
+              <li class="flex items-center text-gray-700">
+                <svg
+                  class="h-5 w-5 text-indigo-500 mr-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Share files and documents effortlessly
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Progress Tracking Section -->
+        <section class="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-3xl font-bold mb-6 text-gray-900">
+              Insightful Progress Tracking
+            </h2>
+            <p class="text-lg text-gray-600 mb-8">
+              Stay on top of your projects with detailed analytics and reports.
+              Visualize progress and make data-driven decisions.
+            </p>
+            <ul class="space-y-4">
+              <li class="flex items-center text-gray-700">
+                <svg
+                  class="h-5 w-5 text-indigo-500 mr-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Interactive dashboards and charts
+              </li>
+              <li class="flex items-center text-gray-700">
+                <svg
+                  class="h-5 w-5 text-indigo-500 mr-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Custom reports and analytics
+              </li>
+              <li class="flex items-center text-gray-700">
+                <svg
+                  class="h-5 w-5 text-indigo-500 mr-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Track time spent on tasks and projects
+              </li>
+            </ul>
+          </div>
+          <div class="bg-white p-4 rounded-2xl shadow-2xl">
+            <img
+              src="https://res.cloudinary.com/db2tvcbza/image/upload/v1730878814/progress_wnebcm.png"
+              alt="Progress Tracking"
+              class="w-full h-auto rounded-xl"
+            />
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
 </div>
