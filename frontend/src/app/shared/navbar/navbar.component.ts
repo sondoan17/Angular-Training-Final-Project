@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { NotificationMenuComponent } from '../../components/notification-menu/notification-menu.component';
 
 @Component({
   selector: 'app-navbar',
@@ -18,6 +19,7 @@ import { AuthService } from '../../services/auth.service';
     MatIconModule,
     MatMenuModule,
     RouterModule,
+    NotificationMenuComponent,
   ],
 })
 export class NavbarComponent implements OnInit {

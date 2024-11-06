@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { map, Observable, catchError, throwError, tap } from 'rxjs';
 import { environment } from '../../environments/environment.development';
+import { NotificationService, Notification } from './notification.service';
 
 export interface Project {
   _id: string;
@@ -31,7 +32,10 @@ export interface Task {
 export class ProjectService {
   private apiUrl = `${environment.apiUrl}/api/projects`;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private notificationService: NotificationService
+  ) { }
 
   getProjects(): Observable<Project[]> {
     return this.http.get<Project[]>(this.apiUrl);
@@ -60,14 +64,29 @@ export class ProjectService {
             return member;
           });
         }
+
+        // Create detailed notification for all project members
+        const notification: Notification = {
+          type: 'project_update',
+          title: 'Project Updated',
+          message: `Project "${project.name}" has been updated with new ${
+            projectData.description ? 'description' : 'details'
+          }`,
+          projectId: id,
+          read: false,
+          createdAt: new Date()
+        };
+        
+        const memberIds = project.members.map(member => member._id);
+        this.notificationService.createNotificationForMembers(notification, memberIds).subscribe();
+        
         return project;
       })
     );
   }
 
   addMemberToProject(projectId: string, username: string): Observable<any> {
-    return this.http
-      .post<any>(`${this.apiUrl}/${projectId}/members`, { username })
+    return this.http.post<any>(`${this.apiUrl}/${projectId}/members`, { username })
       .pipe(
         map((project) => {
           project.members = project.members.map((member: any) => {
@@ -81,6 +100,18 @@ export class ProjectService {
             }
             return { _id: 'unknown', username: 'Unknown' };
           });
+          
+          // Notify about new member
+          const notification: Notification = {
+            type: 'project_update',
+            title: 'New Project Member',
+            message: `${username} has been added to the project`,
+            projectId,
+            read: false,
+            createdAt: new Date()
+          };
+          this.notificationService.emitNewNotification(notification);
+          
           return project;
         })
       );
@@ -99,7 +130,26 @@ export class ProjectService {
   }
 
   createTask(projectId: string, taskData: Omit<Task, '_id'>): Observable<Task> {
-    return this.http.post<Task>(`${this.apiUrl}/${projectId}/tasks`, taskData);
+    return this.http.post<Task>(`${this.apiUrl}/${projectId}/tasks`, taskData).pipe(
+      tap(response => {
+        // Get project details to get member list
+        this.getProjectDetails(projectId).subscribe(project => {
+          const memberIds = project.members.map((member: any) => member._id);
+          
+          const notification: Notification = {
+            type: 'project_update',
+            title: 'New Task Created',
+            message: `A new task "${taskData.title}" has been created`,
+            projectId,
+            taskId: response._id,
+            read: false,
+            createdAt: new Date()
+          };
+          
+          this.notificationService.createNotificationForMembers(notification, memberIds).subscribe();
+        });
+      })
+    );
   }
 
   updateTaskStatus(projectId: string, taskId: string, status: string): Observable<any> {
@@ -158,13 +208,13 @@ export class ProjectService {
   }
 
   updateTask(projectId: string, taskId: string, taskData: any): Observable<any> {
-    // Ensure we're sending only IDs for assignedTo
     const updatedTaskData = {
       ...taskData,
       assignedTo: taskData.assignedTo.map((member: any) =>
         typeof member === 'object' ? member._id : member
       )
     };
+    
     return this.http.put<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}`, updatedTaskData).pipe(
       map(task => ({
         ...task,
@@ -172,7 +222,28 @@ export class ProjectService {
           _id: member._id,
           username: member.username || 'Unknown'
         }))
-      }))
+      })),
+      tap(response => {
+        // Get project details to notify the owner
+        this.getProjectDetails(projectId).subscribe(project => {
+          const currentUserId = localStorage.getItem('userId');
+          const notification: Notification = {
+            type: 'project_update',
+            title: 'Task Modified',
+            message: `${localStorage.getItem('username')} modified task "${response.title}" in your project "${project.name}"`,
+            projectId,
+            taskId,
+            userId: project.createdBy._id, // Send to project owner
+            read: false,
+            createdAt: new Date()
+          };
+
+          // Only notify if the modifier is not the owner
+          if (currentUserId !== project.createdBy._id) {
+            this.notificationService.createNotificationForMembers(notification, [project.createdBy._id]).subscribe();
+          }
+        });
+      })
     );
   }
 
@@ -196,6 +267,41 @@ export class ProjectService {
     return this.http.post<any>(
       `${this.apiUrl}/${projectId}/tasks/${taskId}/comments`,
       commentData
+    ).pipe(
+      tap(response => {
+        // Get project and task details for the notification
+        this.getProjectDetails(projectId).subscribe(project => {
+          this.getTaskDetails(projectId, taskId).subscribe(task => {
+            const currentUserId = localStorage.getItem('userId');
+            const currentUsername = localStorage.getItem('username');
+            
+            const notification: Notification = {
+              type: 'mention',
+              title: 'New Comment',
+              message: `${currentUsername} commented on task "${task.title}" in project "${project.name}": "${commentData.content.substring(0, 50)}${commentData.content.length > 50 ? '...' : ''}"`,
+              projectId,
+              taskId,
+              userId: project.createdBy._id,
+              read: false,
+              createdAt: new Date()
+            };
+
+            // Notify project owner if commenter is not the owner
+            if (currentUserId !== project.createdBy._id) {
+              this.notificationService.createNotificationForMembers(notification, [project.createdBy._id]).subscribe();
+            }
+
+            // Also notify other task assignees (if any)
+            const assigneeIds = task.assignedTo
+              .map((member: any) => typeof member === 'object' ? member._id : member)
+              .filter((id: string) => id !== currentUserId && id !== project.createdBy._id);
+
+            if (assigneeIds.length > 0) {
+              this.notificationService.createNotificationForMembers(notification, assigneeIds).subscribe();
+            }
+          });
+        });
+      })
     );
   }
 
@@ -223,5 +329,27 @@ export class ProjectService {
 
   getProjectMembers(projectId: string) {
     return this.http.get<any[]>(`${this.apiUrl}/projects/${projectId}/members`);
+  }
+
+  assignTask(projectId: string, taskId: string, userId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}/assign`, { userId })
+      .pipe(
+        tap(response => {
+          // Get project details for more context
+          this.getProjectDetails(projectId).subscribe(project => {
+            const notification: Notification = {
+              type: 'task_assignment',
+              title: 'New Task Assignment',
+              message: `You have been assigned to task "${response.task.title}" in project "${project.name}"`,
+              projectId,
+              taskId,
+              userId,
+              read: false,
+              createdAt: new Date()
+            };
+            this.notificationService.emitNewNotification(notification);
+          });
+        })
+      );
   }
 }

@@ -8,6 +8,7 @@ const projectRoutes = require("../routes/projectRoutes");
 const userRoutes = require("../routes/userRoutes");
 const searchRoutes = require("../routes/searchRoutes");
 const compression = require("compression");
+const notificationRoutes = require('../routes/notificationRoutes');
 
 const app = express();
 const distPath = path.join(
@@ -51,7 +52,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/projects", projectRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/search", searchRoutes);
-
+app.use("/api/notifications", notificationRoutes);
 // Serve static files from Angular app
 app.use(express.static(distPath));
 
