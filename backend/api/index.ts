@@ -20,10 +20,10 @@ app.use(express.json());
 app.use(compression());
 app.use(
   cors({
-    origin: 'https://planify-app-pi.vercel.app',
+    origin: ["https://planify-app-pi.vercel.app", "http://localhost:4200"],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
