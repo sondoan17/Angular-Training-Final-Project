@@ -69,6 +69,9 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   isLoading: boolean = false;
 
+  hoveredMemberId: string | null = null;
+  tooltipPosition = { x: 0, y: 0 };
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -150,14 +153,15 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   loadProjectMembers(): void {
     if (this.projectId) {
-      this.projectService.getProjectDetails(this.projectId!).subscribe(
-        (project) => {
+      this.projectService.getProjectDetails(this.projectId).subscribe({
+        next: (project) => {
           this.projectMembers = project.members;
+          console.log('Loaded Project Members:', this.projectMembers);
         },
-        (error) => {
+        error: (error) => {
           console.error('Error loading project members:', error);
         }
-      );
+      });
     }
   }
 
@@ -536,6 +540,46 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   // Add this helper method
   getMemberName(memberId: string): string {
     const member = this.projectMembers.find(m => m._id === memberId);
-    return member ? member.username : 'Former Member';  // Return 'Former Member' instead of showing 'unknown'
+    return member ? member.username : 'Former Member';  
+  }
+
+  showMemberInfo(event: MouseEvent, memberId: string) {
+    this.hoveredMemberId = memberId;
+    
+    // Calculate position relative to viewport
+    const offset = 10; // Distance from cursor
+    let x = event.clientX + offset;
+    let y = event.clientY + offset;
+
+    // Prevent tooltip from going off-screen
+    const tooltipWidth = 288; // w-72 = 18rem = 288px
+    const tooltipHeight = 200; // Approximate height of tooltip
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Adjust X position if tooltip would go off right edge
+    if (x + tooltipWidth > viewportWidth) {
+      x = event.clientX - tooltipWidth - offset;
+    }
+
+    // Adjust Y position if tooltip would go off bottom edge
+    if (y + tooltipHeight > viewportHeight) {
+      y = event.clientY - tooltipHeight - offset;
+    }
+
+    this.tooltipPosition = { x, y };
+  }
+
+  hideMemberInfo() {
+    this.hoveredMemberId = null;
+  }
+
+  getMemberDetails(memberId: string | null) {
+    if (!memberId) return null;
+    console.log('Member ID:', memberId);
+    console.log('Project Members:', this.projectMembers);
+    const member = this.projectMembers.find(m => m._id === memberId);
+    console.log('Found Member:', member);
+    return member;
   }
 }

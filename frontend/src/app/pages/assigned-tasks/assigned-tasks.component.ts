@@ -13,6 +13,7 @@ import { ProjectService } from '../../services/project.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectChange } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 interface TasksByProject {
   [projectId: string]: {
@@ -42,6 +43,7 @@ type TaskPriority = 'Critical' | 'High' | 'Medium' | 'Low';
     RouterModule,
     MatMenuModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './assigned-tasks.component.html',
   styleUrls: ['./assigned-tasks.component.css'],
@@ -60,6 +62,9 @@ export class AssignedTasksComponent implements OnInit {
     { value: 'title', label: 'Title', icon: 'sort_by_alpha' }
   ];
 
+  isLoading: boolean = false;
+  isUpdatingTask: string | null = null;
+
   constructor(private projectService: ProjectService) { }
 
   ngOnInit() {
@@ -67,13 +72,16 @@ export class AssignedTasksComponent implements OnInit {
   }
 
   loadAssignedTasks() {
+    this.isLoading = true;
     this.projectService.getAssignedTasks().subscribe({
       next: (tasks) => {
         this.organizeTasksByProject(tasks);
         this.sortTasks();
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading assigned tasks:', error);
+        this.isLoading = false;
       },
     });
   }
@@ -153,6 +161,7 @@ export class AssignedTasksComponent implements OnInit {
   }
 
   updateTaskStatus(projectId: string, taskId: string, newStatus: string) {
+    this.isUpdatingTask = taskId;
     this.projectService
       .updateTaskStatus(projectId, taskId, newStatus)
       .subscribe({
@@ -163,9 +172,11 @@ export class AssignedTasksComponent implements OnInit {
           if (task) {
             task.status = newStatus;
           }
+          this.isUpdatingTask = null;
         },
         error: (error) => {
           console.error('Error updating task status:', error);
+          this.isUpdatingTask = null;
         },
       });
   }

@@ -220,4 +220,8 @@ export class ProjectService {
       `${this.apiUrl}/${projectId}/tasks/${taskId}/comments/${commentId}`
     );
   }
+
+  getProjectMembers(projectId: string) {
+    return this.http.get<any[]>(`${this.apiUrl}/projects/${projectId}/members`);
+  }
 }

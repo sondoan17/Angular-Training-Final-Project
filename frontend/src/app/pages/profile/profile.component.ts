@@ -41,6 +41,8 @@ export class ProfileComponent implements OnInit {
   name: string = '';
   birthDate: Date | null = null;
   isLoading: boolean = false;
+  isLoadingProfile: boolean = true;
+  isSaving: boolean = false;
   socialMedia: {
     twitter?: string;
     instagram?: string;
@@ -63,6 +65,8 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserProfile(): void {
+    this.isLoadingProfile = true;
+    
     this.userService.getCurrentUserProfile().subscribe({
       next: (profile) => {
         this.username = profile.username;
@@ -77,16 +81,18 @@ export class ProfileComponent implements OnInit {
           linkedin: '',
           github: ''
         };
+        this.isLoadingProfile = false;
       },
       error: (error) => {
         console.error('Error loading profile:', error);
         this.snackBar.open('Error loading profile', 'Close', { duration: 3000 });
+        this.isLoadingProfile = false;
       }
     });
   }
 
   onSubmit(): void {
-    this.isLoading = true;
+    this.isSaving = true;
     
     const updateData: Partial<UserProfile> = {
       email: this.email,
@@ -103,13 +109,13 @@ export class ProfileComponent implements OnInit {
     this.userService.updateUserProfile(updateData).subscribe({
       next: (profile) => {
         this.snackBar.open('Profile updated successfully', 'Close', { duration: 3000 });
-        this.isLoading = false;
+        this.isSaving = false;
         this.loadUserProfile();
       },
       error: (error) => {
         console.error('Error updating profile:', error);
         this.snackBar.open(error.error.message || 'Error updating profile', 'Close', { duration: 3000 });
-        this.isLoading = false;
+        this.isSaving = false;
       }
     });
   }

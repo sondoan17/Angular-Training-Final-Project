@@ -59,7 +59,7 @@ exports.getAllTasks = async (req, res) => {
 
     await Project.populate(project.tasks, {
       path: 'assignedTo',
-      select: 'username _id'
+      select: 'username _id email name'
     });
 
     res.json(project.tasks);
@@ -90,10 +90,10 @@ exports.getTaskById = async (req, res) => {
     // Clean up invalid member references
     await populateTaskWithValidMembers(task, project);
     
-    // Populate remaining valid members
+    // Update populate to include more fields
     await Project.populate(task, {
       path: 'assignedTo',
-      select: 'username _id'
+      select: 'username _id email name'
     });
 
     res.json(task);

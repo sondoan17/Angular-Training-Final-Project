@@ -1,6 +1,10 @@
 <div class="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
-  <div class="max-w-7xl mx-auto">
-    <button
+  <div *ngIf="isLoadingProfile" class="flex justify-center items-center min-h-[calc(100vh-64px)]">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+  <div *ngIf="!isLoadingProfile" class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+      <button
       mat-button
       routerLink="/dashboard"
       class="mb-4 flex items-center text-gray-600 hover:text-gray-800"
@@ -15,7 +19,7 @@
           <div class="flex-shrink-0">
             <img 
               class="h-20 w-20 rounded-full ring-4 ring-white"
-              [src]="'https://ui-avatars.com/api/?name=' + (name || username) + '&background=random&size=80'"
+              [src]="'https://ui-avatars.com/api/?name=' + (username) + '&background=random&size=80'"
               [alt]="username"
             >
           </div>

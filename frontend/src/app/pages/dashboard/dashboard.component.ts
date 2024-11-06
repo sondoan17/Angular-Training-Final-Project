@@ -12,6 +12,7 @@ import { EditProjectDialogComponent } from '../project-details/edit-project-dial
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../services/auth.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,6 +28,7 @@ import { AuthService } from '../../services/auth.service';
     EditProjectDialogComponent,
     MatSnackBarModule,
     ConfirmDialogComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -34,6 +36,7 @@ import { AuthService } from '../../services/auth.service';
 export class DashboardComponent implements OnInit {
   createdProjects: Project[] = [];
   memberProjects: Project[] = [];
+  isLoading: boolean = false;
 
   constructor(
     private dialog: MatDialog,
@@ -54,6 +57,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    this.isLoading = true;
     this.projectService.getUserProjects().subscribe({
       next: (projects: Project[]) => {
         this.createdProjects = projects.filter(project => 
@@ -65,12 +69,14 @@ export class DashboardComponent implements OnInit {
           project.createdBy._id !== currentUserId && 
           project.members?.some(member => member._id === currentUserId)
         );
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading user projects:', error);
         this.snackBar.open('Error loading projects', 'Close', {
           duration: 3000,
         });
+        this.isLoading = false;
       },
     });
   }
@@ -82,15 +88,20 @@ export class DashboardComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isLoading = true;
         this.projectService.createProject(result).subscribe({
           next: () => {
             this.loadUserProjects();
+            this.snackBar.open('Project created successfully', 'Close', {
+              duration: 3000,
+            });
           },
           error: (error) => {
             console.error('Error creating project:', error);
             this.snackBar.open('Error creating project', 'Close', {
               duration: 3000,
             });
+            this.isLoading = false;
           },
         });
       }
@@ -115,6 +126,7 @@ export class DashboardComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.isLoading = true;
         this.projectService.deleteProject(project._id).subscribe({
           next: () => {
             this.loadUserProjects();
@@ -127,6 +139,7 @@ export class DashboardComponent implements OnInit {
             this.snackBar.open('Error deleting project', 'Close', {
               duration: 3000,
             });
+            this.isLoading = false;
           },
         });
       }
@@ -144,6 +157,7 @@ export class DashboardComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isLoading = true;
         this.projectService.updateProject(project._id, result).subscribe({
           next: (updatedProject) => {
             const index = this.createdProjects.findIndex(
@@ -152,6 +166,7 @@ export class DashboardComponent implements OnInit {
             if (index !== -1) {
               this.createdProjects[index] = updatedProject;
             }
+            this.loadUserProjects();
             this.snackBar.open('Project updated successfully', 'Close', {
               duration: 3000,
             });
@@ -161,6 +176,7 @@ export class DashboardComponent implements OnInit {
             this.snackBar.open('Error updating project', 'Close', {
               duration: 3000,
             });
+            this.isLoading = false;
           },
         });
       }
