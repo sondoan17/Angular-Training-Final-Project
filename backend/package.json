@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "api/index.ts",
   "engines": {
-    "node": "20.x"
+    "node": ">=20.x"
   },
   "scripts": {
     "start": "node api/index.ts",

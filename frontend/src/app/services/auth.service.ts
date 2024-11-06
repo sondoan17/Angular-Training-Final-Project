@@ -48,7 +48,14 @@ export class AuthService {
   loginWithGoogle(token: string): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/google`, { token })
-      .pipe(tap(this.handleSuccessfulAuth), catchError(this.handleError));
+      .pipe(
+        tap((response) => {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('userId', response.userId);
+          localStorage.setItem('username', response.username);
+        }),
+        catchError(this.handleError)
+      );
   }
 
   private handleSuccessfulAuth(response: AuthResponse): void {
@@ -60,19 +67,17 @@ export class AuthService {
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
+    
     if (error.error instanceof ErrorEvent) {
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-      if (
-        error.error &&
-        typeof error.error === 'object' &&
-        'message' in error.error
-      ) {
-        errorMessage += `\nServer message: ${error.error.message}`;
-      }
+      errorMessage = error.error.message;
+    } else if (error.error && typeof error.error === 'object' && 'message' in error.error) {
+      errorMessage = error.error.message;
+    } else if (error.status === 401) {
+      errorMessage = 'Invalid credentials';
+    } else if (error.status === 409) {
+      errorMessage = 'Username or email already exists';
     }
-    console.error(errorMessage);
+
     return throwError(() => new Error(errorMessage));
   }
 

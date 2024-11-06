@@ -35,6 +35,7 @@ const UserSchema = new mongoose.Schema({
   updatedAt: Date,
   resetPasswordToken: String,
   resetPasswordExpires: Date,
+  googleId: { type: String, sparse: true },
 });
 
 const User = mongoose.model("User", UserSchema);

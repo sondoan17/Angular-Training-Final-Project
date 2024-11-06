@@ -4,6 +4,7 @@ import { NavbarComponent } from './shared/navbar/navbar.component';
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -16,12 +17,18 @@ export class AppComponent implements OnInit {
   isSidebarOpen = false;
   showNavAndSidebar = true;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
+    ).subscribe((event: any) => {
+      if (event.url === '/login' || event.url === '/register') {
+        this.authService.logout();
+      }
       this.updateNavAndSidebarVisibility(event.urlAfterRedirects);
     });
   }

@@ -91,8 +91,13 @@
         </div>
       </form>
 
+      <!-- Add this right after the search form -->
+      <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+
       <!-- Results Section -->
-      <div class="mt-8 space-y-4">
+      <div class="mt-8 space-y-4" [class.opacity-50]="isLoading">
         <!-- Results Header -->
         <div *ngIf="searchResults.length > 0" class="flex items-center justify-between mb-6">
           <h3 class="text-lg font-medium text-gray-700">
@@ -104,7 +109,7 @@
         </div>
 
         <!-- Results Cards -->
-        <div class="space-y-4">
+        <div class="space-y-4" [class.pointer-events-none]="isLoading">
           <div *ngFor="let result of searchResults" 
                class="bg-white border rounded-lg p-4 hover:shadow-md transition-all duration-200">
             <div class="flex justify-between items-start">
@@ -158,7 +163,7 @@
         </div>
 
         <!-- No Results Message -->
-        <div *ngIf="searchResults.length === 0 && searchForm.get('searchTerm')?.value" 
+        <div *ngIf="!isLoading && searchResults.length === 0 && searchForm.get('searchTerm')?.value" 
              class="text-center py-12">
           <mat-icon class="text-gray-300 text-6xl mb-4">search_off</mat-icon>
           <p class="text-gray-500 text-lg">No results found</p>
@@ -167,8 +172,4 @@
       </div>
     </div>
   </div>
-</div>
-
-<div *ngIf="isLoading" class="flex justify-center items-center py-8">
-  <mat-spinner diameter="40"></mat-spinner>
 </div>

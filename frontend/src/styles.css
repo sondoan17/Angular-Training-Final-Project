@@ -135,3 +135,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .error-snackbar .mat-simple-snackbar-action {
   color: white;
 }
+
+.success-snackbar {
+  background: #4caf50;
+  color: white;
+}
+
+.error-snackbar {
+  background: #f44336;
+  color: white;
+}
+
+.mat-mdc-snack-bar-action {
+  color: white !important;
+}

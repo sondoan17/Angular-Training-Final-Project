@@ -70,11 +70,14 @@ export class SearchComponent implements OnInit, OnDestroy {
         distinctUntilChanged(),
         switchMap((formValue) => {
           if (formValue.searchTerm && formValue.searchTerm.trim() !== '') {
+            this.isLoading = true;
             return this.searchService.searchProjectsAndTasks(
               formValue.searchTerm,
               formValue.status || undefined,
               formValue.priority || undefined,
               formValue.type || undefined
+            ).pipe(
+              finalize(() => this.isLoading = false)
             );
           } else {
             return of([]);

@@ -8,6 +8,7 @@ import { ProjectService } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from '../../pages/dashboard/create-project-dialog/create-project-dialog.component';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -36,11 +37,14 @@ export class SidebarComponent implements OnInit {
   constructor(
     private projectService: ProjectService,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
-    this.loadProjects();
+    if (this.authService.isLoggedIn()) {
+      this.loadProjects();
+    }
   }
 
   loadProjects() {

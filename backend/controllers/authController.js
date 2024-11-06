@@ -78,20 +78,58 @@ exports.login = async (req, res) => {
 };
 
 exports.googleAuth = async (req, res) => {
-  const { token } = req.body;
   try {
+    // Verify the Google token
     const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      idToken: req.body.token,
+      audience: process.env.GOOGLE_CLIENT_ID
     });
-    const payload = ticket.getPayload();
-    const userId = payload["sub"];
 
+    const { email, name, sub: googleId } = ticket.getPayload();
 
+    // Find or create user
+    let user = await User.findOne({ 
+      $or: [
+        { email: email },
+        { googleId: googleId }
+      ]
+    });
 
-    res.json({ token: token });
+    if (!user) {
+      // Create new user if doesn't exist
+      user = new User({
+        email: email,
+        username: name,
+        googleId: googleId,
+        password: 'GOOGLE_AUTH_' + Math.random().toString(36).slice(-8)
+      });
+      await user.save();
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user._id,
+        username: user.username,
+        email: user.email 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    // Send response
+    res.status(200).json({
+      token,
+      userId: user._id,
+      username: user.username
+    });
+
   } catch (error) {
-    res.status(401).json({ error: "Invalid token" });
+    console.error('Google Auth Error:', error);
+    res.status(401).json({ 
+      message: 'Google authentication failed',
+      error: error.message 
+    });
   }
 };
 
