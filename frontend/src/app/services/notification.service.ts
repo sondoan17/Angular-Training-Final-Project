@@ -7,7 +7,7 @@ export interface Notification {
   _id?: string;
   userId?: string;
   recipients?: string[];
-  type: 'task_assignment' | 'due_date' | 'mention' | 'project_update' | 'task_modified' | 'new_comment';
+  type: 'task_assignment' | 'task_modified' | 'due_date' | 'mention' | 'project_update' | 'new_comment';
   title: string;
   message: string;
   projectId?: string;

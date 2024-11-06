@@ -26,6 +26,16 @@ export interface Task {
   updatedAt?: Date;
 }
 
+interface ProjectMember {
+  _id: string;
+  username: string;
+}
+
+interface TaskAssignee {
+  _id: string;
+  username: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -57,7 +67,7 @@ export class ProjectService {
     return this.http.put<Project>(`${this.apiUrl}/${id}`, projectData).pipe(
       map((project) => {
         if (Array.isArray(project.members)) {
-          project.members = project.members.map((member: any) => {
+          project.members = project.members.map((member: string | ProjectMember) => {
             if (typeof member === 'string') {
               return { _id: member, username: 'Unknown' };
             }
@@ -65,7 +75,6 @@ export class ProjectService {
           });
         }
 
-        // Create detailed notification for all project members
         const notification: Notification = {
           type: 'project_update',
           title: 'Project Updated',
@@ -77,8 +86,13 @@ export class ProjectService {
           createdAt: new Date()
         };
         
-        const memberIds = project.members.map(member => member._id);
-        this.notificationService.createNotificationForMembers(notification, memberIds).subscribe();
+        const memberIds = project.members
+          .map(member => member._id)
+          .filter((id): id is string => typeof id === 'string');
+
+        if (memberIds.length > 0) {
+          this.notificationService.createNotificationForMembers(notification, memberIds).subscribe();
+        }
         
         return project;
       })
@@ -155,36 +169,56 @@ export class ProjectService {
   updateTaskStatus(projectId: string, taskId: string, status: string): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}`, { status })
       .pipe(
-        map(response => {
-          // console.log('Server response:', response);
-          if (!response) {
-            throw new Error('No response from server');
-          }
-          if (!response._id) {
-            throw new Error('Invalid task data returned from server');
-          }
-          if (response.assignedTo && Array.isArray(response.assignedTo)) {
-            response.assignedTo = response.assignedTo.map((member: any) => {
-              if (typeof member === 'object' && member !== null) {
-                return {
-                  _id: member._id,
-                  username: member.username || 'Unknown'
-                };
-              } else if (typeof member === 'string') {
-                return { _id: member, username: 'Unknown' };
-              }
-              return { _id: 'unknown', username: 'Unknown' };
-            });
-          } else {
-            response.assignedTo = [];
-          }
-          return response;
-        }),
-        catchError(error => {
-          console.error('Error in updateTaskStatus:', error);
-          return throwError(() => new Error('An error occurred while updating the task status.'));
+        tap(response => {
+          this.getProjectDetails(projectId).subscribe(project => {
+            const currentUserId = localStorage.getItem('userId');
+            const currentUsername = localStorage.getItem('username');
+
+            const statusMessage = this.getStatusChangeMessage(status);
+            const notification: Notification = {
+              type: 'task_modified',
+              title: 'Task Status Updated',
+              message: `${currentUsername} ${statusMessage} task "${response.title}" in project "${project.name}"`,
+              projectId,
+              taskId,
+              read: false,
+              createdAt: new Date()
+            };
+
+            const assigneeIds = (response.assignedTo as (string | TaskAssignee)[])
+              .map(member => typeof member === 'object' ? member._id : member)
+              .filter((id): id is string => 
+                typeof id === 'string' && id !== currentUserId
+              );
+
+            if (project.createdBy._id !== currentUserId) {
+              assigneeIds.push(project.createdBy._id);
+            }
+
+            const uniqueRecipients = [...new Set(assigneeIds)];
+
+            if (uniqueRecipients.length > 0) {
+              this.notificationService.createNotificationForMembers(notification, uniqueRecipients).subscribe();
+            }
+          });
         })
       );
+  }
+
+  // Helper method to generate status change messages
+  private getStatusChangeMessage(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'in progress':
+        return 'started working on';
+      case 'done':
+        return 'completed';
+      case 'stuck':
+        return 'marked as stuck';
+      case 'not started':
+        return 'reset the status of';
+      default:
+        return 'updated the status of';
+    }
   }
 
   getTaskDetails(projectId: string, taskId: string): Observable<any> {
@@ -269,7 +303,6 @@ export class ProjectService {
       commentData
     ).pipe(
       tap(response => {
-        // Get project and task details for the notification
         this.getProjectDetails(projectId).subscribe(project => {
           this.getTaskDetails(projectId, taskId).subscribe(task => {
             const currentUserId = localStorage.getItem('userId');
@@ -286,18 +319,25 @@ export class ProjectService {
               createdAt: new Date()
             };
 
-            // Notify project owner if commenter is not the owner
+            const recipients: string[] = [];
+
             if (currentUserId !== project.createdBy._id) {
-              this.notificationService.createNotificationForMembers(notification, [project.createdBy._id]).subscribe();
+              recipients.push(project.createdBy._id);
             }
 
-            // Also notify other task assignees (if any)
-            const assigneeIds = task.assignedTo
-              .map((member: any) => typeof member === 'object' ? member._id : member)
-              .filter((id: string) => id !== currentUserId && id !== project.createdBy._id);
+            const assigneeIds = (task.assignedTo as (string | TaskAssignee)[])
+              .map(member => typeof member === 'object' ? member._id : member)
+              .filter((id): id is string => 
+                typeof id === 'string' && 
+                id !== currentUserId && 
+                id !== project.createdBy._id
+              );
 
-            if (assigneeIds.length > 0) {
-              this.notificationService.createNotificationForMembers(notification, assigneeIds).subscribe();
+            recipients.push(...assigneeIds);
+
+            const uniqueRecipients = [...new Set(recipients)];
+            if (uniqueRecipients.length > 0) {
+              this.notificationService.createNotificationForMembers(notification, uniqueRecipients).subscribe();
             }
           });
         });
@@ -335,19 +375,39 @@ export class ProjectService {
     return this.http.post<any>(`${this.apiUrl}/${projectId}/tasks/${taskId}/assign`, { userId })
       .pipe(
         tap(response => {
-          // Get project details for more context
           this.getProjectDetails(projectId).subscribe(project => {
-            const notification: Notification = {
+            const currentUserId = localStorage.getItem('userId');
+            const currentUsername = localStorage.getItem('username');
+
+            // Notification for the newly assigned user
+            const assigneeNotification: Notification = {
               type: 'task_assignment',
               title: 'New Task Assignment',
               message: `You have been assigned to task "${response.task.title}" in project "${project.name}"`,
               projectId,
               taskId,
-              userId,
               read: false,
               createdAt: new Date()
             };
-            this.notificationService.emitNewNotification(notification);
+
+            // Notification for the project owner (if different from assigner)
+            const ownerNotification: Notification = {
+              type: 'task_modified',
+              title: 'Task Assignment Updated',
+              message: `${currentUsername} assigned task "${response.task.title}" to ${response.task.assignedTo.map((u: any) => u.username).join(', ')}`,
+              projectId,
+              taskId,
+              read: false,
+              createdAt: new Date()
+            };
+
+            // Send notification to newly assigned user
+            this.notificationService.createNotificationForMembers(assigneeNotification, [userId]).subscribe();
+
+            // Send notification to project owner if they're not the one assigning
+            if (project.createdBy._id !== currentUserId) {
+              this.notificationService.createNotificationForMembers(ownerNotification, [project.createdBy._id]).subscribe();
+            }
           });
         })
       );

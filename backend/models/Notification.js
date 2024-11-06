@@ -8,7 +8,14 @@ const NotificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['task_assignment', 'due_date', 'mention', 'project_update'],
+    enum: [
+      'task_assignment',
+      'task_modified',
+      'due_date',
+      'mention',
+      'project_update',
+      'new_comment'
+    ],
     required: true
   },
   title: {

@@ -64,8 +64,13 @@ import { Subscription } from 'rxjs';
                 </span>
               </div>
               
-              <!-- Message -->
-              <p class="text-sm text-gray-600 mb-1">{{notification.message}}</p>
+              <!-- Message with status styling -->
+              <p class="text-sm text-gray-600 mb-1">
+                <span [class.px-2.py-1.rounded-md]="notification.type === 'task_modified'"
+                      [class]="getStatusClass(notification.message)">
+                  {{notification.message}}
+                </span>
+              </p>
               
               <!-- Project/Task Reference -->
               <div class="flex flex-wrap gap-2 mt-2">
@@ -155,6 +160,26 @@ import { Subscription } from 'rxjs';
     .icon-comment {
       background-color: #fae8ff;
       color: #c026d3;
+    }
+    
+    .status-not-started {
+      background-color: #f3f4f6;
+      color: #4b5563;
+    }
+    
+    .status-in-progress {
+      background-color: #dbeafe;
+      color: #2563eb;
+    }
+    
+    .status-done {
+      background-color: #dcfce7;
+      color: #16a34a;
+    }
+    
+    .status-stuck {
+      background-color: #fee2e2;
+      color: #dc2626;
     }
   `]
 })
@@ -279,5 +304,18 @@ export class NotificationMenuComponent implements OnInit, OnDestroy {
       default:
         return 'notifications';
     }
+  }
+
+  getStatusClass(message: string): string {
+    if (message.includes('completed')) {
+      return 'status-done';
+    } else if (message.includes('started working on')) {
+      return 'status-in-progress';
+    } else if (message.includes('marked as stuck')) {
+      return 'status-stuck';
+    } else if (message.includes('reset')) {
+      return 'status-not-started';
+    }
+    return '';
   }
 } 
