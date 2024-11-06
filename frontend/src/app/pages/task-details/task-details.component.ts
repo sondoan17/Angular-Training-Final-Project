@@ -38,11 +38,11 @@ import { finalize } from 'rxjs/operators';
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './task-details.component.html',
   styleUrls: ['./task-details.component.css'],
-  providers: [DatePipe]
+  providers: [DatePipe],
 })
 export class TaskDetailsComponent implements OnInit, OnDestroy {
   task: any;
@@ -81,7 +81,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private datePipe: DatePipe,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -110,39 +110,43 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
       this.isLoading = true;
       this.cdr.detectChanges();
 
-      this.projectService.getTaskDetails(this.projectId!, this.taskId!).pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
-      ).subscribe({
-        next: (task) => {
-          this.task = task;
-          this.updateRemainingTime();
-          this.startRemainingTimeCounter();
-          this.loadActivityLog();
-        },
-        error: (error) => {
-          console.error('Error loading task details:', error);
-        }
-      });
+      this.projectService
+        .getTaskDetails(this.projectId!, this.taskId!)
+        .pipe(
+          finalize(() => {
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          })
+        )
+        .subscribe({
+          next: (task) => {
+            this.task = task;
+            this.updateRemainingTime();
+            this.startRemainingTimeCounter();
+            this.loadActivityLog();
+          },
+          error: (error) => {
+            console.error('Error loading task details:', error);
+          },
+        });
     }
   }
 
   loadActivityLog(page: number = this.currentPage): void {
     if (this.projectId && this.taskId) {
-      this.projectService.getTaskActivityLog(this.projectId, this.taskId, page).subscribe(
-        (response) => {
-
-          this.activityLog = response.logs;
-          this.currentPage = response.currentPage;
-          this.totalPages = response.totalPages;
-          this.totalLogs = response.totalLogs;
-        },
-        (error) => {
-          console.error('Error loading activity log:', error);
-        }
-      );
+      this.projectService
+        .getTaskActivityLog(this.projectId, this.taskId, page)
+        .subscribe(
+          (response) => {
+            this.activityLog = response.logs;
+            this.currentPage = response.currentPage;
+            this.totalPages = response.totalPages;
+            this.totalLogs = response.totalLogs;
+          },
+          (error) => {
+            console.error('Error loading activity log:', error);
+          }
+        );
     }
   }
 
@@ -160,7 +164,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading project members:', error);
-        }
+        },
       });
     }
   }
@@ -217,7 +221,6 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
           },
           (error) => {
             console.error('Error deleting task:', error);
-
           }
         );
       }
@@ -227,22 +230,23 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   editTask(): void {
     const dialogRef = this.dialog.open(EditTaskDialogComponent, {
       width: '500px',
-      data: { ...this.task, projectId: this.projectId }
+      data: { ...this.task, projectId: this.projectId },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.projectService.updateTask(this.projectId!, this.taskId!, result).subscribe(
-          updatedTask => {
-            this.task = updatedTask;
-            this.loadActivityLog();
-
-          },
-          error => {
-            console.error('Error updating task:', error);
-            // Show error message
-          }
-        );
+        this.projectService
+          .updateTask(this.projectId!, this.taskId!, result)
+          .subscribe(
+            (updatedTask) => {
+              this.task = updatedTask;
+              this.loadActivityLog();
+            },
+            (error) => {
+              console.error('Error updating task:', error);
+              // Show error message
+            }
+          );
       }
     });
   }
@@ -274,35 +278,39 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
       this.projectService.getProjectDetails(this.projectId).subscribe({
         next: (project) => {
           const currentUserId = this.authService.getCurrentUserId();
-          const projectCreatorId = typeof project.createdBy === 'object'
-            ? project.createdBy._id
-            : project.createdBy;
+          const projectCreatorId =
+            typeof project.createdBy === 'object'
+              ? project.createdBy._id
+              : project.createdBy;
 
           if (currentUserId) {
-            this.isProjectCreator = projectCreatorId.toString() === currentUserId.toString();
+            this.isProjectCreator =
+              projectCreatorId.toString() === currentUserId.toString();
           } else {
             this.isProjectCreator = false;
           }
         },
         error: (error) => {
           console.error('Error checking project creator:', error);
-        }
+        },
       });
     }
   }
 
   updateTaskStatus(newStatus: string): void {
     if (this.projectId && this.taskId && this.task) {
-      this.projectService.updateTaskStatus(this.projectId, this.taskId, newStatus).subscribe(
-        (updatedTask) => {
-          this.task.status = updatedTask.status;
-          this.updateRemainingTime();
-          this.loadActivityLog(1);
-        },
-        (error) => {
-          console.error('Error updating task status:', error);
-        }
-      );
+      this.projectService
+        .updateTaskStatus(this.projectId, this.taskId, newStatus)
+        .subscribe(
+          (updatedTask) => {
+            this.task.status = updatedTask.status;
+            this.updateRemainingTime();
+            this.loadActivityLog(1);
+          },
+          (error) => {
+            console.error('Error updating task status:', error);
+          }
+        );
     }
   }
 
@@ -413,16 +421,18 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   loadComments(): void {
     if (this.projectId && this.taskId) {
       this.isLoadingComments = true;
-      this.projectService.getTaskComments(this.projectId, this.taskId).subscribe(
-        (comments) => {
-          this.comments = comments;
-          this.isLoadingComments = false;
-        },
-        (error) => {
-          console.error('Error loading comments:', error);
-          this.isLoadingComments = false;
-        }
-      );
+      this.projectService
+        .getTaskComments(this.projectId, this.taskId)
+        .subscribe(
+          (comments) => {
+            this.comments = comments;
+            this.isLoadingComments = false;
+          },
+          (error) => {
+            console.error('Error loading comments:', error);
+            this.isLoadingComments = false;
+          }
+        );
     }
   }
 
@@ -431,21 +441,21 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
       const commentContent = this.newComment.trim();
       this.newComment = '';
 
-      this.projectService.addTaskComment(
-        this.projectId,
-        this.taskId,
-        { content: commentContent }
-      ).subscribe(
-        (comment) => {
-          this.comments.unshift(comment);
-          this.loadActivityLog();
-        },
-        (error) => {
-          console.error('Error adding comment:', error);
-          // Optionally restore the comment text if there was an error
-          this.newComment = commentContent;
-        }
-      );
+      this.projectService
+        .addTaskComment(this.projectId, this.taskId, {
+          content: commentContent,
+        })
+        .subscribe(
+          (comment) => {
+            this.comments.unshift(comment);
+            this.loadActivityLog();
+          },
+          (error) => {
+            console.error('Error adding comment:', error);
+            // Optionally restore the comment text if there was an error
+            this.newComment = commentContent;
+          }
+        );
     }
   }
 
@@ -466,23 +476,22 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   saveEdit(comment: any): void {
     if (!this.editCommentText?.trim()) return;
 
-    this.projectService.updateTaskComment(
-      this.projectId!,
-      this.taskId!,
-      comment._id,
-      { content: this.editCommentText.trim() }
-    ).subscribe(
-      (updatedComment) => {
-        const index = this.comments.findIndex(c => c._id === comment._id);
-        if (index !== -1) {
-          this.comments[index] = updatedComment;
+    this.projectService
+      .updateTaskComment(this.projectId!, this.taskId!, comment._id, {
+        content: this.editCommentText.trim(),
+      })
+      .subscribe(
+        (updatedComment) => {
+          const index = this.comments.findIndex((c) => c._id === comment._id);
+          if (index !== -1) {
+            this.comments[index] = updatedComment;
+          }
+          this.cancelEdit();
+        },
+        (error) => {
+          console.error('Error updating comment:', error);
         }
-        this.cancelEdit();
-      },
-      (error) => {
-        console.error('Error updating comment:', error);
-      }
-    );
+      );
   }
 
   deleteComment(comment: any): void {
@@ -490,24 +499,24 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
       width: '300px',
       data: {
         title: 'Delete Comment',
-        message: 'Are you sure you want to delete this comment?'
-      }
+        message: 'Are you sure you want to delete this comment?',
+      },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.projectService.deleteTaskComment(
-          this.projectId!,
-          this.taskId!,
-          comment._id
-        ).subscribe(
-          () => {
-            this.comments = this.comments.filter(c => c._id !== comment._id);
-          },
-          (error) => {
-            console.error('Error deleting comment:', error);
-          }
-        );
+        this.projectService
+          .deleteTaskComment(this.projectId!, this.taskId!, comment._id)
+          .subscribe(
+            () => {
+              this.comments = this.comments.filter(
+                (c) => c._id !== comment._id
+              );
+            },
+            (error) => {
+              console.error('Error deleting comment:', error);
+            }
+          );
       }
     });
   }
@@ -524,37 +533,41 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
           return member;
         } else if (typeof member === 'string') {
           const foundMember = this.projectMembers.find((m) => m._id === member);
-          return foundMember || {
-            _id: member,
-            username: 'Unknown User',
-            email: '',
-            name: '',
-            status: 'unknown'
-          };
+          return (
+            foundMember || {
+              _id: member,
+              username: 'Unknown User',
+              email: '',
+              name: '',
+              status: 'unknown',
+            }
+          );
         }
         return {
           username: 'Unknown User',
           email: '',
           name: '',
-          status: 'unknown'
+          status: 'unknown',
         };
       });
   }
 
   getMemberDetails(memberId: string | null) {
     if (!memberId) return null;
-    const member = this.projectMembers.find(m => m._id === memberId);
-    return member ? {
-      _id: member._id,
-      username: member.username,
-      email: member.email || 'No email available',
-      name: member.name || 'No name available'
-    } : null;
+    const member = this.projectMembers.find((m) => m._id === memberId);
+    return member
+      ? {
+          _id: member._id,
+          username: member.username,
+          email: member.email || 'No email available',
+          name: member.name || 'No name available',
+        }
+      : null;
   }
 
   showMemberInfo(event: MouseEvent, memberId: string) {
     this.hoveredMemberId = memberId;
-    
+
     // Calculate position relative to viewport
     const offset = 10; // Distance from cursor
     let x = event.clientX + offset;
