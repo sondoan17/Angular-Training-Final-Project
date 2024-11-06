@@ -525,22 +525,31 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
         } else if (typeof member === 'string') {
           const foundMember = this.projectMembers.find((m) => m._id === member);
           return foundMember || {
+            _id: member,
             username: 'Unknown User',
-            status: 'unknown',
-            _id: member
+            email: '',
+            name: '',
+            status: 'unknown'
           };
         }
         return {
           username: 'Unknown User',
+          email: '',
+          name: '',
           status: 'unknown'
         };
       });
   }
 
-  // Add this helper method
-  getMemberName(memberId: string): string {
+  getMemberDetails(memberId: string | null) {
+    if (!memberId) return null;
     const member = this.projectMembers.find(m => m._id === memberId);
-    return member ? member.username : 'Former Member';  
+    return member ? {
+      _id: member._id,
+      username: member.username,
+      email: member.email || 'No email available',
+      name: member.name || 'No name available'
+    } : null;
   }
 
   showMemberInfo(event: MouseEvent, memberId: string) {
@@ -572,14 +581,5 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   hideMemberInfo() {
     this.hoveredMemberId = null;
-  }
-
-  getMemberDetails(memberId: string | null) {
-    if (!memberId) return null;
-    console.log('Member ID:', memberId);
-    console.log('Project Members:', this.projectMembers);
-    const member = this.projectMembers.find(m => m._id === memberId);
-    console.log('Found Member:', member);
-    return member;
   }
 }

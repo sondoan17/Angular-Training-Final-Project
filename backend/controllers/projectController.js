@@ -62,8 +62,8 @@ exports.getAllProjects = async (req, res) => {
         { members: userId }
       ]
     })
-    .populate('createdBy', 'username')
-    .populate('members', 'username')
+    .populate('createdBy', 'username email name')
+    .populate('members', 'username email name')
     .sort({ createdAt: -1 });
 
     const transformedProjects = projects.map(project => {
@@ -124,8 +124,8 @@ exports.createProject = async (req, res) => {
 exports.getProjectById = async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
-      .populate("createdBy", "username")
-      .populate("members", "username");
+      .populate("createdBy", "username email name")
+      .populate("members", "username email name");
 
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
@@ -137,10 +137,15 @@ exports.getProjectById = async (req, res) => {
           typeof member === "string" ||
           member instanceof mongoose.Types.ObjectId
         ) {
-          const user = await User.findById(member).select("username");
+          const user = await User.findById(member).select("username email name");
           return user
-            ? { _id: user._id, username: user.username }
-            : { _id: member, username: "Unknown" };
+            ? { 
+                _id: user._id, 
+                username: user.username,
+                email: user.email,
+                name: user.name 
+              }
+            : { _id: member, username: "Unknown", email: "", name: "" };
         }
         return member;
       })
@@ -232,8 +237,8 @@ exports.addMemberToProject = async (req, res) => {
     await project.save();
 
     project = await Project.findById(req.params.id)
-      .populate("createdBy", "username")
-      .populate("members", "username");
+      .populate("createdBy", "username email name")
+      .populate("members", "username email name");
 
     const populatedMembers = await Promise.all(
       project.members.map(async (member) => {
@@ -241,10 +246,15 @@ exports.addMemberToProject = async (req, res) => {
           typeof member === "string" ||
           member instanceof mongoose.Types.ObjectId
         ) {
-          const user = await User.findById(member).select("username");
+          const user = await User.findById(member).select("username email name");
           return user
-            ? { _id: user._id, username: user.username }
-            : { _id: member, username: "Unknown" };
+            ? { 
+                _id: user._id, 
+                username: user.username,
+                email: user.email,
+                name: user.name 
+              }
+            : { _id: member, username: "Unknown", email: "", name: "" };
         }
         return member;
       })
