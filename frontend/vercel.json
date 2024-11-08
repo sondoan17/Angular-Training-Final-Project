@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/browser/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/browser/$1"
+    }
+  ]
+}
