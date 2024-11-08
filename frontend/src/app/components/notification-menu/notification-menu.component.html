@@ -1,0 +1,85 @@
+<button mat-icon-button [matMenuTriggerFor]="menu" 
+        [matBadge]="unreadCount" 
+        [matBadgeHidden]="unreadCount === 0"
+        matBadgeColor="warn"
+        class="notification-button">
+  <mat-icon>notifications</mat-icon>
+</button>
+
+<mat-menu #menu="matMenu" class="!max-w-[450px] !min-w-[380px]">
+  <!-- Header -->
+  <div class="sticky top-0 z-10 bg-white border-b border-gray-200 p-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
+      <button mat-button *ngIf="unreadCount > 0" 
+              (click)="markAllAsRead(); $event.stopPropagation()"
+              class="text-blue-500 text-sm">
+        Mark all as read
+      </button>
+    </div>
+  </div>
+  
+  <!-- Notification List -->
+  <div class="max-h-[480px] overflow-y-auto">
+    <!-- Empty State -->
+    <div *ngIf="notifications.length === 0" 
+         class="py-8 px-4 text-center text-gray-500">
+      <mat-icon class="text-[48px] w-12 h-12 mx-auto mb-4 opacity-50">
+        notifications_off
+      </mat-icon>
+      <p>No notifications yet</p>
+    </div>
+    
+    <!-- Notification Items -->
+    <div *ngFor="let notification of notifications" 
+         class="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+         [class.bg-blue-50]="!notification.read"
+         (click)="onNotificationClick(notification)">
+      <div class="flex gap-4 items-start">
+        <!-- Icon -->
+        <div [class]="getNotificationIconClass(notification.type) + ' w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0'">
+          <mat-icon class="text-[20px] w-5 h-5">
+            {{getNotificationIcon(notification.type)}}
+          </mat-icon>
+        </div>
+        
+        <!-- Content -->
+        <div class="flex-grow min-w-0">
+          <div class="flex justify-between items-start mb-1">
+            <span class="font-medium text-gray-900 text-[0.925rem]">
+              {{notification.title}}
+            </span>
+            <span class="text-xs text-gray-500 ml-2 whitespace-nowrap">
+              {{getTimeAgo(notification.createdAt)}}
+            </span>
+          </div>
+          
+          <p class="text-sm text-gray-600 mb-2 leading-relaxed">
+            <span [class.status-badge]="notification.type === 'task_modified'"
+                  [class]="getStatusClass(notification.message)">
+              {{notification.message}}
+            </span>
+          </p>
+          
+          <div class="flex flex-wrap gap-2">
+            <span *ngIf="notification.projectId" 
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
+              <mat-icon class="text-base w-4 h-4">folder</mat-icon>
+              Project
+            </span>
+            <span *ngIf="notification.taskId" 
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-800">
+              <mat-icon class="text-base w-4 h-4">task</mat-icon>
+              Task
+            </span>
+          </div>
+        </div>
+        
+        <!-- Unread Indicator -->
+        <div *ngIf="!notification.read" 
+             class="w-2 h-2 rounded-full bg-blue-500 mt-2">
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-menu>

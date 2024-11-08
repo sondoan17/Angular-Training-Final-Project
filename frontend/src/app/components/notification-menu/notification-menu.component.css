@@ -1,0 +1,84 @@
+.notification-menu {
+    max-width: 400px;
+    min-width: 350px;
+  }
+  
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 8px 16px;
+    background-color: #f9fafb;
+  }
+  
+  .notification-item {
+    transition: background-color 0.2s;
+  }
+  
+  .notification-item.unread {
+    background-color: #f0f9ff;
+  }
+  
+  .notification-item:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .icon-container {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  
+  .icon-task {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+  
+  .icon-update {
+    background-color: #f0fdf4;
+    color: #15803d;
+  }
+  
+  .icon-mention {
+    background-color: #fef3c7;
+    color: #b45309;
+  }
+  
+  .icon-due {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+  
+  .icon-edit {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+  }
+  
+  .icon-comment {
+    background-color: #fae8ff;
+    color: #c026d3;
+  }
+  
+  .status-not-started {
+    background-color: #f3f4f6;
+    color: #4b5563;
+  }
+  
+  .status-in-progress {
+    background-color: #dbeafe;
+    color: #2563eb;
+  }
+  
+  .status-done {
+    background-color: #dcfce7;
+    color: #16a34a;
+  }
+  
+  .status-stuck {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
