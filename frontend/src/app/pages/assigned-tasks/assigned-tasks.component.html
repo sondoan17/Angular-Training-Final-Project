@@ -68,9 +68,6 @@
           <mat-panel-title class="project-title text-sm sm:text-base md:text-lg font-semibold text-gray-800 truncate">
             {{ tasksByProject[projectId].projectName }}
           </mat-panel-title>
-          <!-- <mat-panel-description class="text-xs sm:text-sm md:text-base text-gray-600 whitespace-nowrap">
-          {{ tasksByProject[projectId].tasks.length }} tasks
-        </mat-panel-description> -->
         </mat-expansion-panel-header>
 
         <div
@@ -92,7 +89,7 @@
             <div class="task-details mt-auto">
               <div class="flex items-center justify-between">
                 <button [matMenuTriggerFor]="statusMenu" [ngClass]="getStatusClass(task.status)"
-                  class="px-2 py-1 rounded-tl-full rounded-bl-full text-xs sm:text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  class="px-3 py-1 rounded-tl-full rounded-bl-full text-xs sm:text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                   <span class="mr-1">{{ task.status }}</span>
                   <mat-icon class="text-xs sm:text-sm">arrow_drop_down</mat-icon>
                 </button>
