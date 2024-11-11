@@ -1,0 +1,146 @@
+<div class="task-details-dialog w-full max-w-3xl mx-auto overflow-y-auto">
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="absolute inset-0 bg-white bg-opacity-90 z-50 flex items-center justify-center">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Content (with opacity when loading) -->
+  <div [class.opacity-50]="isLoading">
+    <!-- Header Section -->
+    <div class="sticky top-0 bg-white z-10 p-4 border-b border-gray-200">
+      <div class="flex justify-between items-start gap-4">
+        <div class="flex-1 min-w-0">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 truncate">
+            {{ taskDetails?.title || data.task.title }}
+          </h2>
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              [class]="getStatusClass(taskDetails?.status || data.task.status)"
+              class="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap"
+            >
+              {{ taskDetails?.status || data.task.status }}
+            </span>
+            <span
+              [class]="getPriorityClass(taskDetails?.priority || data.task.priority)"
+              class="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap"
+            >
+              {{ taskDetails?.priority || data.task.priority }}
+            </span>
+          </div>
+        </div>
+        <button
+          mat-icon-button
+          (click)="close()"
+          class="text-gray-500 hover:text-gray-700 flex-shrink-0"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="p-4">
+      <!-- Description Section -->
+      <div class="mb-6">
+        <h3 class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider">
+          Description
+        </h3>
+        <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
+          <p class="text-sm sm:text-base text-gray-600 break-words">
+            {{ taskDetails?.description || data.task.description }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Info Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <!-- Timeline Section -->
+        <div>
+          <h3
+            class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider"
+          >
+            Timeline
+          </h3>
+          <div class="bg-gray-50 p-3 sm:p-4 rounded-lg space-y-2">
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-gray-400 text-sm">calendar_today</mat-icon>
+              <span class="text-xs sm:text-sm text-gray-600">
+                Start: {{ taskDetails?.timeline?.start || data.task.timeline?.start | date : "mediumDate" }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-gray-400 text-sm">event</mat-icon>
+              <span class="text-xs sm:text-sm text-gray-600">
+                End: {{ taskDetails?.timeline?.end || data.task.timeline?.end | date : "mediumDate" }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assigned Members Section -->
+        <div>
+          <h3
+            class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider"
+          >
+            Assigned Members
+          </h3>
+          <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
+            <div class="flex flex-col gap-2">
+              <div
+                *ngFor="let member of getAssignedMembers()"
+                class="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200 hover:border-blue-400 transition-colors"
+              >
+                <div class="flex items-center gap-3">
+                  <img
+                    [src]="
+                      'https://ui-avatars.com/api/?name=' +
+                      member.username +
+                      '&background=random'
+                    "
+                    [alt]="member.username"
+                    class="w-8 h-8 rounded-full"
+                  />
+                  <span class="text-sm text-gray-700 font-medium">{{
+                    member.username
+                  }}</span>
+                </div>
+                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded"
+                  >Member</span
+                >
+              </div>
+              <div
+                *ngIf="getAssignedMembers().length === 0"
+                class="text-gray-500 text-sm italic p-2 text-center"
+              >
+                No members assigned
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div
+      class="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex justify-end gap-3"
+    >
+      <button
+        mat-button
+        class="text-gray-600 text-sm sm:text-base"
+        (click)="close()"
+        [disabled]="isLoading"
+      >
+        Close
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        class="px-4 sm:px-6 text-sm sm:text-base"
+        (click)="viewFullDetails()"
+        [disabled]="isLoading"
+      >
+        View Full Details
+      </button>
+    </div>
+  </div>
+</div>

@@ -64,7 +64,8 @@
             [tasks]="project.tasks"
             [projectId]="project._id"
             [isProjectCreator]="isProjectCreator"
-            (taskMoved)="onTaskMoved($event)">
+            (taskMoved)="onTaskMoved($event)"
+            (taskClicked)="openTaskDetailsDialog($event)">
           </app-kanban-board>
         </div>
 

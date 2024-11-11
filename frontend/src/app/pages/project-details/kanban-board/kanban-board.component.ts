@@ -47,6 +47,7 @@ export class KanbanBoardComponent implements OnInit {
   @Input() projectId!: string;
   @Input() isProjectCreator: boolean = false;
   @Output() taskMoved = new EventEmitter<{ task: Task; newStatus: string }>();
+  @Output() taskClicked = new EventEmitter<Task>();
 
   columns: Column[] = [
     { id: 'not-started', title: 'Not Started', tasks: [] },
@@ -116,8 +117,8 @@ export class KanbanBoardComponent implements OnInit {
     return column ? column.title : '';
   }
 
-  onTaskClick(task: Task) {
-    this.router.navigate(['/projects', this.projectId, 'tasks', task._id]);
+  onTaskClick(task: any) {
+    this.taskClicked.emit(task);
   }
 
   getConnectedList(): string[] {

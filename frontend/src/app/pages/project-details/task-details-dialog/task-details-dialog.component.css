@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  max-height: 90vh;
+}
+
+.task-details-dialog {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 200px;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Ensure Material icons are properly sized */
+.mat-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+  line-height: 18px;
+}
+
+/* Responsive padding for dialog */
+@media (max-width: 640px) {
+  .task-details-dialog {
+    max-height: 100vh;
+  }
+}
+
+/* Optional: Custom spinner colors */
+::ng-deep .mat-spinner circle {
+  stroke: #3b82f6; /* Tailwind blue-500 */
+}
