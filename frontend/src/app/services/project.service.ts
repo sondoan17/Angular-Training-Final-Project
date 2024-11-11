@@ -412,4 +412,11 @@ export class ProjectService {
         })
       );
   }
+
+  toggleCommentReaction(projectId: string, taskId: string, commentId: string, type: string) {
+    return this.http.post<any>(
+      `${this.apiUrl}/projects/${projectId}/tasks/${taskId}/comments/${commentId}/reactions`,
+      { type }
+    );
+  }
 }

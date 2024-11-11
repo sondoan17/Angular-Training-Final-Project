@@ -29,4 +29,7 @@ router.post("/:projectId/tasks/:taskId/comments", authMiddleware, taskController
 router.put("/:projectId/tasks/:taskId/comments/:commentId", authMiddleware, taskController.updateComment);
 router.delete("/:projectId/tasks/:taskId/comments/:commentId", authMiddleware, taskController.deleteComment);
 
+// Reaction routes
+router.post('/projects/:projectId/tasks/:taskId/comments/:commentId/reactions', authMiddleware, taskController.addCommentReaction);
+
 module.exports = router;

@@ -94,3 +94,139 @@
   position: absolute;
   z-index: 1000;
 }
+
+.reaction-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 32px;
+  height: 32px;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  border-radius: 16px;
+}
+
+.reaction-button:hover {
+  opacity: 1;
+  background: #f3f4f6;
+}
+
+.reaction-button.active {
+  opacity: 1;
+  background: #f3f4f6;
+}
+
+.reaction-emoji {
+  font-size: 16px;
+}
+
+.reaction-count {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.total-reactions {
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  background: #f9fafb;
+  border-radius: 16px;
+  display: inline-block;
+}
+
+.existing-reactions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.reaction-group {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.comment-reactions {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.comment-container:hover .comment-reactions {
+  opacity: 1;
+}
+
+.reaction-bubble {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  padding: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.reaction-trigger {
+  position: relative;
+  display: inline-block;
+}
+
+.reaction-trigger:hover .reaction-bubble {
+  opacity: 1;
+  visibility: visible;
+}
+
+.reaction-bubble-button {
+  padding: 6px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.reaction-bubble-button:hover {
+  transform: scale(1.2);
+  background: #f3f4f6;
+}
+
+.reactions-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.reaction-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: #f3f4f6;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.reaction-pill.active {
+  background: #e0e7ff;
+  color: #4f46e5;
+}

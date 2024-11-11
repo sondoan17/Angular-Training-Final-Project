@@ -323,11 +323,17 @@ exports.getTaskComments = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Populate author information for each comment
-    await Project.populate(task.comments, {
-      path: "author",
-      select: "username _id"
-    });
+    // Populate both author and reaction user information
+    await Project.populate(task.comments, [
+      {
+        path: "author",
+        select: "username _id"
+      },
+      {
+        path: "reactions.user",
+        select: "username _id"
+      }
+    ]);
 
     // Sort comments by creation date 
     const sortedComments = task.comments.sort((a, b) => b.createdAt - a.createdAt);
@@ -502,6 +508,80 @@ exports.updateTaskStatus = async (req, res) => {
     res.status(500).json({ 
       message: "Error updating task status", 
       error: error.toString() 
+    });
+  }
+};
+
+exports.addCommentReaction = async (req, res) => {
+  try {
+    const { projectId, taskId, commentId } = req.params;
+    const { type } = req.body;
+    const userId = req.user.userId;
+
+    // Validate reaction type
+    const validReactions = ['👍', '👎', '😄', '🎉', '😕', '❤️'];
+    if (!validReactions.includes(type)) {
+      return res.status(400).json({ 
+        message: "Invalid reaction type",
+        validTypes: validReactions
+      });
+    }
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const task = project.tasks.id(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const comment = task.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    // Initialize reactions array if it doesn't exist
+    if (!comment.reactions) {
+      comment.reactions = [];
+    }
+
+    // Check if user already reacted with this emoji
+    const existingReaction = comment.reactions.find(
+      r => r.user.toString() === userId && r.type === type
+    );
+
+    if (existingReaction) {
+      // Remove the reaction if it exists (toggle off)
+      comment.reactions = comment.reactions.filter(
+        r => !(r.user.toString() === userId && r.type === type)
+      );
+    } else {
+      // Add new reaction without removing existing ones
+      comment.reactions.push({ type, user: userId });
+    }
+
+    await project.save();
+
+    // Populate both author and reactions user information
+    await Project.populate(comment, [
+      {
+        path: 'author',
+        select: 'username _id'
+      },
+      {
+        path: 'reactions.user',
+        select: 'username _id'
+      }
+    ]);
+
+    res.json(comment);
+  } catch (error) {
+    console.error("Error managing comment reaction:", error);
+    res.status(500).json({
+      message: "Error managing comment reaction",
+      error: error.toString()
     });
   }
 };

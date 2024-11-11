@@ -61,7 +61,19 @@ const TaskSchema = new mongoose.Schema({
     createdAt: {
       type: Date,
       default: Date.now
-    }
+    },
+    reactions: [{
+      type: {
+        type: String,
+        enum: ['👍', '👎', '😄', '🎉', '😕', '❤️'],
+        required: true
+      },
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+      }
+    }]
   }]
 }, { strict: true });
 

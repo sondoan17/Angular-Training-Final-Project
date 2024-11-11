@@ -431,6 +431,45 @@
                   </ng-template>
                 </div>
               </div>
+              <!-- Replace the existing reaction buttons section with this -->
+              <div class="comment-container relative">
+                <!-- Existing comment content -->
+                <div class="mt-2">
+                  <!-- Reactions summary -->
+                  <div class="reactions-summary" *ngIf="hasAnyReactions(comment)">
+                    <div 
+                      *ngFor="let type of getExistingReactionTypes(comment)"
+                      class="reaction-pill"
+                      [class.active]="hasUserReacted(comment, type)"
+                      (click)="toggleReaction(comment, type)"
+                    >
+                      <span>{{type}}</span>
+                      <span>{{getReactionCount(comment, type)}}</span>
+                    </div>
+                  </div>
+
+                  <!-- Reaction trigger and bubble -->
+                  <div class="reaction-trigger">
+                    <button 
+                      mat-icon-button 
+                      class="text-gray-500 hover:text-gray-700"
+                    >
+                      <mat-icon>add_reaction</mat-icon>
+                    </button>
+
+                    <div class="reaction-bubble">
+                      <button
+                        *ngFor="let type of reactionTypes"
+                        class="reaction-bubble-button"
+                        [class.active]="hasUserReacted(comment, type)"
+                        (click)="toggleReaction(comment, type); $event.stopPropagation()"
+                      >
+                        {{type}}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
