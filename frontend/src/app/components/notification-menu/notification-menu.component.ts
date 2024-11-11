@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { NotificationService, Notification } from '../../services/notification.service';
 import { Subscription } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-notification-menu',
@@ -17,13 +18,16 @@ import { Subscription } from 'rxjs';
     MatIconModule,
     MatBadgeModule,
     MatButtonModule,
-    RouterModule
+    RouterModule,
+    MatProgressSpinnerModule
   ],
   template: `
-    <button mat-icon-button [matMenuTriggerFor]="menu" 
+    <button mat-icon-button 
+            [matMenuTriggerFor]="menu" 
             [matBadge]="unreadCount" 
             [matBadgeHidden]="unreadCount === 0"
             matBadgeColor="warn"
+            (click)="loadNotifications()"
             class="notification-button">
       <mat-icon>notifications</mat-icon>
     </button>
@@ -39,7 +43,7 @@ import { Subscription } from 'rxjs';
         </div>
       </div>
       
-      <div class="notification-list max-h-[400px] overflow-y-auto">
+      <div class="notification-list max-h-[400px] overflow-y-auto" (scroll)="onScroll($event)">
         <div *ngIf="notifications.length === 0" class="p-4 text-gray-500 text-center">
           No notifications
         </div>
@@ -92,6 +96,10 @@ import { Subscription } from 'rxjs';
                  class="w-2 h-2 rounded-full bg-blue-500 mt-2">
             </div>
           </div>
+        </div>
+        
+        <div *ngIf="loading" class="p-4 text-center">
+          <mat-spinner diameter="20"></mat-spinner>
         </div>
       </div>
     </mat-menu>
@@ -187,6 +195,10 @@ export class NotificationMenuComponent implements OnInit, OnDestroy {
   notifications: Notification[] = [];
   unreadCount = 0;
   private subscription: Subscription;
+  currentPage = 1;
+  loading = false;
+  hasMore = true;
+  isFirstLoad = true;
 
   constructor(private notificationService: NotificationService) {
     this.subscription = this.notificationService.notifications$
@@ -199,18 +211,49 @@ export class NotificationMenuComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loadNotifications();
+    // Don't load notifications immediately
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
-  loadNotifications() {
-    this.notificationService.getNotifications().subscribe(notifications => {
-      this.notifications = notifications;
-      this.unreadCount = notifications.filter(n => !n.read).length;
+  loadNotifications(loadMore = false) {
+    if (this.loading || (!loadMore && !this.isFirstLoad)) return;
+    
+    this.loading = true;
+    const page = loadMore ? this.currentPage + 1 : 1;
+
+    this.notificationService.getNotifications(page).subscribe({
+      next: (response) => {
+        if (loadMore) {
+          this.notifications = [...this.notifications, ...response.notifications];
+          this.currentPage++;
+        } else {
+          this.notifications = response.notifications;
+          this.currentPage = 1;
+          this.isFirstLoad = false;
+        }
+        this.hasMore = response.hasMore;
+        this.unreadCount = this.notifications.filter(n => !n.read).length;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading notifications:', error);
+        this.loading = false;
+      }
     });
+  }
+
+  onScroll(event: any) {
+    const element = event.target;
+    if (
+      this.hasMore &&
+      !this.loading &&
+      element.scrollHeight - element.scrollTop <= element.clientHeight + 50
+    ) {
+      this.loadNotifications(true);
+    }
   }
 
   markAllAsRead() {

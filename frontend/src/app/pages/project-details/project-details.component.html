@@ -17,7 +17,6 @@
     <div *ngIf="!isLoading" class="container mx-auto px-4 py-8">
       <div *ngIf="project" class="bg-white shadow rounded-lg p-6">
         <!-- Project Header -->
-        <!-- Project Header -->
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-2xl font-bold text-gray-800">{{ project.name }}</h2>
           <div class="space-x-2">
@@ -43,11 +42,30 @@
         </div>
 
         <!-- Project Description and Details -->
-        <!-- Project Description and Details -->
         <p class="text-gray-600 mb-4">{{ project.description }}</p>
         <div class="flex justify-between text-sm text-gray-500 mb-6">
           <p>Created by: {{ getCreatorUsername() }}</p>
           <p>Created at: {{ project.createdAt | date }}</p>
+        </div>
+
+        <!-- Tasks Section -->
+        <div class="mb-8">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-700">Tasks</h3>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="openCreateTaskDialog()"
+            >
+              <mat-icon class="mr-2">add</mat-icon> Create Task
+            </button>
+          </div>
+          <app-kanban-board
+            [tasks]="project.tasks"
+            [projectId]="project._id"
+            [isProjectCreator]="isProjectCreator"
+            (taskMoved)="onTaskMoved($event)">
+          </app-kanban-board>
         </div>
 
         <!-- Project Progress and Summary -->
@@ -159,28 +177,6 @@
               </li>
             </ul>
           </div>
-        </div>
-
-        <!-- Tasks Section -->
-        <div class="mb-6">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold text-gray-700">Tasks</h3>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="openCreateTaskDialog()"
-            >
-              <mat-icon class="mr-2">add</mat-icon> Create Task
-            </button>
-          </div>
-          <app-kanban-board
-            [tasks]="project.tasks"
-            [projectId]="project._id"
-            [isProjectCreator]="isProjectCreator"
-            (taskMoved)="onTaskMoved($event)">
-          </app-kanban-board>
-
-          
         </div>
 
         <!-- Activity Log Toggle -->

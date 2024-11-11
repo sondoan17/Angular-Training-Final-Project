@@ -16,6 +16,11 @@ export interface Notification {
   createdAt: Date;
 }
 
+export interface NotificationResponse {
+  notifications: Notification[];
+  hasMore: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,8 +31,10 @@ export class NotificationService {
 
   constructor(private http: HttpClient) {}
 
-  getNotifications(): Observable<Notification[]> {
-    return this.http.get<Notification[]>(`${this.apiUrl}/user`);
+  getNotifications(page: number = 1, limit: number = 5): Observable<NotificationResponse> {
+    return this.http.get<NotificationResponse>(
+      `${this.apiUrl}/user?page=${page}&limit=${limit}`
+    );
   }
 
   markAsRead(notificationId: string): Observable<any> {
