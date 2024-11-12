@@ -45,21 +45,28 @@ app.use((req, res, next) => {
 // Security headers
 app.use((req, res, next) => {
   const allowedOrigins = [
-    "http://localhost:4200",
-    "http://localhost:3000",
-    "https://planify-app-pi.vercel.app",
-    "https://accounts.google.com",
+    'http://localhost:4200',
+    'http://localhost:3000',
+    'https://planify-app-pi.vercel.app',
+    'https://accounts.google.com',
+    'https://planify-app-backend.vercel.app'
   ];
-
+  
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader('Access-Control-Allow-Origin', origin);
   }
 
-  res.removeHeader("Cross-Origin-Embedder-Policy");
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-
+  // Remove COEP header as it's causing issues with Google scripts
+  res.removeHeader('Cross-Origin-Embedder-Policy');
+  
+  // Update security headers
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  
   next();
 });
 
