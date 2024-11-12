@@ -49,9 +49,10 @@ app.use((req, res, next) => {
     'http://localhost:3000',
     'https://planify-app-pi.vercel.app',
     'https://accounts.google.com',
-    'https://planify-app-backend.vercel.app'
+    "https://planify-app-backend.vercel.app",
+    "https://www.planify.website",
   ];
-  
+
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
