@@ -2,34 +2,57 @@
   <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between h-16">
       <div class="flex items-center">
-        <button (click)="onToggleSidebar()" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+        <button
+          (click)="onToggleSidebar()"
+          class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+        >
           <mat-icon>menu</mat-icon>
         </button>
         <div class="flex-shrink-0 flex items-center ml-4">
-          <img class="h-8 w-auto" src="https://res.cloudinary.com/db2tvcbza/image/upload/v1730869163/logo_sfhhhd.png" alt="Logo">
+          <img
+            class="h-8 w-auto"
+            src="https://res.cloudinary.com/db2tvcbza/image/upload/v1730869163/logo_sfhhhd.png"
+            alt="Logo"
+            crossorigin="anonymous"
+          />
         </div>
       </div>
       <div class="flex items-center space-x-4">
         <app-notification-menu *ngIf="isLoggedIn()"></app-notification-menu>
-        <button [matMenuTriggerFor]="userMenu" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <button
+          [matMenuTriggerFor]="userMenu"
+          class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
           <span class="sr-only">Open user menu</span>
-          <img 
+          <img
             class="h-8 w-8 rounded-full"
-            [src]="'https://ui-avatars.com/api/?name=' + (username || 'User') + '&background=random'"
+            [src]="
+              'https://ui-avatars.com/api/?name=' +
+              (username || 'User') +
+              '&background=random'
+            "
             [alt]="username || 'User'"
-          >
+          />
         </button>
       </div>
     </div>
   </div>
 
   <mat-menu #userMenu="matMenu" class="mt-2">
-    <button mat-menu-item routerLink="/profile" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+    <button
+      mat-menu-item
+      routerLink="/profile"
+      class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+    >
       <mat-icon class="mr-3 text-gray-400">person</mat-icon>
       <span>Profile</span>
     </button>
-    
-    <button mat-menu-item (click)="logout()" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+
+    <button
+      mat-menu-item
+      (click)="logout()"
+      class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+    >
       <mat-icon class="mr-3 text-gray-400">exit_to_app</mat-icon>
       <span>Logout</span>
     </button>
