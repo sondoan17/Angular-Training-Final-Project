@@ -10,13 +10,13 @@ const searchRoutes = require('./routes/searchRoutes');
 const compression = require('compression');
 
 const app = express();
-const distPath = path.join(__dirname, '../frontend/dist/angular-training-final-project');
+const distPath = path.join(__dirname, 'browser');
 
 // Middleware
 app.use(express.json());
 app.use(compression());
 app.use(cors({
-  origin: ['http://localhost:4200', 'https://planify-app-pi.vercel.app'],
+  origin: ['http://localhost:4200', 'https://planify-app-pi.vercel.app', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
