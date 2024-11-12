@@ -1,34 +1,40 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const authRouter = require("./routes/authRoutes");
-const projectRoutes = require('./routes/projectRoutes');
-const userRoutes = require('./routes/userRoutes');
-const searchRoutes = require('./routes/searchRoutes');
-const notificationRoutes = require('./routes/notificationRoutes');
-const compression = require('compression');
+const projectRoutes = require("./routes/projectRoutes");
+const userRoutes = require("./routes/userRoutes");
+const searchRoutes = require("./routes/searchRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const compression = require("compression");
 
 const app = express();
-const distPath = path.join(__dirname, 'browser');
+const distPath = path.join(__dirname, "browser");
 
 // Middleware
 app.use(express.json());
 app.use(compression());
-app.use(cors({
-  origin: [
-    'http://localhost:4200', 
-    'http://localhost:3000',
-    'https://planify-app-pi.vercel.app',
-    'https://accounts.google.com',
-    'https://*.google.com'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
-  exposedHeaders: ['Access-Control-Allow-Origin']
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:4200",
+      "http://localhost:3000",
+      "https://planify-app-pi.vercel.app",
+      "https://accounts.google.com",
+      "https://*.google.com",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Access-Control-Allow-Origin",
+    ],
+    exposedHeaders: ["Access-Control-Allow-Origin"],
+  })
+);
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -38,22 +44,22 @@ app.use((req, res, next) => {
 
 // Security headers
 app.use((req, res, next) => {
-  // Allow Google's domains
   const allowedOrigins = [
-    'http://localhost:4200',
-    'http://localhost:3000',
-    'https://planify-app-pi.vercel.app',
-    'https://accounts.google.com'
+    "http://localhost:4200",
+    "http://localhost:3000",
+    "https://planify-app-pi.vercel.app",
+    "https://accounts.google.com",
   ];
-  
+
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader("Access-Control-Allow-Origin", origin);
   }
-  
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  
+
+  res.removeHeader("Cross-Origin-Embedder-Policy");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+
   next();
 });
 
@@ -65,27 +71,28 @@ mongoose
 
 // API routes
 app.use("/api/auth", authRouter);
-app.use('/api/projects', projectRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/search', searchRoutes);
-app.use('/api/notifications', notificationRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/search", searchRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Serve static files from Angular app
 app.use(express.static(distPath));
 
 // Handle Angular app routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!', error: err.message });
+  res
+    .status(500)
+    .json({ message: "Something went wrong!", error: err.message });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
