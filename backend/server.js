@@ -19,14 +19,15 @@ app.use(compression());
 app.use(cors({
   origin: [
     'http://localhost:4200', 
-    'https://planify-app-pi.vercel.app', 
-    'http://localhost:3000', 
+    'http://localhost:3000',
+    'https://planify-app-pi.vercel.app',
     'https://accounts.google.com',
-    'https://*.google.com',
+    'https://*.google.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
+  exposedHeaders: ['Access-Control-Allow-Origin']
 }));
 
 // Logging middleware
@@ -37,8 +38,22 @@ app.use((req, res, next) => {
 
 // Security headers
 app.use((req, res, next) => {
+  // Allow Google's domains
+  const allowedOrigins = [
+    'http://localhost:4200',
+    'http://localhost:3000',
+    'https://planify-app-pi.vercel.app',
+    'https://accounts.google.com'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  
   next();
 });
 
