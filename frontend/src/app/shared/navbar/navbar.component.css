@@ -14,3 +14,24 @@
   justify-content: center;
   margin-left: 8px;
 }
+
+.search-input {
+  transition: width 0.3s ease;
+}
+
+.search-input:focus {
+  width: 300px;
+}
+
+.search-results {
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.search-result-item {
+  transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+  background-color: #f3f4f6;
+}

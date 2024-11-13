@@ -17,7 +17,48 @@
           />
         </div>
       </div>
+      
       <div class="flex items-center space-x-4">
+        <div class="relative" *ngIf="isLoggedIn()">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchInput()"
+            (blur)="handleBlur()"
+            placeholder="Search projects and tasks..."
+            class="w-64 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+          <button
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <mat-icon>search</mat-icon>
+          </button>
+          
+          <!-- Search Results Dropdown -->
+          <div *ngIf="showDropdown && searchResults.length > 0"
+               class="absolute right-0 z-50 mt-1 w-full bg-white rounded-md shadow-lg max-h-96 overflow-auto">
+            <div class="py-1">
+              <div *ngFor="let result of searchResults"
+                   (click)="navigateToResult(result)"
+                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                <div class="flex items-center">
+                  <mat-icon class="mr-2 text-gray-400">
+                    {{result.type === 'project' ? 'folder' : 'task'}}
+                  </mat-icon>
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">
+                      {{result.type === 'project' ? result.name : result.title}}
+                    </div>
+                    <div *ngIf="result.type === 'task'" class="text-xs text-gray-500">
+                      in {{result.projectName}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <app-notification-menu *ngIf="isLoggedIn()"></app-notification-menu>
         <button
           [matMenuTriggerFor]="userMenu"
@@ -26,11 +67,7 @@
           <span class="sr-only">Open user menu</span>
           <img
             class="h-8 w-8 rounded-full"
-            [src]="
-              'https://ui-avatars.com/api/?name=' +
-              (username || 'User') +
-              '&background=random'
-            "
+            [src]="'https://ui-avatars.com/api/?name=' + (username || 'User') + '&background=random'"
             [alt]="username || 'User'"
           />
         </button>

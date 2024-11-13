@@ -11,6 +11,7 @@ export interface Project {
   members: { _id: string; username: string }[];
   createdBy: { _id: string; username: string };
   createdAt: Date;
+  lastAccessedAt: Date;
 }
 
 export interface Task {
@@ -418,5 +419,9 @@ export class ProjectService {
       `${this.apiUrl}/projects/${projectId}/tasks/${taskId}/comments/${commentId}/reactions`,
       { type }
     );
+  }
+
+  getRecentProjects(): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.apiUrl}/recent`);
   }
 }

@@ -9,3 +9,40 @@
 .content {
   padding: 20px;
 }
+
+:host {
+  display: block;
+  background-color: #f9fafb;
+}
+
+.mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+::ng-deep .mat-mdc-raised-button {
+  border-radius: 9999px !important;
+}
+
+::ng-deep .mat-mdc-menu-panel {
+  border-radius: 12px !important;
+}
+
+.group:hover .opacity-0 {
+  opacity: 1;
+}
+
+::ng-deep .mat-mdc-mini-fab {
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+}
+
+::ng-deep .mat-mdc-mini-fab .mat-icon {
+  font-size: 20px;
+  line-height: 20px;
+  width: 20px;
+  height: 20px;
+}

@@ -1,93 +1,143 @@
-<div class="p-4 sm:p-6 bg-gray-100 min-h-screen">
-  <div class="max-w-full mx-auto">
-    <div *ngIf="isLoading" class="flex justify-center items-center min-h-[calc(100vh-64px)]">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Greeting Section -->
+    <div class="mb-10">
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">
+        {{ greeting }}, {{ username }}
+      </h1>
+      <p class="text-gray-600">Welcome back to your project dashboard</p>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="flex justify-center items-center min-h-[400px]">
       <mat-spinner diameter="40"></mat-spinner>
     </div>
-    <!-- Created Projects Section -->
-    <div *ngIf="!isLoading" class="container mx-auto px-4 py-8">
-      <div class="mb-12">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8">
-          <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-0">Your Projects</h2>
-          <button mat-raised-button color="primary" (click)="openCreateProjectDialog()"
-            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 sm:px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105">
-            Create New Project
-          </button>
-        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          <div *ngFor="let project of createdProjects"
-            class="bg-white rounded-xl shadow-lg overflow-hidden transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl">
-            <div class="p-4">
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 truncate">{{ project.name }}</h3>
-                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Owner</span>
-              </div>
-              <p class="text-sm text-gray-600 mb-3 line-clamp-2 h-10">{{ project.description }}</p>
-              <div class="flex items-center text-xs text-gray-500 mb-2">
-                <mat-icon class="mr-1 text-gray-400 text-base">group</mat-icon>
-                <span>{{ project.members.length || 0 }} members</span>
-              </div>
-              <div class="flex items-center text-xs text-gray-500 mb-4">
-                <mat-icon class="mr-1 text-gray-400 text-base">access_time</mat-icon>
-                <span>Created {{ project.createdAt | date:'mediumDate' }}</span>
-              </div>
+    <div *ngIf="!isLoading" class="space-y-10">
+      <!-- Recent Projects Section -->
+      <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Recently Viewed</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div *ngFor="let project of recentProjects"
+            class="group bg-gray-50 rounded-xl p-5 hover:bg-gray-100 transition-all duration-300 flex flex-col h-full">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-semibold text-gray-900 truncate">{{ project.name }}</h3>
+              <span [ngClass]="{
+                'bg-blue-100 text-blue-800': project.createdBy._id === currentUserId,
+                'bg-green-100 text-green-800': project.createdBy._id !== currentUserId
+              }" class="px-3 py-1 rounded-full text-xs font-medium">
+                {{ project.createdBy._id === currentUserId ? 'Owner' : 'Member' }}
+              </span>
+            </div>
+            <div class="flex-grow">
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ project.description }}</p>
+            </div>
+            <div class="mt-auto pt-4">
               <div class="flex justify-between items-center">
-                <a [routerLink]="['/projects', project._id]"
-                  class="text-sm text-blue-600 hover:text-blue-800 font-medium transition duration-300 ease-in-out">View
-                  Details</a>
-                <div class="space-x-1">
-                  <button mat-icon-button (click)="editProject(project)"
-                    class="text-gray-500 hover:text-blue-600 transition duration-300 ease-in-out">
-                    <mat-icon class="text-base">edit</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="deleteProject(project)"
-                    class="text-gray-500 hover:text-red-600 transition duration-300 ease-in-out">
-                    <mat-icon class="text-base">delete</mat-icon>
-                  </button>
+                <div class="flex items-center text-gray-500 text-sm">
+                  <mat-icon class="text-sm mr-1">access_time</mat-icon>
+                  <span>{{ project.lastAccessedAt | date:'shortDate' }}</span>
                 </div>
+                <a [routerLink]="['/projects', project._id]"
+                  class="text-blue-600 hover:text-blue-800 font-medium text-sm">View →</a>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <p *ngIf="createdProjects.length === 0" class="text-center text-gray-600 mt-6 sm:mt-8 text-base sm:text-lg">
-          You haven't created any projects yet.
-        </p>
+      <!-- Your Projects Section -->
+      <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">Your Projects</h2>
+          <button mat-mini-fab color="primary" (click)="openCreateProjectDialog()"
+            class="bg-blue-600 hover:bg-blue-700 shadow-md">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div *ngFor="let project of createdProjects"
+            class="group bg-gray-50 rounded-xl p-5 hover:bg-gray-100 transition-all duration-300 flex flex-col h-full">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-semibold text-gray-900 truncate">{{ project.name }}</h3>
+              <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                <button mat-icon-button [matMenuTriggerFor]="menu" class="text-gray-500 hover:text-gray-700">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="editProject(project)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Edit</span>
+                  </button>
+                  <button mat-menu-item (click)="deleteProject(project)" class="text-red-600">
+                    <mat-icon>delete</mat-icon>
+                    <span>Delete</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </div>
+            <div class="flex-grow">
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ project.description }}</p>
+            </div>
+            <div class="mt-auto pt-4">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                  <div class="flex items-center text-gray-500 text-sm">
+                    <mat-icon class="text-sm mr-1">group</mat-icon>
+                    <span>{{ project.members.length }}</span>
+                  </div>
+                  <div class="flex items-center text-gray-500 text-sm">
+                    <mat-icon class="text-sm mr-1">calendar_today</mat-icon>
+                    <span>{{ project.createdAt | date:'shortDate' }}</span>
+                  </div>
+                </div>
+                <a [routerLink]="['/projects', project._id]"
+                  class="text-blue-600 hover:text-blue-800 font-medium text-sm">View →</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Member Projects Section -->
-      <div>
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">Projects You're Part Of</h2>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">Projects You're In</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div *ngFor="let project of memberProjects"
-            class="bg-white rounded-xl shadow-lg overflow-hidden transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl">
-            <div class="p-4">
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 truncate">{{ project.name }}</h3>
-                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Member</span>
-              </div>
-              <p class="text-sm text-gray-600 mb-3 line-clamp-2 h-10">{{ project.description }}</p>
-              <div class="flex items-center text-xs text-gray-500 mb-2">
-                <mat-icon class="mr-1 text-gray-400 text-base">group</mat-icon>
-                <span>{{ project.members.length || 0 }} members</span>
-              </div>
-              <div class="flex items-center text-xs text-gray-500 mb-4">
-                <mat-icon class="mr-1 text-gray-400 text-base">access_time</mat-icon>
-                <span>Created {{ project.createdAt | date:'mediumDate' }}</span>
-              </div>
+            class="group bg-gray-50 rounded-xl p-5 hover:bg-gray-100 transition-all duration-300 flex flex-col h-full">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-semibold text-gray-900 truncate">{{ project.name }}</h3>
+              <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                Member
+              </span>
+            </div>
+            <div class="flex-grow">
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ project.description }}</p>
+            </div>
+            <div class="mt-auto pt-4">
               <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                  <div class="flex items-center text-gray-500 text-sm">
+                    <mat-icon class="text-sm mr-1">person</mat-icon>
+                    <span>{{ project.createdBy.username }}</span>
+                  </div>
+                  <div class="flex items-center text-gray-500 text-sm">
+                    <mat-icon class="text-sm mr-1">group</mat-icon>
+                    <span>{{ project.members.length }}</span>
+                  </div>
+                </div>
                 <a [routerLink]="['/projects', project._id]"
-                  class="text-sm text-blue-600 hover:text-blue-800 font-medium transition duration-300 ease-in-out">View
-                  Details</a>
+                  class="text-blue-600 hover:text-blue-800 font-medium text-sm">View →</a>
               </div>
             </div>
           </div>
         </div>
-
-        <p *ngIf="memberProjects.length === 0" class="text-center text-gray-600 mt-6 sm:mt-8 text-base sm:text-lg">
-          You're not a member of any other projects.
+        <p *ngIf="memberProjects.length === 0" class="text-center text-gray-600 py-8">
+          You're not a member of any projects yet.
         </p>
       </div>
     </div>
   </div>
+</div>
