@@ -123,9 +123,13 @@ exports.createProject = async (req, res) => {
 
 exports.getProjectById = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id)
-      .populate("createdBy", "username email name")
-      .populate("members", "username email name");
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
+      { $set: { lastAccessedAt: new Date() } },
+      { new: true }
+    )
+    .populate("createdBy", "username email name")
+    .populate("members", "username email name");
 
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
@@ -376,6 +380,31 @@ exports.deleteProject = async (req, res) => {
     console.error("Error deleting project:", error);
     res.status(500).json({ 
       message: "Error deleting project", 
+      error: error.message 
+    });
+  }
+};
+
+exports.getRecentProjects = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    
+    const recentProjects = await Project.find({
+      $or: [
+        { createdBy: userId },
+        { members: userId }
+      ]
+    })
+    .populate('createdBy', 'username email name')
+    .populate('members', 'username email name')
+    .sort({ lastAccessedAt: -1 })
+    .limit(5);  // Limit to 5 recent projects
+
+    res.json(recentProjects);
+  } catch (error) {
+    console.error('Error fetching recent projects:', error);
+    res.status(500).json({ 
+      message: "Error fetching recent projects", 
       error: error.message 
     });
   }

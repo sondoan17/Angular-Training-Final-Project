@@ -113,7 +113,11 @@ const ProjectSchema = new mongoose.Schema({
       type: Date,
       default: Date.now
     }
-  }]
+  }],
+  lastAccessedAt: {
+    type: Date,
+    default: Date.now,
+  },
 }, { strict: true });
 
 const Project = mongoose.model("Project", ProjectSchema);
