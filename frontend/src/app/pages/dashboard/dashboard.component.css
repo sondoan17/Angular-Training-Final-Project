@@ -12,7 +12,7 @@
 
 :host {
   display: block;
-  background-color: #f9fafb;
+  @apply bg-gray-50 dark:bg-gray-900 transition-colors duration-300;
 }
 
 .mat-icon {
@@ -23,11 +23,11 @@
 }
 
 ::ng-deep .mat-mdc-raised-button {
-  border-radius: 9999px !important;
+  @apply rounded-full transition-colors duration-300;
 }
 
 ::ng-deep .mat-mdc-menu-panel {
-  border-radius: 12px !important;
+  @apply rounded-xl dark:bg-gray-800 dark:text-white transition-colors duration-300;
 }
 
 .group:hover .opacity-0 {
@@ -38,6 +38,7 @@
   width: 40px !important;
   height: 40px !important;
   padding: 0 !important;
+  @apply transition-colors duration-300;
 }
 
 ::ng-deep .mat-mdc-mini-fab .mat-icon {
@@ -45,4 +46,17 @@
   line-height: 20px;
   width: 20px;
   height: 20px;
+}
+
+/* Dark mode overrides for Material components */
+::ng-deep .dark .mat-mdc-menu-item {
+  @apply text-gray-200 hover:bg-gray-700;
+}
+
+::ng-deep .dark .mat-mdc-menu-item .mat-icon {
+  @apply text-gray-400;
+}
+
+::ng-deep .dark .mat-mdc-menu-item:hover .mat-icon {
+  @apply text-gray-200;
 }

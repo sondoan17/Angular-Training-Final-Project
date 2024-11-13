@@ -10,6 +10,8 @@ import { AuthService } from '../../services/auth.service';
 import { SearchService } from '../../services/search.service';
 import { NotificationMenuComponent } from '../../components/notification-menu/notification-menu.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { ThemeService } from '../../services/theme.service';
+import { Observable } from 'rxjs';
 
 interface SearchResult {
   type: 'project' | 'task';
@@ -42,14 +44,17 @@ export class NavbarComponent implements OnInit {
   searchResults: SearchResult[] = [];
   showDropdown = false;
   private searchSubject = new Subject<string>();
+  isDarkMode$: Observable<boolean>;
 
   @Output() toggleSidebar = new EventEmitter<void>();
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private themeService: ThemeService
   ) {
+    this.isDarkMode$ = this.themeService.darkMode$;
     this.setupSearch();
   }
 
@@ -132,5 +137,9 @@ export class NavbarComponent implements OnInit {
     setTimeout(() => {
       this.closeDropdown();
     }, 200);
+  }
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
   }
 }

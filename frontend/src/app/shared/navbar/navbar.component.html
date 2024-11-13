@@ -1,10 +1,10 @@
-<nav class="bg-white shadow">
+<nav class="bg-white dark:bg-gray-800 shadow">
   <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between h-16">
       <div class="flex items-center">
         <button
           (click)="onToggleSidebar()"
-          class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+          class="p-2 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
         >
           <mat-icon>menu</mat-icon>
         </button>
@@ -26,7 +26,7 @@
             (input)="onSearchInput()"
             (blur)="handleBlur()"
             placeholder="Search projects and tasks..."
-            class="w-64 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            class="w-64 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
           />
           <button
             class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
@@ -60,6 +60,13 @@
         </div>
         
         <app-notification-menu *ngIf="isLoggedIn()"></app-notification-menu>
+        <button
+          (click)="toggleTheme()"
+          class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+        >
+          <mat-icon *ngIf="isDarkMode$ | async">light_mode</mat-icon>
+          <mat-icon *ngIf="!(isDarkMode$ | async)">dark_mode</mat-icon>
+        </button>
         <button
           [matMenuTriggerFor]="userMenu"
           class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
