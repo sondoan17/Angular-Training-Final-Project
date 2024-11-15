@@ -34,3 +34,45 @@ button.mat-stroked-button.mat-warn {
   color: #f44336;
   border-color: #f44336;
 }
+
+::ng-deep .dark {
+  .mat-form-field-appearance-fill .mat-form-field-flex {
+    background-color: theme('colors.gray.800');
+  }
+
+  .mat-form-field-appearance-fill .mat-form-field-underline::before {
+    background-color: theme('colors.gray.600');
+  }
+
+  .mat-form-field-appearance-fill.mat-focused .mat-form-field-label {
+    color: theme('colors.blue.400');
+  }
+
+  .mat-form-field-appearance-fill.mat-focused .mat-form-field-flex {
+    background-color: theme('colors.gray.700');
+  }
+
+  input, textarea {
+    color: theme('colors.gray.300');
+  }
+
+  .mat-form-field-label {
+    color: theme('colors.gray.400');
+  }
+
+  .dialog-title {
+    color: theme('colors.blue.400');
+  }
+
+  .action-button {
+    &.mat-stroked-button.mat-warn {
+      color: theme('colors.red.400');
+      border-color: theme('colors.red.400');
+    }
+
+    &.mat-raised-button.mat-primary {
+      background-color: theme('colors.blue.600');
+      color: theme('colors.white');
+    }
+  }
+}

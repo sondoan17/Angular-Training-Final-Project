@@ -1,4 +1,4 @@
-<div class="flex h-screen overflow-hidden">
+<div class="flex h-screen overflow-hidden bg-white dark:bg-gray-900">
     <app-sidebar *ngIf="showNavAndSidebar" [isOpen]="isSidebarOpen" (sidebarClosed)="closeSidebar()" class="z-20"></app-sidebar>
     <div class="flex flex-col flex-1 overflow-hidden transition-all duration-300 ease-in-out" [ngClass]="{'md:ml-64': isSidebarOpen && showNavAndSidebar}">
       <app-navbar *ngIf="showNavAndSidebar" (toggleSidebar)="toggleSidebar()"></app-navbar>

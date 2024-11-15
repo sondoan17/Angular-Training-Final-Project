@@ -1,16 +1,16 @@
-<div class="task-details-dialog w-full max-w-3xl mx-auto overflow-y-auto">
+<div class="task-details-dialog w-full max-w-3xl mx-auto overflow-y-auto bg-white dark:bg-gray-800">
   <!-- Loading Overlay -->
-  <div *ngIf="isLoading" class="absolute inset-0 bg-white bg-opacity-90 z-50 flex items-center justify-center">
+  <div *ngIf="isLoading" class="absolute inset-0 bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 z-50 flex items-center justify-center">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 
-  <!-- Content (with opacity when loading) -->
+  <!-- Content -->
   <div [class.opacity-50]="isLoading">
     <!-- Header Section -->
-    <div class="sticky top-0 bg-white z-10 p-4 border-b border-gray-200">
+    <div class="sticky top-0 bg-white dark:bg-gray-800 z-10 p-4 border-b border-gray-200 dark:border-gray-700">
       <div class="flex justify-between items-start gap-4">
         <div class="flex-1 min-w-0">
-          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 truncate">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2 truncate">
             {{ taskDetails?.title || data.task.title }}
           </h2>
           <div class="flex flex-wrap items-center gap-2">
@@ -31,7 +31,7 @@
         <button
           mat-icon-button
           (click)="close()"
-          class="text-gray-500 hover:text-gray-700 flex-shrink-0"
+          class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0"
         >
           <mat-icon>close</mat-icon>
         </button>
@@ -42,11 +42,11 @@
     <div class="p-4">
       <!-- Description Section -->
       <div class="mb-6">
-        <h3 class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider">
+        <h3 class="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">
           Description
         </h3>
-        <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
-          <p class="text-sm sm:text-base text-gray-600 break-words">
+        <div class="bg-gray-50 dark:bg-gray-700 p-3 sm:p-4 rounded-lg">
+          <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 break-words">
             {{ taskDetails?.description || data.task.description }}
           </p>
         </div>
@@ -57,20 +57,20 @@
         <!-- Timeline Section -->
         <div>
           <h3
-            class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider"
+            class="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider"
           >
             Timeline
           </h3>
-          <div class="bg-gray-50 p-3 sm:p-4 rounded-lg space-y-2">
+          <div class="bg-gray-50 dark:bg-gray-700 p-3 sm:p-4 rounded-lg space-y-2">
             <div class="flex items-center gap-2">
-              <mat-icon class="text-gray-400 text-sm">calendar_today</mat-icon>
-              <span class="text-xs sm:text-sm text-gray-600">
+              <mat-icon class="text-gray-400 dark:text-gray-500 text-sm">calendar_today</mat-icon>
+              <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                 Start: {{ taskDetails?.timeline?.start || data.task.timeline?.start | date : "mediumDate" }}
               </span>
             </div>
             <div class="flex items-center gap-2">
-              <mat-icon class="text-gray-400 text-sm">event</mat-icon>
-              <span class="text-xs sm:text-sm text-gray-600">
+              <mat-icon class="text-gray-400 dark:text-gray-500 text-sm">event</mat-icon>
+              <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                 End: {{ taskDetails?.timeline?.end || data.task.timeline?.end | date : "mediumDate" }}
               </span>
             </div>
@@ -80,15 +80,15 @@
         <!-- Assigned Members Section -->
         <div>
           <h3
-            class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider"
+            class="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider"
           >
             Assigned Members
           </h3>
-          <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
+          <div class="bg-gray-50 dark:bg-gray-700 p-3 sm:p-4 rounded-lg">
             <div class="flex flex-col gap-2">
               <div
                 *ngFor="let member of getAssignedMembers()"
-                class="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200 hover:border-blue-400 transition-colors"
+                class="flex items-center justify-between bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
               >
                 <div class="flex items-center gap-3">
                   <img
@@ -100,11 +100,11 @@
                     [alt]="member.username"
                     class="w-8 h-8 rounded-full"
                   />
-                  <span class="text-sm text-gray-700 font-medium">{{
+                  <span class="text-sm text-gray-700 dark:text-gray-300 font-medium">{{
                     member.username
                   }}</span>
                 </div>
-                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded"
+                <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
                   >Member</span
                 >
               </div>
@@ -122,11 +122,11 @@
 
     <!-- Footer Actions -->
     <div
-      class="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex justify-end gap-3"
+      class="sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 flex justify-end gap-3"
     >
       <button
         mat-button
-        class="text-gray-600 text-sm sm:text-base"
+        class="text-gray-600 dark:text-gray-300 text-sm sm:text-base"
         (click)="close()"
         [disabled]="isLoading"
       >
@@ -135,7 +135,7 @@
       <button
         mat-raised-button
         color="primary"
-        class="px-4 sm:px-6 text-sm sm:text-base"
+        class="px-4 sm:px-6 text-sm sm:text-base dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700"
         (click)="viewFullDetails()"
         [disabled]="isLoading"
       >

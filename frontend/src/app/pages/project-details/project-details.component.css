@@ -54,6 +54,7 @@ mat-icon {
   max-height: 1000px; /* Adjust this value based on your needs */
   overflow: hidden;
   transition: max-height 0.3s ease-out;
+  @apply bg-white dark:bg-gray-800 transition-colors duration-200;
 }
 
 .activity-log-container.hidden {
@@ -65,6 +66,7 @@ mat-icon {
   bottom: 0;
   background-color: white;
   z-index: 10;
+  @apply bg-white dark:bg-gray-800;
 }
 
 @media (max-width: 600px) {
@@ -145,15 +147,18 @@ mat-icon {
 }
 
 .chart-container {
-  display: inline-block;
-  margin: auto;
+  width: 100%;
+
+  position: relative;
 }
 
-.edit-button, .members-button {
+.edit-button,
+.members-button {
   transition: all 0.3s ease;
 }
 
-.edit-button:hover, .members-button:hover {
+.edit-button:hover,
+.members-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -167,4 +172,256 @@ mat-icon {
 .activity-log-viewport {
   height: 400px; /* Adjust this value based on your needs */
   width: 100%;
+}
+
+::ng-deep .dark {
+  .mat-mdc-paginator {
+    background: theme("colors.gray.800");
+  }
+
+  .mat-mdc-paginator-container {
+    color: theme("colors.gray.100");
+  }
+
+  .mat-mdc-paginator-range-label,
+  .mat-mdc-paginator-page-size-label {
+    color: theme("colors.gray.300");
+  }
+
+  .mat-mdc-paginator-navigation-previous,
+  .mat-mdc-paginator-navigation-next {
+    color: theme("colors.gray.300");
+  }
+
+  .mat-mdc-form-field {
+    .mat-mdc-select-value-text {
+      color: theme("colors.gray.300");
+    }
+
+    .mat-mdc-select-arrow {
+      color: theme("colors.gray.300");
+    }
+  }
+
+  .mat-mdc-select-panel {
+    background: theme("colors.gray.800");
+
+    .mat-mdc-option {
+      --mat-option-label-text-color: theme("colors.gray.300");
+      color: theme("colors.gray.300") !important;
+
+      .mdc-list-item__primary-text {
+        color: theme("colors.gray.300") !important;
+      }
+
+      &:hover:not(.mat-mdc-option-disabled) {
+        background: theme("colors.gray.700");
+      }
+
+      &.mat-mdc-option-active {
+        background: theme("colors.gray.700");
+      }
+    }
+  }
+
+  .mat-mdc-paginator-page-size-label {
+    color: theme("colors.gray.300");
+  }
+
+  .mat-mdc-paginator-range-label {
+    color: theme("colors.gray.300");
+  }
+
+  .mat-mdc-paginator-page-size-select {
+    .mat-mdc-select-value-text {
+      color: theme("colors.gray.300");
+    }
+  }
+
+  /* Add styles for selected option */
+  .mat-mdc-option.mdc-list-item--selected {
+    --mat-option-selected-state-label-text-color: theme("colors.gray.100");
+    background: theme("colors.gray.700");
+
+    .mdc-list-item__primary-text {
+      color: theme("colors.gray.100") !important;
+    }
+  }
+
+  /* Override Material Design CSS variables for options */
+  .mat-mdc-select-panel {
+    --mat-option-label-text-color: theme("colors.gray.300");
+    --mat-option-hover-state-layer-color: theme("colors.gray.700");
+    --mat-option-focus-state-layer-color: theme("colors.gray.700");
+    --mat-option-selected-state-layer-color: theme("colors.gray.700");
+
+    .mat-mdc-option {
+      &:hover:not(.mat-mdc-option-disabled) {
+        background: theme("colors.gray.700");
+      }
+
+      &.mat-mdc-option-active {
+        background: theme("colors.gray.700");
+      }
+
+      .mdc-list-item__primary-text {
+        color: theme("colors.gray.300");
+      }
+    }
+  }
+
+  /* Style for selected option */
+  .mat-mdc-option.mdc-list-item--selected {
+    --mat-option-selected-state-label-text-color: theme("colors.gray.100");
+    background: theme("colors.gray.700");
+
+    .mdc-list-item__primary-text {
+      color: theme("colors.gray.100") !important;
+    }
+  }
+}
+
+.mat-paginator-sticky {
+  @apply bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+.mat-mdc-paginator {
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Base button styles */
+button.mat-raised-button.mat-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200;
+}
+
+button.mat-raised-button.mat-accent {
+  @apply bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200;
+}
+
+/* Dark theme button styles */
+::ng-deep .dark {
+  button.mat-raised-button.mat-primary {
+    @apply bg-blue-500 hover:bg-blue-600 text-gray-100;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  button.mat-raised-button.mat-accent {
+    @apply bg-purple-500 hover:bg-purple-600 text-gray-100;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  button.mat-button {
+    @apply text-gray-300 hover:text-gray-100;
+  }
+
+  .edit-button, .members-button {
+    @apply bg-gray-700 hover:bg-gray-600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .edit-button:hover, .members-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Keep existing hover effects */
+.edit-button:hover,
+.members-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dark .edit-button:hover,
+.dark .members-button:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.action-button {
+  @apply rounded-full transition-all duration-200;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark theme button styles */
+::ng-deep .dark {
+  .action-button.mat-mini-fab {
+    &.mat-primary {
+      @apply bg-blue-600;
+      
+      &:hover {
+        @apply bg-blue-700;
+      }
+    }
+    
+    &.mat-accent {
+      @apply bg-purple-600;
+      
+      &:hover {
+        @apply bg-purple-700;
+      }
+    }
+    
+    &.mat-warn {
+      @apply bg-red-600;
+      
+      &:hover {
+        @apply bg-red-700;
+      }
+    }
+
+    .mat-icon {
+      @apply text-gray-100;
+      margin: 0;
+    }
+  }
+}
+
+/* Light theme button styles */
+.action-button.mat-mini-fab {
+  @apply flex items-center justify-center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  
+  &.mat-primary {
+    @apply bg-blue-500;
+    
+    &:hover {
+      @apply bg-blue-600;
+    }
+  }
+  
+  &.mat-accent {
+    @apply bg-purple-500;
+    
+    &:hover {
+      @apply bg-purple-600;
+    }
+  }
+  
+  &.mat-warn {
+    @apply bg-red-500;
+    
+    &:hover {
+      @apply bg-red-600;
+    }
+  }
+
+  .mat-icon {
+    @apply text-white;
+    margin: 0;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
 }

@@ -54,3 +54,55 @@ button.mat-stroked-button.mat-warn {
 ::ng-deep .mat-checkbox-checked.mat-primary .mat-checkbox-background {
   background-color: #3f51b5;
 }
+
+::ng-deep .dark {
+  .mat-form-field-appearance-fill .mat-form-field-flex {
+    background-color: theme('colors.gray.800');
+  }
+
+  .mat-form-field-appearance-fill .mat-form-field-underline::before {
+    background-color: theme('colors.gray.600');
+  }
+
+  .mat-form-field-appearance-fill.mat-focused .mat-form-field-label {
+    color: theme('colors.blue.400');
+  }
+
+  .mat-form-field-appearance-fill.mat-focused .mat-form-field-flex {
+    background-color: theme('colors.gray.700');
+  }
+
+  .mat-select-value-text {
+    color: theme('colors.gray.300');
+  }
+
+  .mat-select-arrow {
+    color: theme('colors.gray.300');
+  }
+
+  .mat-option {
+    color: theme('colors.gray.300');
+    background: theme('colors.gray.800');
+
+    &:hover:not(.mat-option-disabled) {
+      background: theme('colors.gray.700');
+    }
+  }
+
+  .mat-option.mat-selected:not(.mat-option-multiple):not(.mat-option-disabled) {
+    background: theme('colors.blue.600');
+    color: theme('colors.white');
+  }
+
+  .mat-calendar-body-selected {
+    background-color: theme('colors.blue.500');
+  }
+
+  input, textarea {
+    color: theme('colors.gray.300');
+  }
+
+  .mat-form-field-label {
+    color: theme('colors.gray.400');
+  }
+}

@@ -29,7 +29,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
             matBadgeColor="warn"
             (click)="loadNotifications()"
             class="notification-button dark:text-gray-300">
-      <mat-icon>notifications</mat-icon>
+      <mat-icon >notifications</mat-icon>
     </button>
     <mat-menu #menu="matMenu" class="notification-menu">
       <div class="notification-header dark:bg-gray-800 dark:border-gray-700">

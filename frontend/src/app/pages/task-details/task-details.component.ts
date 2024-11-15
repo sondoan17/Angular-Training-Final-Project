@@ -56,6 +56,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   currentPage: number = 1;
   totalPages: number = 1;
   totalLogs: number = 0;
+  pageSize: number = 10;
   comments: any[] = [];
   newComment: string = '';
   isLoadingComments = false;
@@ -676,5 +677,15 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   getTotalReactions(comment: any): number {
     return comment.reactions?.length || 0;
+  }
+
+  getActivityClass(activity: any): string {
+    if (activity.type === 'status_change') {
+      return `status-change to-${activity.newValue.toLowerCase().replace(' ', '-')}`;
+    }
+    if (activity.type === 'priority_change') {
+      return `priority-change to-${activity.newValue.toLowerCase()}`;
+    }
+    return '';
   }
 }

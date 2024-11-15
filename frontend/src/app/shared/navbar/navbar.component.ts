@@ -45,6 +45,7 @@ export class NavbarComponent implements OnInit {
   showDropdown = false;
   private searchSubject = new Subject<string>();
   isDarkMode$: Observable<boolean>;
+  showMobileSearch = false;
 
   @Output() toggleSidebar = new EventEmitter<void>();
 
@@ -141,5 +142,9 @@ export class NavbarComponent implements OnInit {
 
   toggleTheme() {
     this.themeService.toggleTheme();
+  }
+
+  toggleMobileSearch() {
+    this.showMobileSearch = !this.showMobileSearch;
   }
 }

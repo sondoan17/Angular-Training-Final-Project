@@ -149,3 +149,120 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .mat-mdc-snack-bar-action {
   color: white !important;
 }
+
+/* Dark theme overrides for Material components */
+.dark {
+  /* Dialog */
+  .mat-mdc-dialog-container {
+    --mdc-dialog-container-color: theme('colors.gray.800');
+    --mdc-dialog-with-divider-divider-color: theme('colors.gray.700');
+    --mdc-dialog-supporting-text-color: theme('colors.gray.100');
+    --mdc-dialog-subhead-color: theme('colors.gray.100') !important;
+    color: theme('colors.white');
+  }
+
+  .mat-mdc-dialog-title {
+    color: theme('colors.gray.100') !important;
+  }
+
+  /* Form fields */
+  .mat-mdc-form-field {
+    --mdc-filled-text-field-container-color: theme('colors.gray.700');
+    --mdc-filled-text-field-label-text-color: theme('colors.gray.300');
+    --mdc-filled-text-field-input-text-color: theme('colors.white');
+  }
+
+  /* Buttons */
+  .mat-mdc-raised-button:not([color]) {
+    --mdc-filled-button-container-color: theme('colors.gray.700');
+    --mdc-filled-button-label-text-color: theme('colors.gray.100');
+    --mdc-protected-button-container-elevation: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .mat-mdc-raised-button.mat-primary {
+    --mdc-protected-button-container-color: theme('colors.blue.600');
+    --mdc-protected-button-label-text-color: theme('colors.gray.100');
+  }
+
+  .mat-mdc-raised-button.mat-accent {
+    --mdc-protected-button-container-color: theme('colors.purple.600');
+    --mdc-protected-button-label-text-color: theme('colors.gray.100');
+  }
+
+  /* Menu */
+  .mat-mdc-menu-panel {
+    background: theme('colors.gray.800');
+    color: theme('colors.white');
+  }
+
+  .mat-mdc-menu-item {
+    &:hover {
+      background: theme('colors.gray.700');
+    }
+  }
+
+  /* Card */
+  .mat-mdc-card {
+    background: theme('colors.gray.800');
+    color: theme('colors.white');
+  }
+
+  /* Select */
+  .mat-mdc-select-panel {
+    background: theme('colors.gray.800');
+    color: theme('colors.white');
+  }
+
+  .mat-mdc-option {
+    &:hover {
+      background: theme('colors.gray.700');
+    }
+  }
+
+  .mat-mdc-paginator {
+    background: theme('colors.gray.800');
+  }
+
+  .mat-mdc-paginator-container {
+    color: theme('colors.gray.100');
+  }
+
+  .mat-mdc-paginator-range-label,
+  .mat-mdc-paginator-page-size-label {
+    color: theme('colors.gray.300');
+  }
+
+  .mat-mdc-paginator-navigation-previous,
+  .mat-mdc-paginator-navigation-next {
+    color: theme('colors.gray.300');
+  }
+
+  .mat-mdc-form-field {
+    .mat-mdc-select-value-text {
+      color: theme('colors.gray.300');
+    }
+    
+    .mat-mdc-select-arrow {
+      color: theme('colors.gray.300');
+    }
+  }
+
+  /* Mini FAB buttons */
+  .mat-mdc-mini-fab {
+    &.mat-primary {
+      --mdc-fab-container-color: theme('colors.blue.600');
+      --mdc-fab-icon-color: theme('colors.gray.100');
+    }
+    
+    &.mat-accent {
+      --mdc-fab-container-color: theme('colors.purple.600');
+      --mdc-fab-icon-color: theme('colors.gray.100');
+    }
+    
+    &.mat-warn {
+      --mdc-fab-container-color: theme('colors.red.600');
+      --mdc-fab-icon-color: theme('colors.gray.100');
+    }
+  }
+}

@@ -30,12 +30,47 @@
   background: #666;
 }
 
-/* Ensure Material icons are properly sized */
 .mat-icon {
   font-size: 18px;
   height: 18px;
   width: 18px;
   line-height: 18px;
+}
+
+/* Dark theme styles */
+.dark .task-details-dialog {
+  .bg-white {
+    @apply bg-gray-800;
+  }
+
+  .text-gray-600 {
+    @apply text-gray-300;
+  }
+
+  .text-gray-700 {
+    @apply text-gray-300;
+  }
+
+  .text-gray-400 {
+    @apply text-gray-500;
+  }
+
+  .bg-gray-100 {
+    @apply bg-gray-700;
+  }
+
+  .border-gray-200 {
+    @apply border-gray-700;
+  }
+
+  .hover\:border-blue-400:hover {
+    @apply hover:border-blue-500;
+  }
+}
+
+/* Loading overlay */
+.dark .bg-opacity-90 {
+  --tw-bg-opacity: 0.8;
 }
 
 /* Responsive padding for dialog */
@@ -47,5 +82,5 @@
 
 /* Optional: Custom spinner colors */
 ::ng-deep .mat-spinner circle {
-  stroke: #3b82f6; /* Tailwind blue-500 */
+  stroke: #3b82f6;
 }

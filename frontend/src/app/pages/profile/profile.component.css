@@ -1,5 +1,6 @@
 :host {
   display: block;
+  @apply bg-white dark:bg-gray-800 transition-colors duration-300;
 }
 
 .mat-mdc-form-field {
@@ -28,5 +29,55 @@
 @media (min-width: 640px) {
   .half-width {
     width: 50%;
+  }
+}
+
+/* Dark theme overrides */
+:host-context(.dark) {
+  /* Form field styles */
+  ::ng-deep .mat-mdc-form-field {
+    --mdc-filled-text-field-container-color: #374151;
+    --mdc-filled-text-field-label-text-color: #9ca3af;
+    --mdc-filled-text-field-input-text-color: #e5e7eb;
+  }
+
+  /* Input text and placeholder */
+  ::ng-deep .mat-form-field-infix input, 
+  ::ng-deep .mat-form-field-infix textarea {
+    color: #e5e7eb !important;
+  }
+
+  ::ng-deep .mat-form-field-empty.mat-form-field-label,
+  ::ng-deep input::placeholder,
+  ::ng-deep textarea::placeholder {
+    color: #6b7280 !important;
+  }
+
+  /* When focused */
+  ::ng-deep .mat-focused .mat-form-field-label {
+    color: #60a5fa !important;
+  }
+
+  ::ng-deep .mat-form-field-appearance-fill.mat-focused .mat-form-field-flex {
+    background-color: #1f2937;
+  }
+
+  /* Icon colors */
+  ::ng-deep .mat-icon {
+    color: #9ca3af !important; /* gray-400 */
+  }
+
+  ::ng-deep .mat-form-field-suffix .mat-icon,
+  ::ng-deep .mat-form-field-prefix .mat-icon {
+    color: #6b7280 !important; /* gray-500 */
+  }
+
+  /* Icon color when form field is focused */
+  ::ng-deep .mat-focused .mat-form-field-suffix .mat-icon,
+  ::ng-deep .mat-focused .mat-form-field-prefix .mat-icon {
+    color: #60a5fa !important; /* blue-400 */
+  }
+  ::ng-deep .mat-datepicker-toggle .mat-icon-button {
+    color: #9ca3af !important; /* gray-400 */
   }
 }

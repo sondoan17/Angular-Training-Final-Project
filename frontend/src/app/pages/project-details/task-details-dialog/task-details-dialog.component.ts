@@ -73,30 +73,30 @@ export class TaskDetailsDialogComponent implements OnInit {
   getStatusClass(status: string): string {
     switch (status) {
       case 'Not Started':
-        return 'bg-gray-500 text-white';
+        return 'bg-gray-500 text-gray-100';
       case 'In Progress':
-        return 'bg-blue-500 text-white';
+        return 'bg-blue-500 text-gray-100';
       case 'Stuck':
-        return 'bg-red-500 text-white';
+        return 'bg-red-500 text-gray-100';
       case 'Done':
-        return 'bg-green-500 text-white';
+        return 'bg-green-500 text-gray-100';
       default:
-        return 'bg-gray-500 text-white';
+        return 'bg-gray-500 text-gray-100';
     }
   }
 
   getPriorityClass(priority: string): string {
     switch (priority) {
       case 'low':
-        return 'bg-green-500 text-white';
+        return 'bg-green-500 text-gray-100';
       case 'medium':
-        return 'bg-yellow-500 text-white';
+        return 'bg-yellow-500 text-gray-900';
       case 'high':
-        return 'bg-orange-500 text-white';
+        return 'bg-orange-500 text-gray-100';
       case 'critical':
-        return 'bg-red-500 text-white';
+        return 'bg-red-500 text-gray-100';
       default:
-        return 'bg-gray-500 text-white';
+        return 'bg-gray-500 text-gray-100';
     }
   }
 

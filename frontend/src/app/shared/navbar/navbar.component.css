@@ -35,3 +35,23 @@
 .search-result-item:hover {
   background-color: #f3f4f6;
 }
+
+::ng-deep .mat-mdc-menu-panel {
+  background: transparent !important;
+  border-radius: 0.375rem !important; /* rounded-md */
+  overflow: hidden !important;
+  min-width: 200px !important;
+}
+
+::ng-deep .mat-mdc-menu-item {
+  background: transparent !important;
+}
+
+::ng-deep .mat-mdc-menu-content {
+  padding: 0 !important;
+}
+
+/* Remove default ripple effect */
+::ng-deep .mat-mdc-menu-item .mat-ripple {
+  display: none !important;
+}

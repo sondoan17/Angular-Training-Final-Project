@@ -126,17 +126,19 @@ export class KanbanBoardComponent implements OnInit {
   }
 
   getColumnClass(columnId: string): string {
+    const baseClasses = 'dark:border-opacity-50';
+    
     switch (columnId) {
       case 'not-started':
-        return 'bg-gray-50 border-t-4 border-gray-300';
+        return `${baseClasses} bg-gray-50 dark:bg-gray-900 border-t-4 border-gray-300 dark:border-gray-600`;
       case 'in-progress':
-        return 'bg-blue-50 border-t-4 border-blue-400';
+        return `${baseClasses} bg-blue-50 dark:bg-blue-900/30 border-t-4 border-blue-400 dark:border-blue-500`;
       case 'stuck':
-        return 'bg-red-50 border-t-4 border-red-400';
+        return `${baseClasses} bg-red-50 dark:bg-red-900/30 border-t-4 border-red-400 dark:border-red-500`;
       case 'done':
-        return 'bg-green-50 border-t-4 border-green-400';
+        return `${baseClasses} bg-green-50 dark:bg-green-900/30 border-t-4 border-green-400 dark:border-green-500`;
       default:
-        return 'bg-gray-50';
+        return `${baseClasses} bg-gray-50 dark:bg-gray-900`;
     }
   }
 
@@ -158,15 +160,15 @@ export class KanbanBoardComponent implements OnInit {
   getTaskPriorityClass(priority: string): string {
     switch (priority.toLowerCase()) {
       case 'critical':
-        return 'bg-purple-600 text-white';
+        return 'bg-purple-600 text-white dark:bg-purple-700';
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100';
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100';
     }
   }
 }

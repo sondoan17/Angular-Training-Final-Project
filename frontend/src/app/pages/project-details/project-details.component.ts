@@ -28,6 +28,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Chart.js
 import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
@@ -36,6 +37,7 @@ import { BaseChartDirective, NgChartsModule } from 'ng2-charts';
 // Services
 import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/project.service';
+import { ThemeService } from '../../services/theme.service';
 
 // Components
 import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.component';
@@ -44,6 +46,7 @@ import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-d
 import { KanbanBoardComponent } from './kanban-board/kanban-board.component';
 import { ProjectMembersDialogComponent } from './project-members-dialog/project-members-dialog.component';
 import { TaskDetailsDialogComponent } from './task-details-dialog/task-details-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-project-details',
@@ -67,6 +70,7 @@ import { TaskDetailsDialogComponent } from './task-details-dialog/task-details-d
     ScrollingModule,
     MatProgressSpinnerModule,
     TaskDetailsDialogComponent,
+    MatTooltipModule,
   ],
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css'],
@@ -189,8 +193,13 @@ export class ProjectDetailsComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private datePipe: DatePipe,
     private authService: AuthService,
-    private changeDetectorRef: ChangeDetectorRef
-  ) {}
+    private changeDetectorRef: ChangeDetectorRef,
+    private themeService: ThemeService
+  ) {
+    this.themeService.darkMode$.subscribe(isDark => {
+      this.updateChartTheme(isDark);
+    });
+  }
 
   ngOnInit() {
     this.isLoading = true;
@@ -609,27 +618,23 @@ export class ProjectDetailsComponent implements OnInit {
       if (change.includes('changed from')) {
         const [field, values] = change.split(' changed from ');
         const [oldValue, newValue] = values.split(' to ');
-        return `<strong>${field}</strong> changed from <span class="text-red-500">${this.formatDateIfNeeded(
+        return `<strong class="text-gray-900 dark:text-gray-100">${field}</strong> changed from <span class="text-red-500 dark:text-red-400">${this.formatDateIfNeeded(
           oldValue
-        )}</span> to <span class="text-green-500">${this.formatDateIfNeeded(
+        )}</span> to <span class="text-green-500 dark:text-green-400">${this.formatDateIfNeeded(
           newValue
         )}</span>`;
       } else if (change.includes('Added members:')) {
-        return (
-          change.replace(
-            'Added members:',
-            '<strong>Added members:</strong> <span class="text-green-500">'
-          ) + '</span>'
-        );
+        return change.replace(
+          'Added members:',
+          '<strong class="text-gray-900 dark:text-gray-100">Added members:</strong> <span class="text-green-500 dark:text-green-400">'
+        ) + '</span>';
       } else if (change.includes('Removed members:')) {
-        return (
-          change.replace(
-            'Removed members:',
-            '<strong>Removed members:</strong> <span class="text-red-500">'
-          ) + '</span>'
-        );
+        return change.replace(
+          'Removed members:',
+          '<strong class="text-gray-900 dark:text-gray-100">Removed members:</strong> <span class="text-red-500 dark:text-red-400">'
+        ) + '</span>';
       } else {
-        return `<strong>${change}</strong>`;
+        return `<strong class="text-gray-900 dark:text-gray-100">${change}</strong>`;
       }
     });
 
@@ -702,6 +707,113 @@ export class ProjectDetailsComponent implements OnInit {
         projectId: this.project._id,
         projectMembers: this.project.members,
         isProjectCreator: this.isProjectCreator,
+      }
+    });
+  }
+
+  private updateChartTheme(isDark: boolean) {
+    if (!this.chartOptions) {
+      this.chartOptions = {};
+    }
+
+    this.chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 10,
+          right: 10,
+          top: 10,
+          bottom: 10
+        }
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          enabled: true,
+          backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+          titleColor: isDark ? '#fff' : '#000',
+          bodyColor: isDark ? '#fff' : '#000',
+          cornerRadius: 4,
+          padding: 10,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            color: isDark ? '#9CA3AF' : '#4B5563',
+          },
+          grid: {
+            drawBorder: false,
+            color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+          },
+        },
+        x: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            color: isDark ? '#9CA3AF' : '#4B5563',
+          }
+        },
+      },
+      animation: {
+        duration: 750,
+        easing: 'easeInOutQuart',
+      },
+      transitions: {
+        active: {
+          animation: {
+            duration: 750,
+          },
+        },
+      },
+      hover: {
+        mode: 'index',
+        intersect: false,
+      },
+      elements: {
+        bar: {
+          hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+          borderRadius: 4,
+        },
+      },
+    };
+
+    if (this.chart) {
+      this.chart.update();
+    }
+  }
+
+  deleteProject() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Delete Project',
+        message: 'Are you sure you want to delete this project? This action cannot be undone.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.projectService.deleteProject(this.project._id).subscribe({
+          next: () => {
+            this.snackBar.open('Project deleted successfully', 'Close', {
+              duration: 3000
+            });
+            this.router.navigate(['/dashboard']);
+          },
+          error: (error) => {
+            this.snackBar.open('Error deleting project', 'Close', {
+              duration: 3000
+            });
+          }
+        });
       }
     });
   }

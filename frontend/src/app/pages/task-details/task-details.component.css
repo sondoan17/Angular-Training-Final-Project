@@ -230,3 +230,278 @@
   background: #e0e7ff;
   color: #4f46e5;
 }
+
+/* Dark theme styles */
+:host-context(.dark) {
+  /* Base container styles */
+  .bg-white {
+    background-color: theme('colors.gray.800');
+    color: theme('colors.gray.100');
+  }
+
+  /* Fix for the main container background */
+  :host {
+    background-color: theme('colors.gray.900');
+  }
+
+  /* Fix for the content sections */
+  .max-w-7xl {
+    background-color: theme('colors.gray.900');
+  }
+
+  /* Description section */
+  .description-section {
+    background-color: theme('colors.gray.800');
+  }
+
+  /* Timeline section */
+  .timeline-section {
+    background-color: theme('colors.gray.800');
+  }
+
+  /* Activity log section */
+  .activity-log-section {
+    background-color: theme('colors.gray.800');
+  }
+
+  /* Comments section */
+  .comments-section {
+    background-color: theme('colors.gray.800');
+  }
+
+  /* Comment section styles */
+  .comment-container:hover {
+    background-color: theme('colors.gray.700') !important;
+  }
+
+  .comment-text {
+    color: theme('colors.gray.100');
+  }
+
+  /* Reaction styles */
+  .reaction-button {
+    color: theme('colors.gray.300');
+  }
+
+  .reaction-button:hover {
+    background: theme('colors.gray.700');
+  }
+
+  .reaction-button.active {
+    background: theme('colors.gray.700');
+    color: theme('colors.blue.400');
+  }
+
+  .reaction-count {
+    color: theme('colors.gray.400');
+  }
+
+  .total-reactions {
+    background: theme('colors.gray.700');
+  }
+
+  .reaction-group {
+    background: theme('colors.gray.700');
+    color: theme('colors.gray.100');
+  }
+
+  .reaction-bubble {
+    background: theme('colors.gray.800');
+    border-color: theme('colors.gray.600');
+  }
+
+  .reaction-bubble-button:hover {
+    background: theme('colors.gray.700');
+  }
+
+  .reaction-pill {
+    background: theme('colors.gray.700');
+    color: theme('colors.gray.300');
+  }
+
+  .reaction-pill.active {
+    background: theme('colors.blue.900');
+    color: theme('colors.blue.300');
+  }
+
+  /* Member tooltip styles */
+  .fixed::before {
+    background: rgba(31, 41, 55, 0.7);
+  }
+
+  /* Custom scrollbar for dark theme */
+  .custom-scrollbar {
+    scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.3);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.5);
+  }
+
+  /* Comment section dark theme styles */
+  /* Comment input area */
+  .comment-input {
+    background-color: theme('colors.gray.700');
+    border-color: theme('colors.gray.600');
+  }
+
+  .comment-input:focus {
+    border-color: theme('colors.blue.500');
+    background-color: theme('colors.gray.600');
+  }
+
+  /* Comment container */
+  .comment-container {
+    border-color: theme('colors.gray.700');
+  }
+
+  .comment-container:hover {
+    background-color: theme('colors.gray.700/50');
+  }
+
+  /* Reaction styles */
+  .reaction-bubble {
+    background-color: theme('colors.gray.800');
+    border-color: theme('colors.gray.600');
+  }
+
+  .reaction-bubble-button {
+    color: theme('colors.gray.300');
+  }
+
+  .reaction-bubble-button:hover {
+    background-color: theme('colors.gray.700');
+    color: theme('colors.gray.100');
+  }
+
+  .reactions-summary {
+    color: theme('colors.gray.400');
+  }
+
+  .reaction-group {
+    background-color: theme('colors.gray.700');
+    color: theme('colors.gray.300');
+  }
+
+  .reaction-group:hover {
+    background-color: theme('colors.gray.600');
+  }
+
+  /* Comment metadata */
+  .comment-time {
+    color: theme('colors.gray.400');
+  }
+
+  /* Comment actions */
+  .comment-actions button {
+    color: theme('colors.gray.400');
+  }
+
+  .comment-actions button:hover {
+    color: theme('colors.gray.200');
+    background-color: theme('colors.gray.700');
+  }
+
+  /* Edit/Delete buttons */
+  .edit-button, .delete-button {
+    color: theme('colors.gray.400');
+  }
+
+  .edit-button:hover {
+    color: theme('colors.blue.400');
+    background-color: theme('colors.gray.700');
+  }
+
+  .delete-button:hover {
+    color: theme('colors.red.400');
+    background-color: theme('colors.gray.700');
+  }
+
+  /* Character count */
+  .character-count {
+    color: theme('colors.gray.400');
+  }
+
+  .character-count.near-limit {
+    color: theme('colors.yellow.400');
+  }
+
+  .character-count.at-limit {
+    color: theme('colors.red.400');
+  }
+}
+
+/* Activity Log styles */
+.activity-log-container {
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, background-color 0.2s;
+  background-color: white;
+}
+
+.dark .activity-log-container {
+  background-color: theme('colors.gray.800');
+}
+
+.activity-log-container.hidden {
+  max-height: 0;
+}
+
+.mat-paginator-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background-color: white;
+}
+
+.dark .mat-paginator-sticky {
+  background-color: theme('colors.gray.800');
+}
+
+/* Activity list styles */
+.activity-timeline {
+  position: relative;
+}
+
+.activity-item {
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.activity-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-connector {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  height: calc(100% - 1.25rem);
+  width: 2px;
+  background-color: theme('colors.gray.200');
+}
+
+.dark .timeline-connector {
+  background-color: theme('colors.gray.700');
+}
+
+/* Responsive paginator */
+@media (max-width: 600px) {
+  ::ng-deep .mat-paginator-container {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  ::ng-deep .mat-paginator-range-label {
+    margin: 0 10px 10px 0;
+  }
+
+  ::ng-deep .mat-paginator-navigation-previous,
+  ::ng-deep .mat-paginator-navigation-next {
+    margin-top: 10px;
+  }
+}
