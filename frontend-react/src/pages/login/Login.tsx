@@ -98,6 +98,11 @@ const Login = () => {
   const onSubmit = async (values: { username: string; password: string }) => {
     try {
       const response = await login(values).unwrap();
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify({
+        id: response.userId,
+        username: response.username
+      }));
       dispatch(setCredentials(response));
       message.success('Login successful!');
       navigate('/dashboard');
@@ -109,6 +114,11 @@ const Login = () => {
   const handleGoogleResponse = async (response: any) => {
     try {
       const result = await loginWithGoogle({ token: response.credential }).unwrap();
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('user', JSON.stringify({
+        id: result.userId,
+        username: result.username
+      }));
       dispatch(setCredentials(result));
       message.success('Successfully logged in with Google!');
       navigate('/dashboard');
