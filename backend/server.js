@@ -49,6 +49,7 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     "http://localhost:4200",
     "http://localhost:3000",
+    "http://localhost:5173",
     "https://planify-app-pi.vercel.app",
     "https://accounts.google.com",
     "https://planify-app-backend.vercel.app",
