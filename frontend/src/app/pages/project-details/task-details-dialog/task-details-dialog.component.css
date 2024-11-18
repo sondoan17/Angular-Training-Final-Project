@@ -1,0 +1,86 @@
+:host {
+  display: block;
+  max-height: 90vh;
+}
+
+.task-details-dialog {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 200px;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+.mat-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+  line-height: 18px;
+}
+
+/* Dark theme styles */
+.dark .task-details-dialog {
+  .bg-white {
+    @apply bg-gray-800;
+  }
+
+  .text-gray-600 {
+    @apply text-gray-300;
+  }
+
+  .text-gray-700 {
+    @apply text-gray-300;
+  }
+
+  .text-gray-400 {
+    @apply text-gray-500;
+  }
+
+  .bg-gray-100 {
+    @apply bg-gray-700;
+  }
+
+  .border-gray-200 {
+    @apply border-gray-700;
+  }
+
+  .hover\:border-blue-400:hover {
+    @apply hover:border-blue-500;
+  }
+}
+
+/* Loading overlay */
+.dark .bg-opacity-90 {
+  --tw-bg-opacity: 0.8;
+}
+
+/* Responsive padding for dialog */
+@media (max-width: 640px) {
+  .task-details-dialog {
+    max-height: 100vh;
+  }
+}
+
+/* Optional: Custom spinner colors */
+::ng-deep .mat-spinner circle {
+  stroke: #3b82f6;
+}

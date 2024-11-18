@@ -2,14 +2,33 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.ts",
+      "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "browser/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "api/index.ts"
+      "dest": "server.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/browser/assets/$1"
+    },
+    {
+      "src": "/(.*\\.[^/]*)",
+      "dest": "/browser/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/browser/index.html"
     }
   ]
 } 

@@ -26,3 +26,17 @@ mat-form-field {
 .filter-button:hover {
   transform: translateY(-1px);
 }
+
+/* Dark mode specific styles */
+:host-context(.dark) {
+  mat-form-field {
+    --mdc-filled-text-field-container-color: theme('colors.gray.700');
+    --mdc-filled-text-field-label-text-color: theme('colors.gray.300');
+    --mdc-filled-text-field-input-text-color: theme('colors.white');
+  }
+  
+  .mat-mdc-select-panel {
+    background: theme('colors.gray.800');
+    color: theme('colors.white');
+  }
+}

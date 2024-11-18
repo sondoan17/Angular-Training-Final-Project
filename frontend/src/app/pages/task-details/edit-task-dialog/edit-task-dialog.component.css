@@ -125,3 +125,73 @@ button.mat-stroked-button.mat-warn {
 ::ng-deep .mat-option[ng-reflect-value="Done"] {
   color: #4caf50;
 }
+
+/* Add dark theme styles */
+:host-context(.dark) {
+  .edit-task-dialog {
+    background-color: theme('colors.gray.800');
+  }
+
+  .dialog-title {
+    color: theme('colors.gray.100');
+  }
+
+  ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+    background-color: theme('colors.gray.700');
+  }
+
+  ::ng-deep .mat-form-field-appearance-fill.mat-focused .mat-form-field-flex {
+    background-color: theme('colors.gray.600');
+  }
+
+  ::ng-deep .mat-select-value-text {
+    color: theme('colors.gray.100');
+  }
+
+  ::ng-deep .mat-select-arrow {
+    color: theme('colors.gray.300');
+  }
+
+  ::ng-deep .mat-option {
+    color: theme('colors.gray.100');
+    background: theme('colors.gray.800');
+  }
+
+  ::ng-deep .mat-option:hover:not(.mat-option-disabled) {
+    background: theme('colors.gray.700');
+  }
+
+  /* Priority colors in dark theme */
+  ::ng-deep .mat-option[ng-reflect-value="low"] {
+    color: theme('colors.green.400');
+  }
+
+  ::ng-deep .mat-option[ng-reflect-value="medium"] {
+    color: theme('colors.yellow.400');
+  }
+
+  ::ng-deep .mat-option[ng-reflect-value="high"] {
+    color: theme('colors.red.400');
+  }
+
+  ::ng-deep .mat-option[ng-reflect-value="critical"] {
+    color: theme('colors.purple.400');
+  }
+
+  /* Status colors in dark theme */
+  ::ng-deep .mat-option[ng-reflect-value="Not Started"] {
+    color: theme('colors.gray.400');
+  }
+
+  ::ng-deep .mat-option[ng-reflect-value="In Progress"] {
+    color: theme('colors.blue.400');
+  }
+
+  ::ng-deep .mat-option[ng-reflect-value="Stuck"] {
+    color: theme('colors.red.400');
+  }
+
+  ::ng-deep .mat-option[ng-reflect-value="Done"] {
+    color: theme('colors.green.400');
+  }
+}

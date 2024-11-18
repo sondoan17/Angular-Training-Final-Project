@@ -1,5 +1,11 @@
 // Angular Core
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -22,6 +28,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Chart.js
 import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
@@ -30,6 +37,7 @@ import { BaseChartDirective, NgChartsModule } from 'ng2-charts';
 // Services
 import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/project.service';
+import { ThemeService } from '../../services/theme.service';
 
 // Components
 import { AddMemberDialogComponent } from './add-member-dialog/add-member-dialog.component';
@@ -37,6 +45,8 @@ import { CreateTaskDialogComponent } from './create-task-dialog/create-task-dial
 import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
 import { KanbanBoardComponent } from './kanban-board/kanban-board.component';
 import { ProjectMembersDialogComponent } from './project-members-dialog/project-members-dialog.component';
+import { TaskDetailsDialogComponent } from './task-details-dialog/task-details-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-project-details',
@@ -59,11 +69,13 @@ import { ProjectMembersDialogComponent } from './project-members-dialog/project-
     NgChartsModule,
     ScrollingModule,
     MatProgressSpinnerModule,
+    TaskDetailsDialogComponent,
+    MatTooltipModule,
   ],
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css'],
   providers: [DatePipe],
-  changeDetection: ChangeDetectionStrategy.OnPush 
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectDetailsComponent implements OnInit {
   isLoading: boolean = true;
@@ -92,16 +104,18 @@ export class ProjectDetailsComponent implements OnInit {
 
   chartData: ChartData<'bar'> = {
     labels: ['Not Started', 'In Progress', 'Stuck', 'Done'],
-    datasets: [{
-      data: [],
-      backgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
-      borderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
-      borderWidth: 1,
-      borderRadius: 4,
-      hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
-      hoverBorderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
-      hoverBorderWidth: 1,
-    }]
+    datasets: [
+      {
+        data: [],
+        backgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+        borderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
+        borderWidth: 1,
+        borderRadius: 4,
+        hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+        hoverBorderColor: ['#9CA3AF', '#3B82F6', '#EF4444', '#34D399'],
+        hoverBorderWidth: 1,
+      },
+    ],
   };
 
   chartOptions: ChartConfiguration['options'] = {
@@ -109,7 +123,7 @@ export class ProjectDetailsComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false
+        display: false,
       },
       tooltip: {
         enabled: true,
@@ -117,36 +131,36 @@ export class ProjectDetailsComponent implements OnInit {
         titleColor: 'white',
         bodyColor: 'white',
         cornerRadius: 4,
-        padding: 10
-      }
+        padding: 10,
+      },
     },
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
-          stepSize: 1
+          stepSize: 1,
         },
         grid: {
           drawBorder: false,
-          color: 'rgba(0, 0, 0, 0.1)'
-        }
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
       },
       x: {
         grid: {
-          display: false
-        }
-      }
+          display: false,
+        },
+      },
     },
     animation: {
-      duration: 750, 
-      easing: 'easeInOutQuart', 
+      duration: 750,
+      easing: 'easeInOutQuart',
     },
     transitions: {
       active: {
         animation: {
-          duration: 750
-        }
-      }
+          duration: 750,
+        },
+      },
     },
     hover: {
       mode: 'index',
@@ -154,11 +168,10 @@ export class ProjectDetailsComponent implements OnInit {
     },
     elements: {
       bar: {
-        
         hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
-        borderRadius: 4, 
-      }
-    }
+        borderRadius: 4,
+      },
+    },
   };
 
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
@@ -180,12 +193,17 @@ export class ProjectDetailsComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private datePipe: DatePipe,
     private authService: AuthService,
-    private changeDetectorRef: ChangeDetectorRef
-  ) {}
+    private changeDetectorRef: ChangeDetectorRef,
+    private themeService: ThemeService
+  ) {
+    this.themeService.darkMode$.subscribe(isDark => {
+      this.updateChartTheme(isDark);
+    });
+  }
 
   ngOnInit() {
     this.isLoading = true;
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params) => {
       const projectId = params['id'];
       if (projectId) {
         this.projectService.getProjectDetails(projectId).subscribe({
@@ -202,7 +220,7 @@ export class ProjectDetailsComponent implements OnInit {
             this.error = 'Error loading project details';
             this.isLoading = false;
             this.changeDetectorRef.detectChanges();
-          }
+          },
         });
       }
     });
@@ -293,7 +311,7 @@ export class ProjectDetailsComponent implements OnInit {
       width: '300px',
       data: {
         members: this.project.members,
-        creatorId: this.project.createdBy._id, 
+        creatorId: this.project.createdBy._id,
       },
     });
 
@@ -302,7 +320,6 @@ export class ProjectDetailsComponent implements OnInit {
         if (result.action === 'add') {
           this.addMemberToProject(result.username);
         } else if (result.action === 'remove') {
-        
           if (result.memberId !== this.project.createdBy._id) {
             this.removeMemberFromProject(result.memberId);
           } else {
@@ -476,43 +493,46 @@ export class ProjectDetailsComponent implements OnInit {
     if (!this.isProjectCreator) {
       this.snackBar.open('Only project creator can move tasks', 'Close', {
         duration: 3000,
-        panelClass: ['error-snackbar']
+        panelClass: ['error-snackbar'],
       });
-      // Refresh board to revert changes
       this.updateKanbanBoard();
       return;
     }
 
     const { task, newStatus } = event;
-    
-    this.projectService.updateTaskStatus(this.project._id, task._id, newStatus)
+
+    this.projectService
+      .updateTaskStatus(this.project._id, task._id, newStatus)
       .subscribe({
         next: (updatedTask) => {
-          // Update local task data
-          const taskIndex = this.project.tasks.findIndex((t: any) => t._id === task._id);
+          const taskIndex = this.project.tasks.findIndex(
+            (t: any) => t._id === task._id
+          );
           if (taskIndex !== -1) {
-            this.project.tasks[taskIndex] = { ...this.project.tasks[taskIndex], ...updatedTask };
-            
-            // Update UI components
+            this.project.tasks[taskIndex] = {
+              ...this.project.tasks[taskIndex],
+              ...updatedTask,
+              assignedTo: this.project.tasks[taskIndex].assignedTo
+            };
+
             this.updateChartData();
             this.loadActivityLog(1);
-            
-            // Update kanban board if needed
+
             if (this.kanbanBoard) {
               this.kanbanBoard.distributeTasksToColumns();
             }
-            
+
             this.changeDetectorRef.detectChanges();
           }
         },
         error: (error) => {
           console.error('Error updating task status:', error);
-          this.updateKanbanBoard(); // Revert changes on error
+          this.updateKanbanBoard();
           this.snackBar.open('Failed to update task status', 'Close', {
             duration: 3000,
-            panelClass: ['error-snackbar']
+            panelClass: ['error-snackbar'],
           });
-        }
+        },
       });
   }
 
@@ -541,7 +561,9 @@ export class ProjectDetailsComponent implements OnInit {
     try {
       const taskStatuses = ['Not Started', 'In Progress', 'Stuck', 'Done'];
       const statusCounts = taskStatuses.map(
-        status => this.project.tasks.filter((task: any) => task.status === status).length
+        (status) =>
+          this.project.tasks.filter((task: any) => task.status === status)
+            .length
       );
 
       this.chartData.datasets[0].data = statusCounts;
@@ -558,7 +580,7 @@ export class ProjectDetailsComponent implements OnInit {
   loadActivityLog(page: number = this.currentPage): void {
     if (this.project && this.project._id && !this.isLoadingActivityLog) {
       this.isLoadingActivityLog = true;
-      this.changeDetectorRef.detectChanges(); // Force update to show spinner
+      this.changeDetectorRef.detectChanges();
 
       this.projectService
         .getProjectActivityLog(this.project._id, page, this.pageSize)
@@ -575,10 +597,10 @@ export class ProjectDetailsComponent implements OnInit {
             console.error('Error loading activity log:', error);
             this.isLoadingActivityLog = false;
             this.snackBar.open('Error loading activity log', 'Close', {
-              duration: 3000
+              duration: 3000,
             });
             this.changeDetectorRef.detectChanges();
-          }
+          },
         });
     }
   }
@@ -596,13 +618,23 @@ export class ProjectDetailsComponent implements OnInit {
       if (change.includes('changed from')) {
         const [field, values] = change.split(' changed from ');
         const [oldValue, newValue] = values.split(' to ');
-        return `<strong>${field}</strong> changed from <span class="text-red-500">${this.formatDateIfNeeded(oldValue)}</span> to <span class="text-green-500">${this.formatDateIfNeeded(newValue)}</span>`;
+        return `<strong class="text-gray-900 dark:text-gray-100">${field}</strong> changed from <span class="text-red-500 dark:text-red-400">${this.formatDateIfNeeded(
+          oldValue
+        )}</span> to <span class="text-green-500 dark:text-green-400">${this.formatDateIfNeeded(
+          newValue
+        )}</span>`;
       } else if (change.includes('Added members:')) {
-        return change.replace('Added members:', '<strong>Added members:</strong> <span class="text-green-500">') + '</span>';
+        return change.replace(
+          'Added members:',
+          '<strong class="text-gray-900 dark:text-gray-100">Added members:</strong> <span class="text-green-500 dark:text-green-400">'
+        ) + '</span>';
       } else if (change.includes('Removed members:')) {
-        return change.replace('Removed members:', '<strong>Removed members:</strong> <span class="text-red-500">') + '</span>';
+        return change.replace(
+          'Removed members:',
+          '<strong class="text-gray-900 dark:text-gray-100">Removed members:</strong> <span class="text-red-500 dark:text-red-400">'
+        ) + '</span>';
       } else {
-        return `<strong>${change}</strong>`;
+        return `<strong class="text-gray-900 dark:text-gray-100">${change}</strong>`;
       }
     });
 
@@ -619,7 +651,10 @@ export class ProjectDetailsComponent implements OnInit {
 
   toggleActivityLog() {
     this.isActivityLogVisible = !this.isActivityLogVisible;
-    if (this.isActivityLogVisible && (!this.activityLog || this.activityLog.length === 0)) {
+    if (
+      this.isActivityLogVisible &&
+      (!this.activityLog || this.activityLog.length === 0)
+    ) {
       this.loadActivityLog();
     }
   }
@@ -646,7 +681,7 @@ export class ProjectDetailsComponent implements OnInit {
 
   getDaysRemaining(): number {
     if (!this.project.dueDate) {
-      return 0; 
+      return 0;
     }
     const today = new Date();
     const dueDate = new Date(this.project.dueDate);
@@ -660,5 +695,126 @@ export class ProjectDetailsComponent implements OnInit {
 
   trackByTaskId(index: number, task: any): string {
     return task._id;
+  }
+
+  openTaskDetailsDialog(task: any) {
+    const dialogRef = this.dialog.open(TaskDetailsDialogComponent, {
+      width: '95vw',
+      maxWidth: '800px',
+      panelClass: 'task-details-dialog',
+      data: {
+        task: task,
+        projectId: this.project._id,
+        projectMembers: this.project.members,
+        isProjectCreator: this.isProjectCreator,
+      }
+    });
+  }
+
+  private updateChartTheme(isDark: boolean) {
+    if (!this.chartOptions) {
+      this.chartOptions = {};
+    }
+
+    this.chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 10,
+          right: 10,
+          top: 10,
+          bottom: 10
+        }
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          enabled: true,
+          backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+          titleColor: isDark ? '#fff' : '#000',
+          bodyColor: isDark ? '#fff' : '#000',
+          cornerRadius: 4,
+          padding: 10,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            color: isDark ? '#9CA3AF' : '#4B5563',
+          },
+          grid: {
+            drawBorder: false,
+            color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+          },
+        },
+        x: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            color: isDark ? '#9CA3AF' : '#4B5563',
+          }
+        },
+      },
+      animation: {
+        duration: 750,
+        easing: 'easeInOutQuart',
+      },
+      transitions: {
+        active: {
+          animation: {
+            duration: 750,
+          },
+        },
+      },
+      hover: {
+        mode: 'index',
+        intersect: false,
+      },
+      elements: {
+        bar: {
+          hoverBackgroundColor: ['#D1D5DB', '#61A5FA', '#F87071', '#4BDE80'],
+          borderRadius: 4,
+        },
+      },
+    };
+
+    if (this.chart) {
+      this.chart.update();
+    }
+  }
+
+  deleteProject() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Delete Project',
+        message: 'Are you sure you want to delete this project? This action cannot be undone.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.projectService.deleteProject(this.project._id).subscribe({
+          next: () => {
+            this.snackBar.open('Project deleted successfully', 'Close', {
+              duration: 3000
+            });
+            this.router.navigate(['/dashboard']);
+          },
+          error: (error) => {
+            this.snackBar.open('Error deleting project', 'Close', {
+              duration: 3000
+            });
+          }
+        });
+      }
+    });
   }
 }

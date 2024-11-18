@@ -56,6 +56,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   currentPage: number = 1;
   totalPages: number = 1;
   totalLogs: number = 0;
+  pageSize: number = 10;
   comments: any[] = [];
   newComment: string = '';
   isLoadingComments = false;
@@ -73,6 +74,9 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   tooltipPosition = { x: 0, y: 0 };
 
   isLoadingActivity: boolean = false;
+
+  // Add to existing properties
+  reactionTypes = ['👍', '👎', '😄', '🎉', '😕', '❤️'];
 
   constructor(
     private route: ActivatedRoute,
@@ -605,5 +609,83 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   hideMemberInfo() {
     this.hoveredMemberId = null;
+  }
+
+  // Add these new methods
+  getReactionIcon(type: string): string {
+    return type; // Simply return the emoji
+  }
+
+  hasUserReacted(comment: any, type: string): boolean {
+    const userId = this.authService.getCurrentUserId();
+    return comment.reactions?.some(
+      (r: any) => r.user._id === userId && r.type === type
+    ) || false;
+  }
+
+  getReactionCount(comment: any, type: string): number {
+    return comment.reactions?.filter((r: any) => r.type === type).length || 0;
+  }
+
+  toggleReaction(comment: any, type: string): void {
+    if (!this.projectId || !this.taskId) return;
+
+    // Optimistically update the UI
+    const userId = this.authService.getCurrentUserId();
+    const existingReaction = comment.reactions?.find(
+      (r: any) => r.user._id === userId && r.type === type
+    );
+
+    if (existingReaction) {
+      comment.reactions = comment.reactions.filter(
+        (r: any) => !(r.user._id === userId && r.type === type)
+      );
+    } else {
+      if (!comment.reactions) comment.reactions = [];
+      comment.reactions.push({
+        type,
+        user: { _id: userId }
+      });
+    }
+
+    // Make API call
+    this.projectService
+      .toggleCommentReaction(this.projectId, this.taskId, comment._id, type)
+      .subscribe(
+        (updatedComment) => {
+          const index = this.comments.findIndex(c => c._id === comment._id);
+          if (index !== -1) {
+            this.comments[index] = updatedComment;
+          }
+        },
+        (error) => {
+          console.error('Error toggling reaction:', error);
+          // Revert optimistic update on error
+          this.loadComments();
+        }
+      );
+  }
+
+  hasAnyReactions(comment: any): boolean {
+    return comment.reactions?.length > 0;
+  }
+
+  getExistingReactionTypes(comment: any): string[] {
+    if (!comment.reactions) return [];
+    return Array.from(new Set(comment.reactions.map((r: any) => r.type)));
+  }
+
+  getTotalReactions(comment: any): number {
+    return comment.reactions?.length || 0;
+  }
+
+  getActivityClass(activity: any): string {
+    if (activity.type === 'status_change') {
+      return `status-change to-${activity.newValue.toLowerCase().replace(' ', '-')}`;
+    }
+    if (activity.type === 'priority_change') {
+      return `priority-change to-${activity.newValue.toLowerCase()}`;
+    }
+    return '';
   }
 }

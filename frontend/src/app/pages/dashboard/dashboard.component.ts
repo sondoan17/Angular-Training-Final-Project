@@ -37,16 +37,36 @@ export class DashboardComponent implements OnInit {
   createdProjects: Project[] = [];
   memberProjects: Project[] = [];
   isLoading: boolean = false;
+  recentProjects: Project[] = [];
+  currentUserId: string = '';
+  greeting: string = '';
+  username: string = '';
 
   constructor(
     private dialog: MatDialog,
     private projectService: ProjectService,
     private authService: AuthService,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    this.currentUserId = this.authService.getCurrentUserId() || '';
+    this.username = this.authService.getCurrentUsername() || '';
+    this.setGreeting();
+  }
 
   ngOnInit() {
     this.loadUserProjects();
+    this.loadRecentProjects();
+  }
+
+  private setGreeting(): void {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      this.greeting = 'Good morning';
+    } else if (hour < 18) {
+      this.greeting = 'Good afternoon';
+    } else {
+      this.greeting = 'Good evening';
+    }
   }
 
   loadUserProjects() {
@@ -77,6 +97,20 @@ export class DashboardComponent implements OnInit {
           duration: 3000,
         });
         this.isLoading = false;
+      },
+    });
+  }
+
+  loadRecentProjects() {
+    this.projectService.getRecentProjects().subscribe({
+      next: (projects) => {
+        this.recentProjects = projects;
+      },
+      error: (error) => {
+        console.error('Error loading recent projects:', error);
+        this.snackBar.open('Error loading recent projects', 'Close', {
+          duration: 3000,
+        });
       },
     });
   }

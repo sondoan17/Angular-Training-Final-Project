@@ -1,9 +1,9 @@
-<div class="fixed inset-y-0 left-0 z-30 w-64 bg-gray-800 text-white transform transition-transform duration-300 ease-in-out" [ngClass]="{'translate-x-0': isOpen, '-translate-x-full': !isOpen}">
+<div class="fixed inset-y-0 left-0 z-30 w-64 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transform transition-transform duration-300 ease-in-out" [ngClass]="{'translate-x-0': isOpen, '-translate-x-full': !isOpen}">
   <nav class="h-full overflow-y-auto py-6 px-4">
     <ul class="space-y-2">
       <li>
-        <a routerLink="/dashboard" class="flex items-center p-2 rounded-lg hover:bg-gray-700 transition-colors">
-          <mat-icon class="mr-3 text-gray-400">dashboard</mat-icon>
+        <a routerLink="/dashboard" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <mat-icon class="mr-3 text-gray-400 dark:text-gray-500">dashboard</mat-icon>
           <span>Dashboard</span>
         </a>
       </li>

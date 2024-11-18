@@ -45,3 +45,44 @@ button.mat-raised-button.mat-primary:hover {
 button.mat-raised-button[disabled] {
   background-color: rgba(59, 130, 246, 0.5);
 }
+
+:host-context(.dark) {
+  /* Override MDC dialog variables for dark mode */
+  ::ng-deep .mat-mdc-dialog-container {
+    --mdc-dialog-subhead-color: #e5e7eb;
+    --mdc-dialog-supporting-text-color: #d1d5db;
+    --mdc-dialog-container-color: #1f2937;
+  }
+
+  /* Form field styles */
+  ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+    background-color: #374151;
+  }
+
+  ::ng-deep .mat-form-field-infix input, 
+  ::ng-deep .mat-form-field-infix textarea {
+    color: #e5e7eb !important;
+  }
+
+  ::ng-deep .mat-form-field-label {
+    color: #9ca3af !important;
+  }
+
+  ::ng-deep .mat-focused .mat-form-field-label {
+    color: #60a5fa !important;
+  }
+
+  /* Placeholder color for inputs and textareas */
+  ::ng-deep .mat-form-field-empty.mat-form-field-label,
+  ::ng-deep input::placeholder,
+  ::ng-deep textarea::placeholder {
+    color: #6b7280 !important; /* gray-500 */
+  }
+
+  /* When focused */
+  ::ng-deep .mat-focused input::placeholder,
+  ::ng-deep .mat-focused textarea::placeholder {
+    color: #9ca3af !important; /* gray-400 */
+  }
+}
+

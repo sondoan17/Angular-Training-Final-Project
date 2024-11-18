@@ -1,37 +1,159 @@
-<nav class="bg-white shadow">
+<nav class="bg-white dark:bg-gray-800 shadow">
   <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between h-16">
       <div class="flex items-center">
-        <button (click)="onToggleSidebar()" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+        <button
+          (click)="onToggleSidebar()"
+          class="p-2 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+        >
           <mat-icon>menu</mat-icon>
         </button>
         <div class="flex-shrink-0 flex items-center ml-4">
-          <img class="h-8 w-auto" src="https://res.cloudinary.com/db2tvcbza/image/upload/v1730869163/logo_sfhhhd.png" alt="Logo">
+          <img
+            class="h-8 w-auto"
+            src="https://res.cloudinary.com/db2tvcbza/image/upload/v1730869163/logo_sfhhhd.png"
+            alt="Logo"
+            crossorigin="anonymous"
+          />
         </div>
       </div>
-      <div class="flex items-center space-x-4">
-        <app-notification-menu *ngIf="isLoggedIn()"></app-notification-menu>
-        <button [matMenuTriggerFor]="userMenu" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      
+      <div class="flex items-center space-x-2">
+        <div class="relative hidden md:block" *ngIf="isLoggedIn()">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchInput()"
+            (blur)="handleBlur()"
+            placeholder="Search projects and tasks..."
+            class="w-64 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          />
+          <button
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <mat-icon>search</mat-icon>
+          </button>
+          
+          <!-- Search Results Dropdown -->
+          <div *ngIf="showDropdown && searchResults.length > 0"
+               class="absolute right-0 z-50 mt-1 w-full bg-white rounded-md shadow-lg max-h-96 overflow-auto">
+            <div class="py-1">
+              <div *ngFor="let result of searchResults"
+                   (click)="navigateToResult(result)"
+                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                <div class="flex items-center">
+                  <mat-icon class="mr-2 text-gray-400">
+                    {{result.type === 'project' ? 'folder' : 'task'}}
+                  </mat-icon>
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">
+                      {{result.type === 'project' ? result.name : result.title}}
+                    </div>
+                    <div *ngIf="result.type === 'task'" class="text-xs text-gray-500">
+                      in {{result.projectName}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button
+          *ngIf="isLoggedIn()"
+          (click)="toggleMobileSearch()"
+          class="md:hidden h-8 w-8 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+        >
+          <mat-icon class="text-[20px]">search</mat-icon>
+        </button>
+        
+        <div class="h-8 w-8 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+          <app-notification-menu *ngIf="isLoggedIn()"></app-notification-menu>
+        </div>
+        
+        <button
+          (click)="toggleTheme()"
+          class="h-8 w-8 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+        >
+          <mat-icon class="text-[20px]" *ngIf="isDarkMode$ | async">light_mode</mat-icon>
+          <mat-icon class="text-[20px]" *ngIf="!(isDarkMode$ | async)">dark_mode</mat-icon>
+        </button>
+        <button
+          [matMenuTriggerFor]="userMenu"
+          class="h-8 w-8 flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 overflow-hidden"
+        >
           <span class="sr-only">Open user menu</span>
-          <img 
-            class="h-8 w-8 rounded-full"
+          <img
+            class="h-full w-full object-cover"
             [src]="'https://ui-avatars.com/api/?name=' + (username || 'User') + '&background=random'"
             [alt]="username || 'User'"
-          >
+          />
         </button>
+      </div>
+    </div>
+
+    <div *ngIf="showMobileSearch && isLoggedIn()" class="md:hidden pb-2 px-2">
+      <div class="relative">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchInput()"
+          (blur)="handleBlur()"
+          placeholder="Search projects and tasks..."
+          class="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+        />
+        <button
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        >
+          <mat-icon>search</mat-icon>
+        </button>
+        
+        <!-- Mobile Search Results Dropdown -->
+        <div *ngIf="showDropdown && searchResults.length > 0"
+             class="absolute left-0 right-0 z-50 mt-1 bg-white rounded-md shadow-lg max-h-96 overflow-auto">
+          <div class="py-1">
+            <div *ngFor="let result of searchResults"
+                 (click)="navigateToResult(result)"
+                 class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <div class="flex items-center">
+                <mat-icon class="mr-2 text-gray-400">
+                  {{result.type === 'project' ? 'folder' : 'task'}}
+                </mat-icon>
+                <div>
+                  <div class="text-sm font-medium text-gray-900">
+                    {{result.type === 'project' ? result.name : result.title}}
+                  </div>
+                  <div *ngIf="result.type === 'task'" class="text-xs text-gray-500">
+                    in {{result.projectName}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <mat-menu #userMenu="matMenu" class="mt-2">
-    <button mat-menu-item routerLink="/profile" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-      <mat-icon class="mr-3 text-gray-400">person</mat-icon>
-      <span>Profile</span>
-    </button>
-    
-    <button mat-menu-item (click)="logout()" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-      <mat-icon class="mr-3 text-gray-400">exit_to_app</mat-icon>
-      <span>Logout</span>
-    </button>
+    <div class="bg-white dark:bg-gray-800 py-1">
+      <button
+        mat-menu-item
+        routerLink="/profile"
+        class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <mat-icon class="mr-3 text-gray-400 dark:text-gray-500">person</mat-icon>
+        <span>Profile</span>
+      </button>
+
+      <button
+        mat-menu-item
+        (click)="logout()"
+        class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <mat-icon class="mr-3 text-gray-400 dark:text-gray-500">exit_to_app</mat-icon>
+        <span>Logout</span>
+      </button>
+    </div>
   </mat-menu>
 </nav>

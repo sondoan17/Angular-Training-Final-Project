@@ -6,8 +6,14 @@
 .kanban-column {
   width: 200px;
   min-height: 300px;
-  border: 1px solid #ccc;
+  border: 1px solid theme('colors.gray.200');
   padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.dark .kanban-column {
+  border-color: theme('colors.gray.600');
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 mat-card {
@@ -20,6 +26,11 @@ mat-card {
   border-radius: 4px;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
     0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.dark .cdk-drag-preview {
+  background: theme('colors.gray.800');
+  color: theme('colors.gray.100');
 }
 
 .cdk-drag-placeholder {
@@ -36,6 +47,10 @@ mat-card {
 
 .column-drop-zone.cdk-drop-list-dragging {
   background-color: rgba(0, 0, 0, 0.04);
+}
+
+.dark .column-drop-zone.cdk-drop-list-dragging {
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 /* Line clamp with vendor prefixes */
@@ -82,6 +97,19 @@ mat-card {
   max-height: 4.5em; /* Approximately 3 lines of text */
 }
 
+.task-description::after {
+  content: "...";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background: theme('colors.white');
+  padding-left: 0.25em;
+}
+
+.dark .task-description::after {
+  background: theme('colors.gray.800');
+}
+
 /* Fallback for browsers that don't support line-clamp */
 @supports not ((-webkit-line-clamp: 3) or (line-clamp: 3)) {
   .task-description {
@@ -95,7 +123,49 @@ mat-card {
     position: absolute;
     right: 0;
     bottom: 0;
-    background: white;
+    background: theme('colors.white');
     padding-left: 0.25em;
+  }
+}
+
+::ng-deep .dark {
+  .bg-white {
+    @apply bg-gray-800;
+  }
+
+  .text-gray-800 {
+    @apply text-gray-100;
+  }
+
+  .text-gray-700 {
+    @apply text-gray-300;
+  }
+
+  .text-gray-600 {
+    @apply text-gray-400;
+  }
+
+  .bg-gray-50 {
+    @apply bg-gray-900;
+  }
+
+  .bg-blue-50 {
+    @apply bg-blue-900;
+  }
+
+  .bg-red-50 {
+    @apply bg-red-900;
+  }
+
+  .bg-green-50 {
+    @apply bg-green-900;
+  }
+
+  .column-drop-zone.cdk-drop-list-dragging {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .task-description::after {
+    background: theme('colors.gray.800');
   }
 }

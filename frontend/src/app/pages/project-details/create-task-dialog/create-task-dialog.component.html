@@ -1,60 +1,60 @@
-<div class="edit-task-dialog bg-white p-6 rounded-lg shadow-md max-w-2xl w-full">
-  <h1 mat-dialog-title class="text-2xl font-semibold text-indigo-700 mb-6 text-center">
+<div class="edit-task-dialog bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md max-w-2xl w-full">
+  <h1 mat-dialog-title class="text-2xl font-semibold text-indigo-700 dark:text-indigo-400 mb-6 text-center">
     Create New Task
   </h1>
   
   <div mat-dialog-content class="space-y-4">
-    <mat-form-field appearance="fill" class="w-full">
-      <mat-label>Title</mat-label>
-      <input matInput [(ngModel)]="task.title" placeholder="Enter task title" required>
-      <mat-icon matSuffix>title</mat-icon>
+    <mat-form-field appearance="fill" class="w-full dark:text-gray-200">
+      <mat-label class="dark:text-gray-300">Title</mat-label>
+      <input matInput [(ngModel)]="task.title" placeholder="Enter task title" required class="dark:text-gray-200">
+      <mat-icon matSuffix class="dark:text-gray-400">title</mat-icon>
     </mat-form-field>
 
-    <mat-form-field appearance="fill" class="w-full">
-      <mat-label>Description</mat-label>
-      <textarea matInput [(ngModel)]="task.description" rows="3" placeholder="Enter task description"></textarea>
-      <mat-icon matSuffix>description</mat-icon>
+    <mat-form-field appearance="fill" class="w-full dark:text-gray-200">
+      <mat-label class="dark:text-gray-300">Description</mat-label>
+      <textarea matInput [(ngModel)]="task.description" rows="3" placeholder="Enter task description" class="dark:text-gray-200"></textarea>
+      <mat-icon matSuffix class="dark:text-gray-400">description</mat-icon>
     </mat-form-field>
 
     <div class="flex space-x-4">
-      <mat-form-field appearance="fill" class="w-1/2">
-        <mat-label>Type</mat-label>
-        <mat-select [(ngModel)]="task.type">
-          <mat-option value="task">Task</mat-option>
-          <mat-option value="bug">Bug</mat-option>
+      <mat-form-field appearance="fill" class="w-1/2 dark:text-gray-200">
+        <mat-label class="dark:text-gray-300">Type</mat-label>
+        <mat-select [(ngModel)]="task.type" class="dark:text-gray-200">
+          <mat-option value="task" class="dark:text-gray-200">Task</mat-option>
+          <mat-option value="bug" class="dark:text-gray-200">Bug</mat-option>
         </mat-select>
-        <mat-icon matSuffix>category</mat-icon>
+        <mat-icon matSuffix class="dark:text-gray-400">category</mat-icon>
       </mat-form-field>
 
-      <mat-form-field appearance="fill" class="w-1/2">
-        <mat-label>Status</mat-label>
-        <mat-select [(ngModel)]="task.status">
-          <mat-option value="Not Started">Not Started</mat-option>
-          <mat-option value="In Progress">In Progress</mat-option>
-          <mat-option value="Stuck">Stuck</mat-option>
-          <mat-option value="Done">Done</mat-option>
+      <mat-form-field appearance="fill" class="w-1/2 dark:text-gray-200">
+        <mat-label class="dark:text-gray-300">Status</mat-label>
+        <mat-select [(ngModel)]="task.status" class="dark:text-gray-200">
+          <mat-option value="Not Started" class="dark:text-gray-200">Not Started</mat-option>
+          <mat-option value="In Progress" class="dark:text-gray-200">In Progress</mat-option>
+          <mat-option value="Stuck" class="dark:text-gray-200">Stuck</mat-option>
+          <mat-option value="Done" class="dark:text-gray-200">Done</mat-option>
         </mat-select>
-        <mat-icon matSuffix>flag</mat-icon>
+        <mat-icon matSuffix class="dark:text-gray-400">flag</mat-icon>
       </mat-form-field>
     </div>
 
-    <mat-form-field appearance="fill" class="w-full">
-      <mat-label>Priority</mat-label>
-      <mat-select [(ngModel)]="task.priority">
-        <mat-option value="none">None</mat-option>
-        <mat-option value="low">Low</mat-option>
-        <mat-option value="medium">Medium</mat-option>
-        <mat-option value="high">High</mat-option>
-        <mat-option value="critical">Critical</mat-option>
+    <mat-form-field appearance="fill" class="w-full dark:text-gray-200">
+      <mat-label class="dark:text-gray-300">Priority</mat-label>
+      <mat-select [(ngModel)]="task.priority" class="dark:text-gray-200">
+        <mat-option value="none" class="dark:text-gray-200">None</mat-option>
+        <mat-option value="low" class="dark:text-gray-200">Low</mat-option>
+        <mat-option value="medium" class="dark:text-gray-200">Medium</mat-option>
+        <mat-option value="high" class="dark:text-gray-200">High</mat-option>
+        <mat-option value="critical" class="dark:text-gray-200">Critical</mat-option>
       </mat-select>
-      <mat-icon matSuffix>priority_high</mat-icon>
+      <mat-icon matSuffix class="dark:text-gray-400">priority_high</mat-icon>
     </mat-form-field>
 
-    <mat-form-field appearance="fill" class="w-full">
-      <mat-label>Timeline</mat-label>
+    <mat-form-field appearance="fill" class="w-full dark:text-gray-200">
+      <mat-label class="dark:text-gray-300">Timeline</mat-label>
       <mat-date-range-input [rangePicker]="picker">
-        <input matStartDate placeholder="Start date" [(ngModel)]="task.timeline.start">
-        <input matEndDate placeholder="End date" [(ngModel)]="task.timeline.end">
+        <input matStartDate placeholder="Start date" [(ngModel)]="task.timeline.start" class="dark:text-gray-200">
+        <input matEndDate placeholder="End date" [(ngModel)]="task.timeline.end" class="dark:text-gray-200">
       </mat-date-range-input>
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-date-range-picker #picker></mat-date-range-picker>
@@ -66,23 +66,25 @@
       </mat-checkbox>
     </div>
 
-    <mat-form-field appearance="fill" class="w-full" *ngIf="!assignToMe">
-      <mat-label>Assigned Members</mat-label>
-      <mat-select multiple [(ngModel)]="task.assignedTo">
+    <mat-form-field appearance="fill" class="w-full dark:text-gray-200" *ngIf="!assignToMe">
+      <mat-label class="dark:text-gray-300">Assigned Members</mat-label>
+      <mat-select multiple [(ngModel)]="task.assignedTo" class="dark:text-gray-200">
         <mat-option *ngFor="let member of data.members" [value]="member._id">
           {{ member.username }}
         </mat-option>
       </mat-select>
-      <mat-icon matSuffix>group</mat-icon>
+      <mat-icon matSuffix class="dark:text-gray-400">group</mat-icon>
     </mat-form-field>
   </div>
 
-  <div mat-dialog-actions class="flex justify-end space-x-3 mt-6">
-    <button mat-stroked-button color="warn" (click)="onCancel()" class="px-4 py-2">
-      <mat-icon>cancel</mat-icon> Cancel
+  <div mat-dialog-actions class="flex justify-end space-x-2 mt-6">
+    <button mat-stroked-button color="warn" (click)="onCancel()" 
+      class="dark:text-red-400 dark:border-red-400 dark:hover:bg-red-900">
+      Cancel
     </button>
-    <button mat-raised-button color="primary" [disabled]="!task.title" (click)="onSave()" class="px-4 py-2">
-      <mat-icon>save</mat-icon> Save
+    <button mat-raised-button color="primary" (click)="onSave()"
+      class="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
+      Create Task
     </button>
   </div>
 </div>

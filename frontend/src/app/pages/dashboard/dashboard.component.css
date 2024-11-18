@@ -9,3 +9,54 @@
 .content {
   padding: 20px;
 }
+
+:host {
+  display: block;
+  @apply bg-gray-50 dark:bg-gray-900 transition-colors duration-300;
+}
+
+.mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+::ng-deep .mat-mdc-raised-button {
+  @apply rounded-full transition-colors duration-300;
+}
+
+::ng-deep .mat-mdc-menu-panel {
+  @apply rounded-xl dark:bg-gray-800 dark:text-white transition-colors duration-300;
+}
+
+.group:hover .opacity-0 {
+  opacity: 1;
+}
+
+::ng-deep .mat-mdc-mini-fab {
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  @apply transition-colors duration-300;
+}
+
+::ng-deep .mat-mdc-mini-fab .mat-icon {
+  font-size: 20px;
+  line-height: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Dark mode overrides for Material components */
+::ng-deep .dark .mat-mdc-menu-item {
+  @apply text-gray-200 hover:bg-gray-700;
+}
+
+::ng-deep .dark .mat-mdc-menu-item .mat-icon {
+  @apply text-gray-400;
+}
+
+::ng-deep .dark .mat-mdc-menu-item:hover .mat-icon {
+  @apply text-gray-200;
+}

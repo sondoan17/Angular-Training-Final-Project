@@ -1,9 +1,9 @@
-<div class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+<div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen p-4 sm:p-6 lg:p-8">
   <div class="max-w-7xl mx-auto">
     <!-- Search Container -->
-    <div class="bg-white backdrop-blur-lg rounded-2xl p-8 shadow-lg border border-gray-100">
-      <h2 class="text-3xl font-bold text-gray-800 mb-2 text-center">Search</h2>
-      <p class="text-gray-500 text-center mb-8">Find projects and tasks across your workspace</p>
+    <div class="bg-white dark:bg-gray-800 backdrop-blur-lg rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2 text-center">Search</h2>
+      <p class="text-gray-500 dark:text-gray-400 text-center mb-8">Find projects and tasks across your workspace</p>
       
       <!-- Search Form -->
       <form [formGroup]="searchForm" class="space-y-6">
@@ -27,7 +27,7 @@
         </div>
 
         <!-- Filters Section -->
-        <div class="bg-gray-50 rounded-xl p-6" 
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6" 
              [@slideInOut]="isFiltersVisible"
              *ngIf="isFiltersVisible">
           <div class="flex space-x-4">
@@ -111,42 +111,42 @@
         <!-- Results Cards -->
         <div class="space-y-4" [class.pointer-events-none]="isLoading">
           <div *ngFor="let result of searchResults" 
-               class="bg-white border rounded-lg p-4 hover:shadow-md transition-all duration-200">
+               class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-all duration-200">
             <div class="flex justify-between items-start">
               <div class="flex-1">
                 <div class="flex items-center mb-2">
                   <mat-icon class="mr-2 text-gray-400">
                     {{result.type === 'task' ? 'task_alt' : 'folder'}}
                   </mat-icon>
-                  <h3 class="text-lg font-semibold text-gray-800">
+                  <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
                     {{result.type === 'task' || result.type === 'bug' ? result.title : result.name}}
                   </h3>
                 </div>
-                <p class="text-gray-600 mb-3">{{result.description}}</p>
+                <p class="text-gray-600 dark:text-gray-300 mb-3">{{result.description}}</p>
                 
                 <div class="flex gap-2">
                   <span *ngIf="result.status" 
                         class="px-2 py-1 text-sm rounded-full"
                         [ngClass]="{
-                          'bg-gray-100 text-gray-600': result.status === 'Not Started',
-                          'bg-blue-100 text-blue-600': result.status === 'In Progress',
-                          'bg-red-100 text-red-600': result.status === 'Stuck',
-                          'bg-green-100 text-green-600': result.status === 'Done'
+                          'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300': result.status === 'Not Started',
+                          'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300': result.status === 'In Progress',
+                          'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300': result.status === 'Stuck',
+                          'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300': result.status === 'Done'
                         }">
                     {{result.status}}
                   </span>
                   <span *ngIf="result.priority" 
                         class="px-2 py-1 text-sm rounded-full"
                         [ngClass]="{
-                          'bg-gray-100 text-gray-600': result.priority === 'none',
-                          'bg-green-100 text-green-600': result.priority === 'low',
-                          'bg-yellow-100 text-yellow-600': result.priority === 'medium',
-                          'bg-orange-100 text-orange-600': result.priority === 'high',
-                          'bg-red-100 text-red-600': result.priority === 'critical'
+                          'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300': result.priority === 'none',
+                          'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300': result.priority === 'low',
+                          'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300': result.priority === 'medium',
+                          'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300': result.priority === 'high',
+                          'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300': result.priority === 'critical'
                         }">
                     {{result.priority | titlecase}}
                   </span>
-                  <span class="px-2 py-1 text-sm rounded-full bg-gray-100 text-gray-600">
+                  <span class="px-2 py-1 text-sm rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                     {{result.type | titlecase}}
                   </span>
                 </div>
@@ -165,9 +165,9 @@
         <!-- No Results Message -->
         <div *ngIf="!isLoading && searchResults.length === 0 && searchForm.get('searchTerm')?.value" 
              class="text-center py-12">
-          <mat-icon class="text-gray-300 text-6xl mb-4">search_off</mat-icon>
-          <p class="text-gray-500 text-lg">No results found</p>
-          <p class="text-gray-400 text-sm mt-2">Try adjusting your search or filters</p>
+          <mat-icon class="text-gray-300 dark:text-gray-600 text-6xl mb-4">search_off</mat-icon>
+          <p class="text-gray-500 dark:text-gray-400 text-lg">No results found</p>
+          <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Try adjusting your search or filters</p>
         </div>
       </div>
     </div>

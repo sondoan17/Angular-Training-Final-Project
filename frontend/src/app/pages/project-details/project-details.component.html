@@ -1,74 +1,127 @@
-<div class="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+<div class="bg-gray-100 dark:bg-gray-900 min-h-screen p-4 sm:p-6 lg:p-8">
   <div class="max-w-7xl mx-auto">
     <button
       mat-button
       (click)="goBack()"
-      class="mb-4 flex items-center text-gray-600 hover:text-gray-800"
+      class="mb-4 flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
     >
       <mat-icon class="mr-2">arrow_back</mat-icon> Back to Dashboard
     </button>
 
     <!-- Loading spinner -->
-    <div *ngIf="isLoading" class="flex justify-center items-center min-h-screen">
+    <div
+      *ngIf="isLoading"
+      class="flex justify-center items-center min-h-screen"
+    >
       <mat-spinner diameter="40"></mat-spinner>
     </div>
 
     <!-- Main content -->
     <div *ngIf="!isLoading" class="container mx-auto px-4 py-8">
-      <div *ngIf="project" class="bg-white shadow rounded-lg p-6">
-        <!-- Project Header -->
+      <div
+        *ngIf="project"
+        class="bg-white dark:bg-gray-800 shadow rounded-lg p-6"
+      >
         <!-- Project Header -->
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold text-gray-800">{{ project.name }}</h2>
-          <div class="space-x-2">
+          <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            {{ project.name }}
+          </h2>
+          <div class="flex space-x-3">
             <button
-              mat-raised-button
+              mat-mini-fab
               color="primary"
               (click)="openEditProjectDialog()"
-              class="edit-button"
+              class="action-button rounded-full"
+              matTooltip="Edit Project"
             >
-              <mat-icon>edit</mat-icon>
-              <span class="button-text">Edit Project</span>
+              <mat-icon style="margin-right: 0;">edit</mat-icon>
             </button>
             <button
-              mat-raised-button
+              mat-mini-fab
               color="accent"
               (click)="openMembersDialog()"
-              class="members-button"
+              class="action-button rounded-full"
+              matTooltip="Manage Members"
             >
-              <mat-icon>group</mat-icon>
-              <span class="button-text">Members</span>
+              <mat-icon style="margin-right: 0;">group</mat-icon>
+            </button>
+            <button
+              mat-mini-fab
+              color="warn"
+              (click)="deleteProject()"
+              class="action-button rounded-full"
+              matTooltip="Delete Project"
+              *ngIf="isProjectCreator"
+            >
+              <mat-icon style="margin-right: 0;">delete</mat-icon>
             </button>
           </div>
         </div>
 
         <!-- Project Description and Details -->
-        <!-- Project Description and Details -->
-        <p class="text-gray-600 mb-4">{{ project.description }}</p>
-        <div class="flex justify-between text-sm text-gray-500 mb-6">
+        <p class="text-gray-600 dark:text-gray-300 mb-4">
+          {{ project.description }}
+        </p>
+        <div
+          class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-6"
+        >
           <p>Created by: {{ getCreatorUsername() }}</p>
           <p>Created at: {{ project.createdAt | date }}</p>
+        </div>
+
+        <!-- Tasks Section -->
+        <div class="mb-8">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Tasks
+            </h3>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="openCreateTaskDialog()"
+            >
+              <mat-icon class="mr-2">add</mat-icon> Create Task
+            </button>
+          </div>
+          <app-kanban-board
+            [tasks]="project.tasks"
+            [projectId]="project._id"
+            [isProjectCreator]="isProjectCreator"
+            (taskMoved)="onTaskMoved($event)"
+            (taskClicked)="openTaskDetailsDialog($event)"
+          >
+          </app-kanban-board>
         </div>
 
         <!-- Project Progress and Summary -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <!-- Project Progress -->
-          <div *ngIf="chartData" class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4">
+          <div
+            *ngIf="chartData"
+            class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow"
+          >
+            <h3
+              class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4"
+            >
               Project Progress
             </h3>
 
             <!-- Progress Bar -->
             <div class="mb-4">
               <div class="flex justify-between mb-1">
-                <span class="text-sm font-medium text-gray-700"
+                <span
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Overall Progress</span
                 >
-                <span class="text-sm font-medium text-gray-700"
+                <span
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >{{ getCompletionRate() }}%</span
                 >
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5"
+              >
                 <div
                   class="h-2.5 rounded-full"
                   [ngClass]="{
@@ -84,57 +137,57 @@
 
             <!-- Key Metrics -->
             <div class="grid grid-cols-2 gap-4 mb-6">
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <p class="text-sm text-gray-500">Tasks Completed</p>
-                <p class="text-xl font-semibold">
-                  {{ getTaskCountByStatus("Done") }} / {{ project.tasks?.length }}
+              <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Total Tasks
+                </p>
+                <p
+                  class="text-lg font-semibold text-gray-700 dark:text-gray-200"
+                >
+                  {{ project.tasks?.length || 0 }}
                 </p>
               </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <p class="text-sm text-gray-500">Days Remaining</p>
-                <p class="text-xl font-semibold">{{ getDaysRemaining() }}</p>
+              <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Completed Tasks
+                </p>
+                <p
+                  class="text-lg font-semibold text-gray-700 dark:text-gray-200"
+                >
+                  {{ getTaskCountByStatus("Done") }}
+                </p>
               </div>
             </div>
 
-            <!-- Doughnut Chart -->
-            <div
-              class="chart-container"
-              style="position: relative; height: 200px; width: 100%; margin: auto;">
+            <!-- Task Distribution Chart -->
+            <div class="chart-container h-64">
               <canvas
                 baseChart
                 [data]="chartData"
                 [options]="chartOptions"
-                [type]="'bar'">
-              </canvas>
+                [type]="'bar'"
+              ></canvas>
             </div>
           </div>
 
           <!-- Project Summary -->
-          <div class="bg-white p-4 rounded-lg shadow">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4">
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3
+              class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4"
+            >
               Project Summary
             </h3>
-            <ul class="space-y-2">
+            <ul class="space-y-3 text-gray-600 dark:text-gray-300">
               <li class="flex justify-between">
                 <span>Total Tasks:</span>
-                <span class="font-medium">{{ project.tasks?.length || 0 }}</span>
-              </li>
-              <li class="flex justify-between">
-                <span>Not Started:</span>
                 <span class="font-medium">{{
-                  getTaskCountByStatus("Not Started")
+                  project.tasks?.length || 0
                 }}</span>
               </li>
               <li class="flex justify-between">
                 <span>In Progress:</span>
                 <span class="font-medium">{{
                   getTaskCountByStatus("In Progress")
-                }}</span>
-              </li>
-              <li class="flex justify-between">
-                <span>Stuck:</span>
-                <span class="font-medium">{{
-                  getTaskCountByStatus("Stuck")
                 }}</span>
               </li>
               <li class="flex justify-between">
@@ -161,28 +214,6 @@
           </div>
         </div>
 
-        <!-- Tasks Section -->
-        <div class="mb-6">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold text-gray-700">Tasks</h3>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="openCreateTaskDialog()"
-            >
-              <mat-icon class="mr-2">add</mat-icon> Create Task
-            </button>
-          </div>
-          <app-kanban-board
-            [tasks]="project.tasks"
-            [projectId]="project._id"
-            [isProjectCreator]="isProjectCreator"
-            (taskMoved)="onTaskMoved($event)">
-          </app-kanban-board>
-
-          
-        </div>
-
         <!-- Activity Log Toggle -->
         <div class="flex justify-end mt-6">
           <button
@@ -194,42 +225,74 @@
             <mat-icon class="mr-2">{{
               isActivityLogVisible ? "visibility_off" : "visibility"
             }}</mat-icon>
-            <span>{{ isActivityLogVisible ? "Hide Activity Log" : "Show Activity Log" }}</span>
+            <span>{{
+              isActivityLogVisible ? "Hide Activity Log" : "Show Activity Log"
+            }}</span>
           </button>
         </div>
 
         <!-- Activity Log -->
-        <div 
-          class="bg-white shadow rounded-lg overflow-hidden mt-8" 
+        <div
+          class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden mt-8"
           [class.hidden]="!isActivityLogVisible"
         >
           <div class="p-4 sm:p-6">
-            <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-6">Activity Log</h2>
-            <div *ngIf="isLoadingActivityLog" class="flex justify-center items-center h-20">
+            <h2
+              class="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6"
+            >
+              Activity Log
+            </h2>
+            <div
+              *ngIf="isLoadingActivityLog"
+              class="flex justify-center items-center h-20"
+            >
               <mat-spinner diameter="40"></mat-spinner>
             </div>
             <div *ngIf="!isLoadingActivityLog" class="flow-root">
               <ul role="list" class="-mb-8">
                 <li *ngFor="let activity of activityLog; let last = last">
                   <div class="relative pb-8">
-                    <span class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" *ngIf="!last"></span>
+                    <span
+                      class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700"
+                      aria-hidden="true"
+                      *ngIf="!last"
+                    >
+                    </span>
                     <div class="relative flex items-start space-x-3">
                       <div class="relative">
-                        <img class="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white" 
-                             [src]="'https://ui-avatars.com/api/?name=' + (activity.performedBy?.username || 'User') + '&background=random'" 
-                             [alt]="activity.performedBy?.username || 'User'">
+                        <img
+                          class="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white dark:ring-gray-800"
+                          [src]="
+                            'https://ui-avatars.com/api/?name=' +
+                            (activity.performedBy?.username || 'User') +
+                            '&background=random'
+                          "
+                          [alt]="activity.performedBy?.username || 'User'"
+                        />
                       </div>
                       <div class="min-w-0 flex-1">
                         <div>
                           <div class="text-sm">
-                            <a href="#" class="font-medium text-gray-900">{{ activity.performedBy?.username || 'Unknown User' }}</a>
+                            <a
+                              class="font-medium text-gray-900 dark:text-gray-100"
+                            >
+                              {{
+                                activity.performedBy?.username || "Unknown User"
+                              }}
+                            </a>
                           </div>
-                          <div class="mt-0.5 text-sm text-gray-500">
-                            {{ activity.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                          <div
+                            class="mt-0.5 text-sm text-gray-500 dark:text-gray-400"
+                          >
+                            {{ activity.timestamp | date : "dd/MM/yyyy HH:mm" }}
                           </div>
                         </div>
-                        <div class="mt-2 text-sm text-gray-700">
-                          <p [innerHTML]="formatActivityAction(activity.action)"></p>
+                        <div
+                          class="mt-2 text-sm text-gray-700 dark:text-gray-300"
+                        >
+                          <p
+                            [innerHTML]="formatActivityAction(activity.action)"
+                          ></p>
                         </div>
                       </div>
                     </div>
@@ -240,10 +303,13 @@
             <mat-paginator
               [length]="totalLogs"
               [pageSize]="pageSize"
-              [pageSizeOptions]="[5, 10, 25, 100]"
+              [pageSizeOptions]="[5, 10, 25]"
               [pageIndex]="currentPage - 1"
               (page)="onPageChange($event)"
-              aria-label="Select page of activity logs">
+              class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700"
+              [ngClass]="{ 'dark:text-gray-300': true }"
+              aria-label="Select page"
+            >
             </mat-paginator>
           </div>
         </div>

@@ -1,14 +1,14 @@
 <!-- Add this at the very top of the template, before the main content -->
-<div *ngIf="isLoading" class="flex justify-center items-center min-h-screen">
+<div *ngIf="isLoading" class="flex justify-center items-center min-h-screen dark:bg-gray-900">
   <mat-spinner diameter="40"></mat-spinner>
 </div>
 
-<div *ngIf="!isLoading" class="max-w-7xl mx-auto p-6 relative">
+<div *ngIf="!isLoading" class="max-w-7xl mx-auto p-6 relative dark:bg-gray-900">
   <!-- Back button -->
   <button
     mat-button
     (click)="goBack()"
-    class="mb-4 flex items-center text-gray-600 hover:text-gray-800"
+    class="mb-4 flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
   >
     <mat-icon class="mr-2">arrow_back</mat-icon> Back to Project
   </button>
@@ -20,13 +20,13 @@
       <!-- Existing task details content -->
       <div class="mb-8" *ngIf="task">
         <div class="flex justify-between items-start mb-4">
-          <h1 class="text-3xl font-bold text-gray-800">{{ task?.title }}</h1>
+          <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ task?.title }}</h1>
           <div class="flex space-x-2" *ngIf="isProjectCreator">
             <button
               mat-icon-button
               color="primary"
               (click)="editTask()"
-              class="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-full"
+              class="bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900 dark:hover:bg-blue-800 dark:text-blue-200 p-2 rounded-full"
             >
               <mat-icon>edit</mat-icon>
             </button>
@@ -34,7 +34,7 @@
               mat-icon-button
               color="warn"
               (click)="deleteTask()"
-              class="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded-full"
+              class="bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900 dark:hover:bg-red-800 dark:text-red-200 p-2 rounded-full"
             >
               <mat-icon>delete</mat-icon>
             </button>
@@ -97,43 +97,41 @@
         </div>
       </div>
 
-      <div class="bg-white shadow rounded-lg overflow-hidden mb-8">
+      <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden mb-8">
         <div class="p-6">
-          <h2 class="text-xl font-semibold text-gray-800 mb-4">Description</h2>
-          <p class="text-gray-600">{{ task?.description }}</p>
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Description</h2>
+          <p class="text-gray-600 dark:text-gray-300">{{ task?.description }}</p>
         </div>
-        <div class="border-t border-gray-200 p-6">
-          <h2 class="text-xl font-semibold text-gray-800 mb-4">Timeline</h2>
+        <div class="border-t border-gray-200 dark:border-gray-700 p-6">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Timeline</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-blue-50 p-4 rounded-lg">
+            <div class="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-lg">
               <div class="flex items-center mb-2">
-                <mat-icon class="text-blue-500 mr-2">event</mat-icon>
-                <span class="font-semibold text-blue-700">Start Date</span>
+                <mat-icon class="text-blue-500 dark:text-blue-400 mr-2">event</mat-icon>
+                <span class="font-semibold text-blue-700 dark:text-blue-300">Start Date</span>
               </div>
-              <p class="text-blue-800">
+              <p class="text-blue-800 dark:text-blue-200">
                 {{ task?.timeline?.start | date : "dd/MM/yyyy" }}
               </p>
             </div>
-            <div class="bg-green-50 p-4 rounded-lg">
+            <div class="bg-green-50 dark:bg-green-900/50 p-4 rounded-lg">
               <div class="flex items-center mb-2">
-                <mat-icon class="text-green-500 mr-2">event</mat-icon>
-                <span class="font-semibold text-green-700">End Date</span>
+                <mat-icon class="text-green-500 dark:text-green-400 mr-2">event</mat-icon>
+                <span class="font-semibold text-green-700 dark:text-green-300">End Date</span>
               </div>
-              <p class="text-green-800">
+              <p class="text-green-800 dark:text-green-200">
                 {{ task?.timeline?.end | date : "dd/MM/yyyy" }}
               </p>
             </div>
-            <div class="bg-purple-50 p-4 rounded-lg">
+            <div class="bg-purple-50 dark:bg-purple-900/50 p-4 rounded-lg">
               <div class="flex items-center mb-2">
-                <mat-icon class="text-purple-500 mr-2">timer</mat-icon>
-                <span class="font-semibold text-purple-700"
-                  >Remaining Time</span
-                >
+                <mat-icon class="text-purple-500 dark:text-purple-400 mr-2">timer</mat-icon>
+                <span class="font-semibold text-purple-700 dark:text-purple-300">Remaining Time</span>
               </div>
               <p
                 [ngClass]="{
-                  'text-purple-800': remainingTime !== 'Overdue',
-                  'text-red-600 font-bold': remainingTime === 'Overdue'
+                  'text-purple-800 dark:text-purple-200': remainingTime !== 'Overdue',
+                  'text-red-600 font-bold dark:text-red-400': remainingTime === 'Overdue'
                 }"
               >
                 {{ remainingTime }}
@@ -141,11 +139,11 @@
             </div>
           </div>
         </div>
-        <div class="border-t border-gray-200 p-6 overflow-visible">
+        <div class="border-t border-gray-200 dark:border-gray-700 p-6 overflow-visible">
           <h2
-            class="text-xl font-semibold text-gray-800 mb-3 flex items-center"
+            class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center"
           >
-            <mat-icon class="mr-2 text-gray-600">group</mat-icon>
+            <mat-icon class="mr-2 text-gray-600 dark:text-gray-400">group</mat-icon>
             Assigned Members
           </h2>
 
@@ -165,7 +163,7 @@
             >
               <div
                 *ngFor="let member of getAssignedMembers()"
-                class="flex items-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200 relative"
+                class="flex items-center p-2 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200 relative"
                 (mouseenter)="showMemberInfo($event, member._id)"
                 (mouseleave)="hideMemberInfo()"
               >
@@ -179,10 +177,10 @@
                   class="w-8 h-8 rounded-full shadow-sm"
                 />
                 <div class="ml-2 min-w-0 flex-1">
-                  <p class="text-sm font-medium text-gray-900 truncate">
+                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                     {{ member.username }}
                   </p>
-                  <span class="inline-block text-xs text-gray-500 truncate">
+                  <span class="inline-block text-xs text-gray-500 dark:text-gray-400 truncate">
                     {{ member.status || "member" }}
                   </span>
                 </div>
@@ -192,9 +190,9 @@
         </div>
       </div>
 
-      <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
         <div class="p-6">
-          <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+          <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
             Activity Log
           </h2>
 
@@ -204,15 +202,13 @@
             class="flex flex-col items-center justify-center py-8"
           >
             <mat-spinner diameter="40"></mat-spinner>
-            <p class="mt-4 text-gray-600">Loading activity log...</p>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">Loading activity log...</p>
           </div>
 
           <!-- Empty State -->
           <div
-            *ngIf="
-              !isLoadingActivity && (!activityLog || activityLog.length === 0)
-            "
-            class="flex flex-col items-center justify-center py-8 text-gray-500"
+            *ngIf="!isLoadingActivity && (!activityLog || activityLog.length === 0)"
+            class="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400"
           >
             <mat-icon class="text-4xl mb-2">history</mat-icon>
             <p>No activity recorded yet</p>
@@ -226,35 +222,32 @@
             <ul role="list" class="-mb-8">
               <li *ngFor="let activity of activityLog; let last = last">
                 <div class="relative pb-8">
-                 
+                  <!-- <span
+                    class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700"
+                    aria-hidden="true"
+                    *ngIf="!last"
+                  ></span> -->
                   <div class="relative flex items-start space-x-3">
                     <div class="relative">
                       <img
-                        class="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                        [src]="
-                          'https://ui-avatars.com/api/?name=' +
-                          (activity.performedBy?.username || 'User') +
-                          '&background=random'
-                        "
+                        class="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white dark:ring-gray-800"
+                        [src]="'https://ui-avatars.com/api/?name=' + (activity.performedBy?.username || 'User') + '&background=random'"
                         [alt]="activity.performedBy?.username || 'User'"
                       />
                     </div>
                     <div class="min-w-0 flex-1">
                       <div>
                         <div class="text-sm">
-                          <a href="#" class="font-medium text-gray-900">{{
-                            activity.performedBy?.username || "Unknown User"
-                          }}</a>
+                          <a class="font-medium text-gray-900 dark:text-gray-100">
+                            {{ activity.performedBy?.username || "Unknown User" }}
+                          </a>
                         </div>
-                        <div class="mt-0.5 text-sm text-gray-500">
+                        <div class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
                           {{ activity.timestamp | date : "dd/MM/yyyy HH:mm" }}
                         </div>
                       </div>
-                      <div class="mt-2 text-sm text-gray-700">
-                        <p
-                          [innerHTML]="formatActivityAction(activity.action)"
-                          class="text-sm text-gray-600"
-                        ></p>
+                      <div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                        <p [innerHTML]="formatActivityAction(activity.action)"></p>
                       </div>
                     </div>
                   </div>
@@ -267,10 +260,13 @@
           <mat-paginator
             *ngIf="!isLoadingActivity && activityLog && activityLog.length > 0"
             [length]="totalLogs"
-            [pageSize]="5"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[5, 10, 25]"
             [pageIndex]="currentPage - 1"
             (page)="onPageChange($event)"
-            aria-label="Select page of activity logs"
+            class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700"
+            [ngClass]="{ 'dark:text-gray-300': true }"
+            aria-label="Select page"
           >
           </mat-paginator>
         </div>
@@ -280,13 +276,13 @@
     <!-- Right column - Comments -->
     <div class="lg:w-1/3 lg:flex-shrink-0 lg:basis-1/3">
       <div
-        class="bg-white shadow rounded-lg overflow-hidden lg:sticky lg:top-6"
+        class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden lg:sticky lg:top-6"
       >
         <div class="p-6">
           <h2
-            class="text-xl font-semibold text-gray-800 mb-4 flex items-center"
+            class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center"
           >
-            <mat-icon class="mr-2 text-gray-600">chat</mat-icon>
+            <mat-icon class="mr-2 text-gray-600 dark:text-gray-400">chat</mat-icon>
             Comments
           </h2>
 
@@ -338,7 +334,7 @@
 
             <div
               *ngFor="let comment of comments"
-              class="border-b border-gray-200 last:border-0 pb-4 hover:bg-gray-50 transition-colors duration-200 p-3 rounded-lg"
+              class="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 p-3 rounded-lg"
             >
               <div class="flex items-start space-x-3">
                 <img
@@ -353,10 +349,10 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex justify-between items-start">
                     <div>
-                      <p class="font-medium text-sm text-gray-900 truncate">
+                      <p class="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
                         {{ comment.author?.username || "Unknown User" }}
                       </p>
-                      <p class="text-xs text-gray-500">
+                      <p class="text-xs text-gray-500 dark:text-gray-400">
                         {{ comment.createdAt | date : "MMM d, y, h:mm a" }}
                       </p>
                     </div>
@@ -431,6 +427,45 @@
                   </ng-template>
                 </div>
               </div>
+              <!-- Replace the existing reaction buttons section with this -->
+              <div class="comment-container relative">
+                <!-- Existing comment content -->
+                <div class="mt-2">
+                  <!-- Reactions summary -->
+                  <div class="reactions-summary" *ngIf="hasAnyReactions(comment)">
+                    <div 
+                      *ngFor="let type of getExistingReactionTypes(comment)"
+                      class="reaction-pill"
+                      [class.active]="hasUserReacted(comment, type)"
+                      (click)="toggleReaction(comment, type)"
+                    >
+                      <span>{{type}}</span>
+                      <span>{{getReactionCount(comment, type)}}</span>
+                    </div>
+                  </div>
+
+                  <!-- Reaction trigger and bubble -->
+                  <div class="reaction-trigger">
+                    <button 
+                      mat-icon-button 
+                      class="text-gray-500 hover:text-gray-700"
+                    >
+                      <mat-icon>add_reaction</mat-icon>
+                    </button>
+
+                    <div class="reaction-bubble">
+                      <button
+                        *ngFor="let type of reactionTypes"
+                        class="reaction-bubble-button"
+                        [class.active]="hasUserReacted(comment, type)"
+                        (click)="toggleReaction(comment, type); $event.stopPropagation()"
+                      >
+                        {{type}}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -450,7 +485,7 @@
 <!-- Member Info Card Tooltip - Move this outside the member list -->
 <div
   *ngIf="hoveredMemberId"
-  class="fixed z-[1000] bg-white rounded-lg shadow-xl p-4 w-72 border border-gray-200"
+  class="fixed z-[1000] bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 w-72 border border-gray-200 dark:border-gray-700"
   [style.left.px]="tooltipPosition.x"
   [style.top.px]="tooltipPosition.y"
 >
@@ -465,13 +500,13 @@
       class="w-12 h-12 rounded-full shadow"
     />
     <div class="flex-1">
-      <h3 class="font-medium text-gray-900">
+      <h3 class="font-medium text-gray-900 dark:text-gray-100">
         {{ getMemberDetails(hoveredMemberId)?.username }}
       </h3>
-      <p class="text-sm text-gray-500 mt-1">
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
         {{ getMemberDetails(hoveredMemberId)?.name || "No name available" }}
       </p>
-      <p class="text-sm text-gray-500">
+      <p class="text-sm text-gray-500 dark:text-gray-400">
         {{ getMemberDetails(hoveredMemberId)?.email || "No email available" }}
       </p>
     </div>

@@ -23,3 +23,47 @@
   padding-left: 0.75rem;
   padding-right: 0.75rem;
 }
+
+::ng-deep .dark {
+  .custom-form-field .mat-mdc-text-field-wrapper {
+    background-color: theme('colors.gray.800');
+  }
+
+  .mat-mdc-form-field {
+    .mat-mdc-form-field-label {
+      color: theme('colors.gray.400');
+    }
+  }
+
+  input {
+    color: theme('colors.gray.300');
+  }
+
+  .bg-white {
+    @apply bg-gray-800;
+  }
+
+  .text-gray-800 {
+    @apply text-gray-100;
+  }
+
+  .text-gray-900 {
+    @apply text-gray-100;
+  }
+
+  .text-gray-600 {
+    @apply text-gray-400;
+  }
+
+  .text-gray-500 {
+    @apply text-gray-400;
+  }
+
+  .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+    @apply divide-gray-700;
+  }
+
+  .hover\:bg-gray-100:hover {
+    @apply hover:bg-gray-700;
+  }
+}

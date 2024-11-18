@@ -1,13 +1,13 @@
-<div class="content max-w-6xl mx-auto p-2 sm:p-4 md:p-6">
-  <div *ngIf="isLoading" class="flex justify-center items-center min-h-[calc(100vh-64px)]">
+<div class="content w-full min-h-screen mx-auto p-2 sm:p-4 md:p-6 dark:bg-gray-900">
+  <div *ngIf="isLoading" class="flex max-w-6xl mx-auto justify-center items-center min-h-[calc(100vh-64px)]">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
   <!-- Header and Sorting Section -->
-  <div *ngIf="!isLoading" class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+  <div *ngIf="!isLoading" class="container mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <!-- Title -->
-        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+        <h2 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-gray-100">
           Tasks Assigned to You
         </h2>
 
@@ -63,25 +63,20 @@
 
     <!-- Existing accordion content -->
     <mat-accordion multi>
-      <mat-expansion-panel *ngFor="let projectId of objectKeys(tasksByProject)" [expanded]="true" class="mb-3 sm:mb-4">
-        <mat-expansion-panel-header class="bg-gray-100">
-          <mat-panel-title class="project-title text-sm sm:text-base md:text-lg font-semibold text-gray-800 truncate">
+      <mat-expansion-panel *ngFor="let projectId of objectKeys(tasksByProject)" [expanded]="true" class="mb-3 sm:mb-4 dark:bg-gray-800">
+        <mat-expansion-panel-header class="dark:bg-gray-800">
+          <mat-panel-title class="project-title text-sm sm:text-base md:text-lg font-semibold text-gray-800 dark:text-gray-100 truncate">
             {{ tasksByProject[projectId].projectName }}
           </mat-panel-title>
-          <!-- <mat-panel-description class="text-xs sm:text-sm md:text-base text-gray-600 whitespace-nowrap">
-          {{ tasksByProject[projectId].tasks.length }} tasks
-        </mat-panel-description> -->
         </mat-expansion-panel-header>
-
-        <div
-          class="task-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mt-3 sm:mt-4 md:mt-6">
-          <mat-card *ngFor="let task of tasksByProject[projectId].tasks" class="task-card flex flex-col h-full">
+        <div class="task-list dark:bg-gray-800">
+          <mat-card *ngFor="let task of tasksByProject[projectId].tasks" class="task-card flex flex-col h-full dark:bg-gray-700">
             <div class="flex justify-between items-start mb-2">
               <mat-card-header class="p-0">
                 <mat-card-title class="text-base sm:text-lg md:text-xl font-semibold">{{ task.title }}</mat-card-title>
               </mat-card-header>
               <button mat-icon-button [routerLink]="['/projects', task.projectId, 'tasks', task._id]"
-                class="text-blue-600 hover:text-blue-800 transition-colors duration-200 -mt-2 -mr-2"
+                class="text-gray-400 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 -mt-2 -mr-2"
                 aria-label="View task details">
                 <mat-icon class="text-sm sm:text-base md:text-lg">visibility</mat-icon>
               </button>
@@ -92,31 +87,33 @@
             <div class="task-details mt-auto">
               <div class="flex items-center justify-between">
                 <button [matMenuTriggerFor]="statusMenu" [ngClass]="getStatusClass(task.status)"
-                  class="px-2 py-1 rounded-tl-full rounded-bl-full text-xs sm:text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  class="px-3 py-1 rounded-tl-full rounded-bl-full text-xs sm:text-sm font-medium flex items-center transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                   <span class="mr-1">{{ task.status }}</span>
                   <mat-icon class="text-xs sm:text-sm">arrow_drop_down</mat-icon>
                 </button>
                 <mat-menu #statusMenu="matMenu" class="custom-menu">
-                  <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Not Started')"
-                    class="flex items-center">
-                    <span class="w-3 h-3 rounded-full bg-gray-500 mr-3"></span>
-                    Not Started
-                  </button>
-                  <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'In Progress')"
-                    class="flex items-center">
-                    <span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>
-                    In Progress
-                  </button>
-                  <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Stuck')"
-                    class="flex items-center">
-                    <span class="w-3 h-3 rounded-full bg-red-500 mr-3"></span>
-                    Stuck
-                  </button>
-                  <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Done')"
-                    class="flex items-center">
-                    <span class="w-3 h-3 rounded-full bg-green-500 mr-3"></span>
-                    Done
-                  </button>
+                  <div class="dark:bg-gray-800">
+                    <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Not Started')"
+                      class="flex items-center dark:text-gray-100 dark:hover:bg-gray-700">
+                      <span class="w-3 h-3 rounded-full bg-gray-500 mr-3"></span>
+                      Not Started
+                    </button>
+                    <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'In Progress')"
+                      class="flex items-center dark:text-gray-100 dark:hover:bg-gray-700">
+                      <span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>
+                      In Progress
+                    </button>
+                    <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Stuck')"
+                      class="flex items-center dark:text-gray-100 dark:hover:bg-gray-700">
+                      <span class="w-3 h-3 rounded-full bg-red-500 mr-3"></span>
+                      Stuck
+                    </button>
+                    <button mat-menu-item (click)="updateTaskStatus(projectId, task._id, 'Done')"
+                      class="flex items-center dark:text-gray-100 dark:hover:bg-gray-700">
+                      <span class="w-3 h-3 rounded-full bg-green-500 mr-3"></span>
+                      Done
+                    </button>
+                  </div>
                 </mat-menu>
                 <span [ngClass]="getPriorityClass(task.priority)"
                   class="px-3 py-2 sm:py-1.5 rounded-tr-full rounded-br-full text-xs sm:text-sm font-medium">
