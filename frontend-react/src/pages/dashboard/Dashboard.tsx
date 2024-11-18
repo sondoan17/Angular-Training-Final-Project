@@ -1,9 +1,17 @@
 import { useEffect, useState, useMemo } from "react";
-import { Card, Grid, Typography, Button, Spin, Empty, message, Skeleton } from "antd";
+import {
+  Card,
+  Grid,
+  Typography,
+  Button,
+  Spin,
+  Empty,
+  message,
+  Skeleton,
+} from "antd";
 import {
   PlusOutlined,
   TeamOutlined,
-
   FieldTimeOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +39,6 @@ const Dashboard = () => {
   const { allProjects, recentProjects, isLoading } = useSelector(
     (state: RootState) => state.projects
   );
-  console.log(allProjects);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -39,9 +46,9 @@ const Dashboard = () => {
   const [isUserLoaded, setIsUserLoaded] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -51,30 +58,31 @@ const Dashboard = () => {
       dispatch(fetchProjects())
         .unwrap()
         .then((result) => {
-          console.log('Fetched Projects:', result);
+          console.log("Fetched Projects:", result);
           dispatch(fetchRecentProjects());
         })
         .catch((error) => {
-          console.error('Error loading projects:', error);
-          message.error('Failed to load projects');
+          console.error("Error loading projects:", error);
+          message.error("Failed to load projects");
         });
     }
   }, [dispatch, user?.id, navigate]);
 
   const createdProjects = useMemo(() => {
     if (!user?.id || !allProjects) return [];
-    
-    return allProjects.filter(project => 
-      project?.createdBy?._id.toString() === user.id.toString()
+
+    return allProjects.filter(
+      (project) => project?.createdBy?._id.toString() === user.id.toString()
     );
   }, [allProjects, user?.id]);
 
   const memberProjects = useMemo(() => {
     if (!user?.id || !allProjects) return [];
-    
-    return allProjects.filter(project => 
-      project?.createdBy?._id.toString() !== user.id.toString() && 
-      project?.members?.some(m => m?._id.toString() === user.id.toString())
+
+    return allProjects.filter(
+      (project) =>
+        project?.createdBy?._id.toString() !== user.id.toString() &&
+        project?.members?.some((m) => m?._id.toString() === user.id.toString())
     );
   }, [allProjects, user?.id]);
 
@@ -243,10 +251,17 @@ const Dashboard = () => {
         ) : (
           <div className="space-y-10">
             {/* Recently Viewed Section */}
-            <div className={`rounded-2xl shadow-sm p-6 mb-6 border ${
-              isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"
-            }`}>
-              <Title level={2} className={isDarkMode ? "text-white" : "text-gray-900"}>
+            <div
+              className={`rounded-2xl shadow-sm p-6 mb-6 border ${
+                isDarkMode
+                  ? "bg-gray-800 border-gray-700"
+                  : "bg-white border-gray-100"
+              }`}
+            >
+              <Title
+                level={2}
+                className={isDarkMode ? "text-white" : "text-gray-900"}
+              >
                 Recently Viewed
               </Title>
               {isLoading ? (
@@ -263,11 +278,18 @@ const Dashboard = () => {
             </div>
 
             {/* Your Projects Section */}
-            <section className={`p-6 rounded-xl shadow-sm ${
-              isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-            }`}>
+            <section
+              className={`p-6 rounded-xl shadow-sm ${
+                isDarkMode
+                  ? "bg-gray-800 border border-gray-700"
+                  : "bg-white border border-gray-200"
+              }`}
+            >
               <div className="flex justify-between items-center mb-6">
-                <Title level={2} className={isDarkMode ? 'text-white' : 'text-gray-900'}>
+                <Title
+                  level={2}
+                  className={isDarkMode ? "text-white" : "text-gray-900"}
+                >
                   Your Projects
                 </Title>
                 <Button
@@ -284,8 +306,8 @@ const Dashboard = () => {
               ) : createdProjects.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {createdProjects.map((project) => (
-                    <ProjectCard 
-                      key={project._id} 
+                    <ProjectCard
+                      key={project._id}
                       project={project}
                       isOwner={true}
                     />
@@ -297,10 +319,17 @@ const Dashboard = () => {
             </section>
 
             {/* Projects You're In Section */}
-            <div className={`rounded-2xl shadow-sm p-6 border ${
-              isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"
-            }`}>
-              <Title level={2} className={isDarkMode ? "text-white" : "text-gray-900"}>
+            <div
+              className={`rounded-2xl shadow-sm p-6 border ${
+                isDarkMode
+                  ? "bg-gray-800 border-gray-700"
+                  : "bg-white border-gray-100"
+              }`}
+            >
+              <Title
+                level={2}
+                className={isDarkMode ? "text-white" : "text-gray-900"}
+              >
                 Projects You're In
               </Title>
               {isLoading ? (
@@ -308,7 +337,11 @@ const Dashboard = () => {
               ) : memberProjects.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {memberProjects.map((project) => (
-                    <ProjectCard key={project._id} project={project} isOwner={false} />
+                    <ProjectCard
+                      key={project._id}
+                      project={project}
+                      isOwner={false}
+                    />
                   ))}
                 </div>
               ) : (
