@@ -26,8 +26,23 @@ interface Project {
     description?: string;
     status: string;
     priority: string;
-    type: string;
+    assignedTo?: string;
+    dueDate?: string;
   }>;
+}
+
+interface ActivityLog {
+  activities: Array<{
+    _id: string;
+    user: {
+      _id: string;
+      username: string;
+      avatar?: string;
+    };
+    action: string;
+    timestamp: string;
+  }>;
+  total: number;
 }
 
 export const projectService = {
@@ -76,6 +91,85 @@ export const projectService = {
       await axiosInstance.delete(`/api/projects/${projectId}`);
     } catch (error) {
       console.error('Error deleting project:', error);
+      throw error;
+    }
+  },
+
+  async getProjectDetails(projectId: string): Promise<Project> {
+    try {
+      const response: AxiosResponse<Project> = await axiosInstance.get(`/api/projects/${projectId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching project details:', error);
+      throw error;
+    }
+  },
+
+  async addProjectMembers(projectId: string, memberIds: string[]): Promise<Project> {
+    try {
+      const response: AxiosResponse<Project> = await axiosInstance.post(
+        `/api/projects/${projectId}/members`,
+        { memberIds }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error adding project members:', error);
+      throw error;
+    }
+  },
+
+  async removeProjectMember(projectId: string, memberId: string): Promise<Project> {
+    try {
+      const response: AxiosResponse<Project> = await axiosInstance.delete(
+        `/api/projects/${projectId}/members/${memberId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error removing project member:', error);
+      throw error;
+    }
+  },
+
+  async createTask(projectId: string, taskData: {
+    title: string;
+    description?: string;
+    assignedTo?: string;
+    priority: string;
+    dueDate?: string;
+  }): Promise<Project> {
+    try {
+      const response: AxiosResponse<Project> = await axiosInstance.post(
+        `/api/projects/${projectId}/tasks`,
+        taskData
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error creating task:', error);
+      throw error;
+    }
+  },
+
+  async updateTaskStatus(projectId: string, taskId: string, status: string): Promise<Project> {
+    try {
+      const response = await axiosInstance.put(
+        `/api/projects/${projectId}/tasks/${taskId}`,
+        { status }
+      );
+      return response.data.project || response.data;
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      throw error;
+    }
+  },
+
+  async getProjectActivityLog(projectId: string, page: number): Promise<ActivityLog> {
+    try {
+      const response: AxiosResponse<ActivityLog> = await axiosInstance.get(
+        `/api/projects/${projectId}/activity-log?page=${page}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching activity log:', error);
       throw error;
     }
   }

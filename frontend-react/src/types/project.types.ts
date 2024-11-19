@@ -5,28 +5,35 @@ export interface Project {
   createdBy: {
     _id: string;
     username: string;
-    email?: string;
-    name?: string;
   };
   members: Array<{
     _id: string;
     username: string;
     email?: string;
     name?: string;
+    avatar?: string;
   }>;
-  lastAccessedAt: string;
+  tasks: Task[];
   createdAt: string;
   updatedAt: string;
-  tasks?: Array<Task>;
+  lastAccessedAt: string;
 }
 
 export interface Task {
   _id: string;
   title: string;
   description?: string;
-  status: string;
-  priority: string;
-  type: string;
+  status: 'Not Started' | 'In Progress' | 'Stuck' | 'Done';
+  priority: 'none' | 'low' | 'medium' | 'high' | 'critical';
+  assignedTo?: string[];
+  dueDate?: string;
+  type?: 'task' | 'bug';
+  timeline?: {
+    start: string;
+    end: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProjectState {

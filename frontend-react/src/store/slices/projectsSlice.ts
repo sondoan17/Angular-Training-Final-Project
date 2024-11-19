@@ -60,6 +60,19 @@ export const deleteProject = createAsyncThunk(
   }
 );
 
+export const updateTaskStatus = createAsyncThunk(
+  'projects/updateTaskStatus',
+  async ({ projectId, taskId, status }: { projectId: string; taskId: string; status: string }, 
+    { rejectWithValue }) => {
+    try {
+      const updatedProject = await projectService.updateTaskStatus(projectId, taskId, status);
+      return updatedProject;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const projectsSlice = createSlice({
   name: 'projects',
   initialState,
@@ -82,6 +95,22 @@ const projectsSlice = createSlice({
       // Fetch Recent Projects
       .addCase(fetchRecentProjects.fulfilled, (state, action) => {
         state.recentProjects = action.payload;
+      })
+      .addCase(updateTaskStatus.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateTaskStatus.fulfilled, (state, action) => {
+        const updatedProject = action.payload;
+        state.allProjects = state.allProjects.map(project => 
+          project._id === updatedProject._id ? updatedProject : project
+        );
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(updateTaskStatus.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   }
 });

@@ -15,28 +15,32 @@ export const useAuth = () => {
   const auth = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userStr = localStorage.getItem('user');
+    const initializeAuth = () => {
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
 
-    if (token && userStr && !auth.user) {
-      try {
-        const user = JSON.parse(userStr) as StoredUser;
-        dispatch(setCredentials({ 
-          token, 
-          userId: user.id, 
-          username: user.username 
-        }));
-      } catch (error) {
-        console.error('Error parsing stored user data:', error);
+      if (token && userStr && !auth.user) {
+        try {
+          const user = JSON.parse(userStr) as StoredUser;
+          dispatch(setCredentials({ 
+            token, 
+            userId: user.id, 
+            username: user.username 
+          }));
+        } catch (error) {
+          console.error('Error parsing stored user data:', error);
+        }
       }
-    }
-    setIsInitialized(true);
-  }, [dispatch, auth.user]);
+      setIsInitialized(true);
+    };
+
+    initializeAuth();
+  }, []);
 
   return {
     user: auth.user as User | null,
     token: auth.token,
-    isAuthenticated: auth.isAuthenticated,
+    isAuthenticated: !!auth.token && !!auth.user,
     isInitialized
   };
 }; 
