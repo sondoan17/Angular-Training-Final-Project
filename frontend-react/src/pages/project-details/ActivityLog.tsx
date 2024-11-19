@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useImperativeHandle, useEffect, useState } from 'react';
 import { List, Avatar, Pagination } from 'antd';
 import { projectService } from '../../services/api/projectService';
 import { formatDistanceToNow } from 'date-fns';
 
 interface ActivityLogProps {
-  projectId: string;
+  projectId: string | undefined;
 }
 
 interface ActivityItem {
@@ -17,7 +17,11 @@ interface ActivityItem {
   timestamp: string;
 }
 
-const ActivityLog = ({ projectId }: ActivityLogProps) => {
+export interface ActivityLogRef {
+  refresh: () => Promise<void>;
+}
+
+const ActivityLog = forwardRef<ActivityLogRef, ActivityLogProps>(({ projectId }, ref) => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -26,11 +30,9 @@ const ActivityLog = ({ projectId }: ActivityLogProps) => {
     total: 0
   });
 
-  useEffect(() => {
-    loadActivityLog(1);
-  }, [projectId]);
-
   const loadActivityLog = async (page: number) => {
+    if (!projectId) return;
+
     try {
       setLoading(true);
       const response = await projectService.getProjectActivityLog(projectId, page, pagination.pageSize);
@@ -46,6 +48,14 @@ const ActivityLog = ({ projectId }: ActivityLogProps) => {
       setLoading(false);
     }
   };
+
+  useImperativeHandle(ref, () => ({
+    refresh: () => loadActivityLog(1)
+  }));
+
+  useEffect(() => {
+    loadActivityLog(1);
+  }, [projectId]);
 
   const formatActivityAction = (action: string) => {
     if (action.includes('changed from')) {
@@ -109,6 +119,6 @@ const ActivityLog = ({ projectId }: ActivityLogProps) => {
       />
     </div>
   );
-};
+});
 
 export default ActivityLog;

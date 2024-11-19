@@ -5,7 +5,7 @@ import { Task } from "../../types/project.types";
 
 interface KanbanBoardProps {
   tasks: Task[];
-  onTaskMove: (task: Task, newStatus: string) => Promise<void>;
+  onTaskMove: (task: Task, newStatus: 'Not Started' | 'In Progress' | 'Stuck' | 'Done') => Promise<void>;
   onAddTask: () => void;
   onTaskClick: (taskId: string) => void;
   isProjectCreator: boolean;
@@ -100,7 +100,7 @@ const KanbanBoard = ({
                 {status.id} ({getTasksByStatus(status.id).length})
               </h4>
               <Droppable droppableId={status.id}>
-                {(provided, snapshot) => (
+                {(provided) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}

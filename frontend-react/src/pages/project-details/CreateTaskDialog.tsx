@@ -4,9 +4,17 @@ import { projectService } from '../../services/api/projectService';
 
 interface CreateTaskDialogProps {
   open: boolean;
-  projectId: string;
+  projectId: string | undefined;
   onClose: () => void;
   onTaskCreated: () => void;
+}
+
+interface Member {
+  _id: string;
+  username: string;
+  email?: string;
+  name?: string;
+  avatar?: string;
 }
 
 const CreateTaskDialog = ({
@@ -16,7 +24,7 @@ const CreateTaskDialog = ({
   onTaskCreated,
 }: CreateTaskDialogProps) => {
   const [form] = Form.useForm();
-  const [members, setMembers] = useState([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -26,6 +34,8 @@ const CreateTaskDialog = ({
   }, [open, projectId]);
 
   const loadProjectMembers = async () => {
+    if (!projectId) return;
+    
     try {
       const project = await projectService.getProjectDetails(projectId);
       setMembers(project.members);
@@ -36,6 +46,8 @@ const CreateTaskDialog = ({
   };
 
   const handleSubmit = async () => {
+    if (!projectId) return;
+
     try {
       setLoading(true);
       const values = await form.validateFields();

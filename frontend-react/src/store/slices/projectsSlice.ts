@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { ProjectState, Project } from '../../types/project.types';
+import { ProjectState} from '../../types/project.types';
 import { projectService } from '../../services/api/projectService';
 
 const initialState: ProjectState = {
@@ -16,8 +16,8 @@ export const fetchProjects = createAsyncThunk(
     try {
       const projects = await projectService.getUserProjects();
       return projects;
-    } catch (error) {
-      return rejectWithValue(error.message);
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Failed to fetch projects');
     }
   }
 );
@@ -28,8 +28,8 @@ export const fetchRecentProjects = createAsyncThunk(
     try {
       const projects = await projectService.getRecentProjects();
       return projects;
-    } catch (error) {
-      return rejectWithValue(error.message);
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Failed to fetch recent projects');
     }
   }
 );
@@ -41,8 +41,8 @@ export const createProject = createAsyncThunk(
       const newProject = await projectService.createProject(projectData);
       dispatch(fetchProjects());
       return newProject;
-    } catch (error) {
-      return rejectWithValue(error.message);
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Failed to create project');
     }
   }
 );
@@ -54,8 +54,8 @@ export const deleteProject = createAsyncThunk(
       await projectService.deleteProject(projectId);
       dispatch(fetchProjects());
       return projectId;
-    } catch (error) {
-      return rejectWithValue(error.message);
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Failed to delete project');
     }
   }
 );
@@ -67,8 +67,8 @@ export const updateTaskStatus = createAsyncThunk(
     try {
       const updatedProject = await projectService.updateTaskStatus(projectId, taskId, status);
       return updatedProject;
-    } catch (error) {
-      return rejectWithValue(error.message);
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Failed to update task status');
     }
   }
 );

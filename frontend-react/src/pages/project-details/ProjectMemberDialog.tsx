@@ -14,7 +14,8 @@ interface User {
 interface ProjectMember {
   _id: string;
   username: string;
-  email: string;
+  email?: string;
+  name?: string;
   avatar?: string;
 }
 
@@ -25,7 +26,7 @@ interface Project {
 
 interface ProjectMembersDialogProps {
   open: boolean;
-  project: Project;
+  project: Project | null;
   onClose: () => void;
   onMembersUpdated: () => void;
 }
@@ -36,6 +37,8 @@ const ProjectMembersDialog = ({
   onClose,
   onMembersUpdated,
 }: ProjectMembersDialogProps) => {
+  if (!project) return null;
+
   const [form] = Form.useForm();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);

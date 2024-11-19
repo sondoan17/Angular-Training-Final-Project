@@ -1,30 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Spin, message, Card, Grid, Typography, Space } from 'antd';
+import { Button, Spin, message } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, TeamOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useAuth } from '../../hooks/useAuth';
-import { useDispatch } from 'react-redux';
-import { updateTaskStatus } from '../../store/slices/projectsSlice';
 import EditProjectDialog from './EditProjectDialog';
 import ProjectMembersDialog from './ProjectMemberDialog';
 import CreateTaskDialog from './CreateTaskDialog';
 import KanbanBoard from '../../components/KanbanBoard/KanbanBoard';
 import ProjectProgress from './ProjectProgress';
-import ActivityLog from './ActivityLog';
+import ActivityLog, { ActivityLogRef } from './ActivityLog';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import { Project, Task } from '../../types/project.types';
 import { projectService } from '../../services/api/projectService';
-
-const { Title, Text } = Typography;
-const { useBreakpoint } = Grid;
 
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   console.log(user?.id)
-  const dispatch = useDispatch();
-  const screens = useBreakpoint();
 
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +26,8 @@ const ProjectDetails = () => {
   const [createTaskDialogOpen, setCreateTaskDialogOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [isProjectCreator, setIsProjectCreator] = useState(false);
-  const [isActivityLogVisible, setIsActivityLogVisible] = useState(false);
+  
+  const activityLogRef = useRef<ActivityLogRef>(null);
 
   useEffect(() => {
     if (id && user?.id) {
@@ -41,35 +35,37 @@ const ProjectDetails = () => {
     }
   }, [id, user?.id]);
 
-  const loadProjectDetails = async () => {
+  const loadProjectDetails = async (showLoading: boolean = true) => {
     if (!id) return;
-    
+
     try {
-      setIsLoading(true);
+      if (showLoading) {
+        setIsLoading(true);
+      }
       const projectData = await projectService.getProjectDetails(id);
-      
-      const normalizedTasks = projectData.tasks?.map(task => ({
+
+      const normalizedTasks = (projectData.tasks ?? []).map(task => ({
         _id: task._id,
         title: task.title,
         description: task.description || '',
-        status: task.status,
+        status: task.status as 'Not Started' | 'In Progress' | 'Stuck' | 'Done',
         priority: task.priority || 'Medium',
         assignedTo: task.assignedTo || [],
         dueDate: task.dueDate,
-        type: task.type || 'task',
-        timeline: task.timeline
       }));
-      
+
       setProject({
         ...projectData,
-        tasks: normalizedTasks
+        tasks: normalizedTasks as Task[]
       });
       setIsProjectCreator(user?.id === projectData.createdBy?._id);
     } catch (error) {
       console.error('Error loading project:', error);
       message.error('Failed to load project details');
     } finally {
-      setIsLoading(false);
+      if (showLoading) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -100,18 +96,17 @@ const ProjectDetails = () => {
     }
   };
 
-  const handleTaskMoved = async (task: Task, newStatus: string) => {
+  const handleTaskMoved = async (task: Task, newStatus: 'Not Started' | 'In Progress' | 'Stuck' | 'Done') => {
     if (!isProjectCreator || !id || !project) return;
 
-    try {
-      // Store original state
-      const originalProject = { ...project };
+    const originalProject = { ...project };
 
+    try {
       // Optimistically update local state
-      const updatedTasks = project.tasks.map(t => 
+      const updatedTasks = project.tasks.map(t =>
         t._id === task._id ? { ...t, status: newStatus } : t
       );
-      
+
       setProject({
         ...project,
         tasks: updatedTasks
@@ -122,13 +117,14 @@ const ProjectDetails = () => {
 
       // Update local state with server response
       if (updatedProject) {
-        await loadProjectDetails(); // Reload the entire project details
+        await loadProjectDetails(false);
+        activityLogRef.current?.refresh();
         message.success('Task status updated successfully');
       }
     } catch (error) {
       console.error('Error moving task:', error);
       message.error('Failed to update task status');
-      setProject(originalProject); // Revert to original state
+      setProject(originalProject);
     }
   };
 
@@ -198,12 +194,12 @@ const ProjectDetails = () => {
                   onTaskClick={(taskId) => navigate(`/projects/${id}/tasks/${taskId}`)}
                   isProjectCreator={isProjectCreator}
                 />
-                
+
                 <div className="mt-8">
                   <ProjectProgress tasks={project?.tasks || []} />
                 </div>
 
-                <ActivityLog projectId={id} />
+                <ActivityLog ref={activityLogRef} projectId={id} />
               </>
             )}
           </div>
