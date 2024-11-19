@@ -52,7 +52,7 @@ const ProjectDetails = () => {
         _id: task._id,
         title: task.title,
         description: task.description || '',
-        status: normalizeStatus(task.status),
+        status: task.status,
         priority: task.priority || 'Medium',
         assignedTo: task.assignedTo || [],
         dueDate: task.dueDate,
@@ -65,33 +65,12 @@ const ProjectDetails = () => {
         tasks: normalizedTasks
       });
       setIsProjectCreator(user?.id === projectData.createdBy?._id);
-      console.log(user?.id, projectData.createdBy?._id)
     } catch (error) {
       console.error('Error loading project:', error);
       message.error('Failed to load project details');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const normalizeStatus = (status: string): string => {
-    const statusMap: { [key: string]: string } = {
-      'Not Started': 'To Do',
-      'In Progress': 'In Progress',
-      'Stuck': 'To Do',
-      'Done': 'Completed'
-    };
-    return statusMap[status] || 'To Do';
-  };
-
-  const denormalizeStatus = (status: string): string => {
-    const statusMap: { [key: string]: string } = {
-      'To Do': 'Not Started',
-      'In Progress': 'In Progress',
-      'In Review': 'In Progress',
-      'Completed': 'Done'
-    };
-    return statusMap[status] || 'Not Started';
   };
 
   const handleEditProject = async (projectData: { name: string; description: string }) => {
@@ -122,31 +101,34 @@ const ProjectDetails = () => {
   };
 
   const handleTaskMoved = async (task: Task, newStatus: string) => {
-    if (!isProjectCreator) {
-      message.error('Only project creator can move tasks');
-      return;
-    }
-
-    if (!id) return;
+    if (!isProjectCreator || !id || !project) return;
 
     try {
-      const backendStatus = denormalizeStatus(newStatus);
-      
-      // Update local state immediately for smooth UI
-      if (project) {
-        const updatedTasks = project.tasks.map(t => 
-          t._id === task._id ? { ...t, status: newStatus } : t
-        );
-        setProject(prev => prev ? { ...prev, tasks: updatedTasks } : null);
-      }
+      // Store original state
+      const originalProject = { ...project };
 
-      // Update backend
-      await dispatch(updateTaskStatus({ projectId: id, taskId: task._id, status: backendStatus })).unwrap();
+      // Optimistically update local state
+      const updatedTasks = project.tasks.map(t => 
+        t._id === task._id ? { ...t, status: newStatus } : t
+      );
+      
+      setProject({
+        ...project,
+        tasks: updatedTasks
+      });
+
+      // Make API call
+      const updatedProject = await projectService.updateTaskStatus(id, task._id, newStatus);
+
+      // Update local state with server response
+      if (updatedProject) {
+        await loadProjectDetails(); // Reload the entire project details
+        message.success('Task status updated successfully');
+      }
     } catch (error) {
-      console.error('Error updating task status:', error);
+      console.error('Error moving task:', error);
       message.error('Failed to update task status');
-      // Revert local state on error
-      loadProjectDetails();
+      setProject(originalProject); // Revert to original state
     }
   };
 
@@ -218,7 +200,7 @@ const ProjectDetails = () => {
                 />
                 
                 <div className="mt-8">
-                  <ProjectProgress tasks={project.tasks} />
+                  <ProjectProgress tasks={project?.tasks || []} />
                 </div>
 
                 <ActivityLog projectId={id} />

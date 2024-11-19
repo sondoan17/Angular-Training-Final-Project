@@ -32,12 +32,11 @@ interface Project {
 }
 
 interface ActivityLog {
-  activities: Array<{
+  logs: Array<{
     _id: string;
-    user: {
+    performedBy: {
       _id: string;
       username: string;
-      avatar?: string;
     };
     action: string;
     timestamp: string;
@@ -150,22 +149,24 @@ export const projectService = {
   },
 
   async updateTaskStatus(projectId: string, taskId: string, status: string): Promise<Project> {
+    console.log('Making API call to update task:', { projectId, taskId, status });
     try {
       const response = await axiosInstance.put(
         `/api/projects/${projectId}/tasks/${taskId}`,
         { status }
       );
-      return response.data.project || response.data;
+      console.log('API response:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Error updating task status:', error);
+      console.error('API error:', error);
       throw error;
     }
   },
 
-  async getProjectActivityLog(projectId: string, page: number): Promise<ActivityLog> {
+  async getProjectActivityLog(projectId: string, page: number, pageSize: number = 5): Promise<ActivityLog> {
     try {
       const response: AxiosResponse<ActivityLog> = await axiosInstance.get(
-        `/api/projects/${projectId}/activity-log?page=${page}`
+        `/api/projects/${projectId}/activity?page=${page}&pageSize=${pageSize}`
       );
       return response.data;
     } catch (error) {

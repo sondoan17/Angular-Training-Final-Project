@@ -105,6 +105,9 @@ const projectsSlice = createSlice({
         state.allProjects = state.allProjects.map(project => 
           project._id === updatedProject._id ? updatedProject : project
         );
+        state.recentProjects = state.recentProjects.map(project => 
+          project._id === updatedProject._id ? updatedProject : project
+        );
         state.isLoading = false;
         state.error = null;
       })

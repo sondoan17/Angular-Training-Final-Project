@@ -7,12 +7,22 @@ interface ActivityLogProps {
   projectId: string;
 }
 
+interface ActivityItem {
+  _id: string;
+  performedBy: {
+    _id: string;
+    username: string;
+  };
+  action: string;
+  timestamp: string;
+}
+
 const ActivityLog = ({ projectId }: ActivityLogProps) => {
-  const [activities, setActivities] = useState([]);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 5,
     total: 0
   });
 
@@ -23,8 +33,8 @@ const ActivityLog = ({ projectId }: ActivityLogProps) => {
   const loadActivityLog = async (page: number) => {
     try {
       setLoading(true);
-      const response = await projectService.getProjectActivityLog(projectId, page);
-      setActivities(response.activities);
+      const response = await projectService.getProjectActivityLog(projectId, page, pagination.pageSize);
+      setActivities(response.logs);
       setPagination({
         ...pagination,
         current: page,
@@ -38,23 +48,25 @@ const ActivityLog = ({ projectId }: ActivityLogProps) => {
   };
 
   const formatActivityAction = (action: string) => {
-    const changes = action.split('. ');
-    return changes.map((change, index) => {
-      if (change.includes('changed from')) {
-        const [field, values] = change.split(' changed from ');
-        const [oldValue, newValue] = values.split(' to ');
-        return (
-          <div key={index}>
-            <strong className="text-gray-900 dark:text-gray-100">{field}</strong>
-            {' changed from '}
-            <span className="text-red-500 dark:text-red-400">{oldValue}</span>
+    if (action.includes('changed from')) {
+      const taskMatch = action.match(/"([^"]+)"/);
+      const taskName = taskMatch ? taskMatch[1] : '';
+      const statusMatch = action.match(/from "([^"]+)" to "([^"]+)"/);
+      const [oldStatus, newStatus] = statusMatch ? [statusMatch[1], statusMatch[2]] : ['', ''];
+
+      return (
+        <div>
+          <strong className="text-gray-900 dark:text-gray-100">Task: {taskName}</strong>
+          <div>
+            Status changed from{' '}
+            <span className="text-red-500 dark:text-red-400">{oldStatus}</span>
             {' to '}
-            <span className="text-green-500 dark:text-green-400">{newValue}</span>
+            <span className="text-green-500 dark:text-green-400">{newStatus}</span>
           </div>
-        );
-      }
-      return <div key={index}>{change}</div>;
-    });
+        </div>
+      );
+    }
+    return <div>{action}</div>;
   };
 
   return (
@@ -63,15 +75,17 @@ const ActivityLog = ({ projectId }: ActivityLogProps) => {
       <List
         loading={loading}
         dataSource={activities}
-        renderItem={(activity: any) => (
+        renderItem={(activity: ActivityItem) => (
           <List.Item className="border-b dark:border-gray-700">
             <List.Item.Meta
               avatar={
-                <Avatar src={activity.user?.avatar || 'https://joeschmoe.io/api/v1/random'} />
+                <Avatar>
+                  {activity.performedBy.username.charAt(0).toUpperCase()}
+                </Avatar>
               }
               title={
                 <span className="dark:text-gray-200">
-                  {activity.user?.username || 'Unknown User'}
+                  {activity.performedBy.username}
                 </span>
               }
               description={

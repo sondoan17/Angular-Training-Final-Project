@@ -26,28 +26,28 @@ interface ProjectProgressProps {
 }
 
 type StatusCounts = {
-  'To Do': number;
+  'Not Started': number;
   'In Progress': number;
-  'In Review': number;
-  'Completed': number;
+  'Stuck': number;
+  'Done': number;
   [key: string]: number;
 };
 
-const ProjectProgress = ({ tasks }: ProjectProgressProps) => {
+const ProjectProgress = ({ tasks = [] }: ProjectProgressProps) => {
   const calculateProgress = () => {
-    if (!tasks.length) return 0;
-    const completedTasks = tasks.filter(task => task.status === 'Completed').length;
+    if (!tasks?.length) return 0;
+    const completedTasks = tasks.filter(task => task.status === 'Done').length;
     return Math.round((completedTasks / tasks.length) * 100);
   };
 
   const getStatusCounts = () => {
     const counts: StatusCounts = {
-      'To Do': 0,
+      'Not Started': 0,
       'In Progress': 0,
-      'In Review': 0,
-      'Completed': 0
+      'Stuck': 0,
+      'Done': 0
     };
-    tasks.forEach(task => {
+    tasks?.forEach(task => {
       if (task.status in counts) {
         counts[task.status] += 1;
       }
@@ -65,13 +65,13 @@ const ProjectProgress = ({ tasks }: ProjectProgressProps) => {
         backgroundColor: [
           '#F9FAFB',  // To Do
           '#EFF6FF',  // In Progress
-          '#FEF2F2', // In Review
+          '#FEF2F2', // Stuck
           '#F0FDF4',  // Completed
         ],
         borderColor: [
           '#9CA3AF', // To Do - Gray
           '#3B82F6', // In Progress - Blue  
-          '#EF4444', // In Review - Red
+          '#EF4444', // Stuck - Red
           '#10B981', // Completed - Green
         ],
         borderWidth: 1,

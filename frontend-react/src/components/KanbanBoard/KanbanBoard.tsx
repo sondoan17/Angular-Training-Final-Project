@@ -12,10 +12,10 @@ interface KanbanBoardProps {
 }
 
 const STATUSES = [
-  { id: 'To Do', color: 'bg-gray-50 dark:bg-gray-900 border-t-4 border-gray-300 dark:border-gray-600' },
+  { id: 'Not Started', color: 'bg-gray-50 dark:bg-gray-900 border-t-4 border-gray-300 dark:border-gray-600' },
   { id: 'In Progress', color: 'bg-blue-50 dark:bg-blue-900/30 border-t-4 border-blue-400 dark:border-blue-500' },
-  { id: 'In Review', color: 'bg-red-50 dark:bg-red-900/30 border-t-4 border-red-400 dark:border-red-500' },
-  { id: 'Completed', color: 'bg-green-50 dark:bg-green-900/30 border-t-4 border-green-400 dark:border-green-500' }
+  { id: 'Stuck', color: 'bg-red-50 dark:bg-red-900/30 border-t-4 border-red-400 dark:border-red-500' },
+  { id: 'Done', color: 'bg-green-50 dark:bg-green-900/30 border-t-4 border-green-400 dark:border-green-500' }
 ];
 
 const KanbanBoard = ({
@@ -61,9 +61,20 @@ const KanbanBoard = ({
 
     const task = tasks.find((t) => t._id === draggableId);
     if (task && destination.droppableId !== task.status) {
-      await onTaskMove(task, destination.droppableId);
+      try {
+        if (onDragEnd.isMoving) return;
+        onDragEnd.isMoving = true;
+        
+        await onTaskMove(task, destination.droppableId);
+      } catch (error) {
+        console.error('Error in onDragEnd:', error);
+      } finally {
+        onDragEnd.isMoving = false;
+      }
     }
   };
+
+  onDragEnd.isMoving = false;
 
   return (
     <div className="mb-8">
