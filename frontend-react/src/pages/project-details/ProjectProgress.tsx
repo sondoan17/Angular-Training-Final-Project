@@ -79,19 +79,36 @@ const ProjectProgress = ({ tasks }: ProjectProgressProps) => {
     ],
   };
 
+  const progress = calculateProgress();
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <Card className="dark:bg-gray-800">
         <h3 className="text-lg font-semibold mb-4 dark:text-gray-200">Overall Progress</h3>
-        <Progress
-          type="circle"
-          percent={calculateProgress()}
-          strokeColor={{
-            '0%': '#108ee9',
-            '100%': '#87d068',
-          }}
-          className="flex justify-center"
-        />
+        <div className="flex flex-col items-center justify-center">
+          <Progress
+            type="circle"
+            percent={progress}
+            size={200}
+            strokeWidth={10}
+            strokeColor={{
+              '0%': '#3B82F6',
+              '100%': '#10B981',
+            }}
+            trailColor="#E5E7EB"
+            format={(percent) => (
+              <div className="text-center">
+                <div className="text-2xl font-bold">{percent}%</div>
+                <div className="text-sm text-gray-500">Completed</div>
+              </div>
+            )}
+          />
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-500">
+              {tasks.filter(task => task.status === 'Completed').length} of {tasks.length} tasks completed
+            </p>
+          </div>
+        </div>
       </Card>
       <Card className="dark:bg-gray-800">
         <h3 className="text-lg font-semibold mb-4 dark:text-gray-200">Tasks Distribution</h3>
