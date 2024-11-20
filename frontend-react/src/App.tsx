@@ -9,6 +9,7 @@ import ResetPassword from "./pages/reset-password/ResetPassword";
 import Dashboard from "./pages/dashboard/Dashboard";
 import "./App.css";
 import ProjectDetails from "./pages/project-details/ProjectDetails";
+import TaskDetails from './pages/task-details/TaskDetails';
 
 const App = () => {
   return (
@@ -26,7 +27,7 @@ const App = () => {
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/projects/:id" element={<ProjectDetails />} />
-            {/* <Route path="/projects/:id/tasks/:taskId" element={<TaskDetails />} /> */}
+            <Route path="/projects/:projectId/tasks/:taskId" element={<TaskDetails />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -12,6 +12,7 @@ import ActivityLog, { ActivityLogRef } from './ActivityLog';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import { Project, Task } from '../../types/project.types';
 import { projectService } from '../../services/api/projectService';
+import TaskDetailsDialog from './TaskDetailsDialog';
 
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +27,8 @@ const ProjectDetails = () => {
   const [createTaskDialogOpen, setCreateTaskDialogOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [isProjectCreator, setIsProjectCreator] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
   
   const activityLogRef = useRef<ActivityLogRef>(null);
 
@@ -128,6 +131,11 @@ const ProjectDetails = () => {
     }
   };
 
+  const handleTaskClick = (task: any) => {
+    setSelectedTask(task);
+    setTaskDetailsOpen(true);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -191,7 +199,7 @@ const ProjectDetails = () => {
                   tasks={project?.tasks || []}
                   onTaskMove={handleTaskMoved}
                   onAddTask={() => setCreateTaskDialogOpen(true)}
-                  onTaskClick={(taskId) => navigate(`/projects/${id}/tasks/${taskId}`)}
+                  onTaskClick={handleTaskClick}
                   isProjectCreator={isProjectCreator}
                 />
 
@@ -230,6 +238,13 @@ const ProjectDetails = () => {
           message={`Are you sure you want to delete "${project?.name}"?`}
           onConfirm={handleDeleteProject}
           onClose={() => setConfirmDeleteOpen(false)}
+        />
+        <TaskDetailsDialog
+          open={taskDetailsOpen}
+          projectId={id}
+          task={selectedTask}
+          projectMembers={project?.members || []}
+          onClose={() => setTaskDetailsOpen(false)}
         />
       </div>
     </div>

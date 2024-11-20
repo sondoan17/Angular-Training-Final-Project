@@ -7,7 +7,7 @@ interface KanbanBoardProps {
   tasks: Task[];
   onTaskMove: (task: Task, newStatus: 'Not Started' | 'In Progress' | 'Stuck' | 'Done') => Promise<void>;
   onAddTask: () => void;
-  onTaskClick: (taskId: string) => void;
+  onTaskClick: (task: Task) => void;
   isProjectCreator: boolean;
 }
 
@@ -123,7 +123,7 @@ const KanbanBoard = ({
                               className={`mb-4 cursor-pointer ${
                                 snapshot.isDragging ? "shadow-lg" : ""
                               } dark:bg-gray-700`}
-                              onClick={() => onTaskClick(task._id)}
+                              onClick={() => onTaskClick(task)}
                             >
                               <div className="space-y-2">
                                 <h5 className="font-medium dark:text-gray-200">

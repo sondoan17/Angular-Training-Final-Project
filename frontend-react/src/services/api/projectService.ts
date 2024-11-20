@@ -173,5 +173,15 @@ export const projectService = {
       console.error('Error fetching activity log:', error);
       throw error;
     }
+  },
+
+  async getTaskDetails(projectId: string, taskId: string): Promise<any> {
+    try {
+      const response = await axiosInstance.get(`/api/projects/${projectId}/tasks/${taskId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching task details:', error);
+      throw error;
+    }
   }
 }; 
