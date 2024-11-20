@@ -183,5 +183,30 @@ export const projectService = {
       console.error('Error fetching task details:', error);
       throw error;
     }
+  },
+  async getTaskComments(projectId: string, taskId: string): Promise<any> {
+    try {
+      const response = await axiosInstance.get(`/api/projects/${projectId}/tasks/${taskId}/comments`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching task comments:', error);
+      throw error;
+    }
+  },
+
+  async addTaskComment(projectId: string, taskId: string, data: { content: string }) {
+    const response = await axiosInstance.post(
+      `/api/projects/${projectId}/tasks/${taskId}/comments`,
+      data
+    );
+    return response.data;
+  },
+
+    async addCommentReaction(projectId: string, taskId: string, commentId: string, type: string) {
+    const response = await axiosInstance.post(
+      `/api/projects/projects/${projectId}/tasks/${taskId}/comments/${commentId}/reactions`,
+      { type }
+    );
+    return response.data;
   }
 }; 

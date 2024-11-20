@@ -13,6 +13,23 @@ import dayjs from 'dayjs';
 
 const REACTION_TYPES = ['👍', '👎', '😄', '🎉', '😕', '❤️'];
 
+interface Comment {
+  _id: string;
+  content: string;
+  author: {
+    _id: string;
+    username: string;
+  };
+  reactions: Array<{
+    type: string;
+    user: {
+      _id: string;
+      username: string;
+    };
+  }>;
+  createdAt: string;
+}
+
 const TaskDetails = () => {
   const { projectId, taskId } = useParams();
   const navigate = useNavigate();
@@ -22,9 +39,11 @@ const TaskDetails = () => {
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [form] = Form.useForm();
   const [hoveredCommentId, setHoveredCommentId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     loadTaskDetails();
+    loadComments();
   }, [projectId, taskId]);
 
   const loadTaskDetails = async () => {
@@ -38,6 +57,20 @@ const TaskDetails = () => {
       console.error('Error loading task details:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadComments = async () => {
+    if (!projectId || !taskId) return;
+    
+    try {
+      setIsLoadingComments(true);
+      const commentsData = await projectService.getTaskComments(projectId, taskId);
+      setComments(commentsData);
+    } catch (error) {
+      console.error('Error loading comments:', error);
+    } finally {
+      setIsLoadingComments(false);
     }
   };
 
@@ -88,11 +121,7 @@ const TaskDetails = () => {
         content: newComment.trim(),
       });
       
-      setTaskDetails((prev: any) => ({
-        ...prev,
-        comments: [comment, ...(prev.comments || [])],
-      }));
-      
+      setComments(prevComments => [comment, ...prevComments]);
       setNewComment('');
       form.resetFields();
     } catch (error) {
@@ -107,24 +136,24 @@ const TaskDetails = () => {
 
     try {
       // Optimistic update
-      setTaskDetails((prev: any) => {
-        const updatedComments = prev.comments.map((comment: any) => {
+      setComments(prevComments => {
+        return prevComments.map(comment => {
           if (comment._id !== commentId) return comment;
 
           const userId = localStorage.getItem('userId');
           const existingReaction = comment.reactions?.find(
-            (r: any) => r.user._id === userId && r.type === type
+            (r) => r.user._id === userId && r.type === type
           );
 
           let updatedReactions = [...(comment.reactions || [])];
           if (existingReaction) {
             updatedReactions = updatedReactions.filter(
-              (r: any) => !(r.user._id === userId && r.type === type)
+              (r) => !(r.user._id === userId && r.type === type)
             );
           } else {
             updatedReactions.push({
               type,
-              user: { _id: userId }
+              user: { _id: userId, username: '' }
             });
           }
 
@@ -133,19 +162,21 @@ const TaskDetails = () => {
             reactions: updatedReactions
           };
         });
-
-        return {
-          ...prev,
-          comments: updatedComments
-        };
       });
 
       // Make API call
-      await projectService.addCommentReaction(projectId, taskId, commentId, type);
+      const updatedComment = await projectService.addCommentReaction(projectId, taskId, commentId, type);
+      
+      // Update with server response
+      setComments(prevComments => 
+        prevComments.map(comment => 
+          comment._id === commentId ? updatedComment : comment
+        )
+      );
     } catch (error) {
       console.error('Error toggling reaction:', error);
-      // Revert on error by reloading task details
-      loadTaskDetails();
+      // Revert on error by reloading comments
+      loadComments();
     }
   };
 
@@ -332,14 +363,14 @@ const TaskDetails = () => {
 
                 {/* Comments list */}
                 <div className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
-                  {(!taskDetails?.comments || taskDetails.comments.length === 0) && (
+                  {(!comments || comments.length === 0) && (
                     <div className="text-center text-gray-500 py-4">
                       <span className="text-4xl mb-2">💭</span>
                       <p>No comments yet. Be the first to comment!</p>
                     </div>
                   )}
 
-                  {taskDetails?.comments?.map((comment: any) => (
+                  {comments.map((comment: Comment) => (
                     <div
                       key={comment._id}
                       className="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 p-3 rounded-lg"
