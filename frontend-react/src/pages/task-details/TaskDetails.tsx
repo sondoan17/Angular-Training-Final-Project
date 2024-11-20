@@ -1,17 +1,16 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Button, Spin, Timeline, Input, Form, Dropdown } from 'antd';
-import { 
-  ArrowLeftOutlined, 
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Button, Spin, Timeline, Input, Form, Dropdown } from "antd";
+import {
+  ArrowLeftOutlined,
   CalendarOutlined,
   FieldTimeOutlined,
-  SendOutlined,
-  SmileOutlined
-} from '@ant-design/icons';
-import { projectService } from '../../services/api/projectService';
-import dayjs from 'dayjs';
+  SmileOutlined,
+} from "@ant-design/icons";
+import { projectService } from "../../services/api/projectService";
+import dayjs from "dayjs";
 
-const REACTION_TYPES = ['👍', '👎', '😄', '🎉', '😕', '❤️'];
+const REACTION_TYPES = ["👍", "👎", "😄", "🎉", "😕", "❤️"];
 
 interface Comment {
   _id: string;
@@ -35,10 +34,10 @@ const TaskDetails = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [taskDetails, setTaskDetails] = useState<any>(null);
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [form] = Form.useForm();
-  const [hoveredCommentId, setHoveredCommentId] = useState<string | null>(null);
+
   const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
@@ -48,13 +47,13 @@ const TaskDetails = () => {
 
   const loadTaskDetails = async () => {
     if (!projectId || !taskId) return;
-    
+
     try {
       setIsLoading(true);
       const details = await projectService.getTaskDetails(projectId, taskId);
       setTaskDetails(details);
     } catch (error) {
-      console.error('Error loading task details:', error);
+      console.error("Error loading task details:", error);
     } finally {
       setIsLoading(false);
     }
@@ -62,13 +61,16 @@ const TaskDetails = () => {
 
   const loadComments = async () => {
     if (!projectId || !taskId) return;
-    
+
     try {
       setIsLoadingComments(true);
-      const commentsData = await projectService.getTaskComments(projectId, taskId);
+      const commentsData = await projectService.getTaskComments(
+        projectId,
+        taskId
+      );
       setComments(commentsData);
     } catch (error) {
-      console.error('Error loading comments:', error);
+      console.error("Error loading comments:", error);
     } finally {
       setIsLoadingComments(false);
     }
@@ -76,40 +78,40 @@ const TaskDetails = () => {
 
   const getStatusClass = (status: string): string => {
     switch (status) {
-      case 'Not Started':
-        return 'bg-gray-500 text-gray-100';
-      case 'In Progress':
-        return 'bg-blue-500 text-gray-100';
-      case 'Stuck':
-        return 'bg-red-500 text-gray-100';
-      case 'Done':
-        return 'bg-green-500 text-gray-100';
+      case "Not Started":
+        return "bg-gray-500 text-gray-100";
+      case "In Progress":
+        return "bg-blue-500 text-gray-100";
+      case "Stuck":
+        return "bg-red-500 text-gray-100";
+      case "Done":
+        return "bg-green-500 text-gray-100";
       default:
-        return 'bg-gray-500 text-gray-100';
+        return "bg-gray-500 text-gray-100";
     }
   };
 
   const getPriorityClass = (priority: string): string => {
     switch (priority.toLowerCase()) {
-      case 'low':
-        return 'bg-green-500 text-white';
-      case 'medium':
-        return 'bg-yellow-500 text-white';
-      case 'high':
-        return 'bg-orange-500 text-white';
-      case 'critical':
-        return 'bg-red-500 text-white';
+      case "low":
+        return "bg-green-500 text-white";
+      case "medium":
+        return "bg-yellow-500 text-white";
+      case "high":
+        return "bg-orange-500 text-white";
+      case "critical":
+        return "bg-red-500 text-white";
       default:
-        return 'bg-gray-500 text-white';
+        return "bg-gray-500 text-white";
     }
   };
 
   const formatDate = (date: string) => {
-    return dayjs(date).format('MMM D, YYYY');
+    return dayjs(date).format("MMM D, YYYY");
   };
 
   const formatDateTime = (date: string) => {
-    return dayjs(date).format('MMM D, YYYY h:mm A');
+    return dayjs(date).format("MMM D, YYYY h:mm A");
   };
 
   const handleAddComment = async () => {
@@ -120,12 +122,12 @@ const TaskDetails = () => {
       const comment = await projectService.addTaskComment(projectId, taskId, {
         content: newComment.trim(),
       });
-      
-      setComments(prevComments => [comment, ...prevComments]);
-      setNewComment('');
+
+      setComments((prevComments) => [comment, ...prevComments]);
+      setNewComment("");
       form.resetFields();
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error("Error adding comment:", error);
     } finally {
       setIsLoadingComments(false);
     }
@@ -136,11 +138,11 @@ const TaskDetails = () => {
 
     try {
       // Optimistic update
-      setComments(prevComments => {
-        return prevComments.map(comment => {
+      setComments((prevComments) => {
+        return prevComments.map((comment) => {
           if (comment._id !== commentId) return comment;
 
-          const userId = localStorage.getItem('userId');
+          const userId = localStorage.getItem("userId");
           const existingReaction = comment.reactions?.find(
             (r) => r.user._id === userId && r.type === type
           );
@@ -153,28 +155,33 @@ const TaskDetails = () => {
           } else {
             updatedReactions.push({
               type,
-              user: { _id: userId, username: '' }
+              user: { _id: userId || "", username: "" },
             });
           }
 
           return {
             ...comment,
-            reactions: updatedReactions
+            reactions: updatedReactions,
           };
         });
       });
 
       // Make API call
-      const updatedComment = await projectService.addCommentReaction(projectId, taskId, commentId, type);
-      
+      const updatedComment = await projectService.addCommentReaction(
+        projectId,
+        taskId,
+        commentId,
+        type
+      );
+
       // Update with server response
-      setComments(prevComments => 
-        prevComments.map(comment => 
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
           comment._id === commentId ? updatedComment : comment
         )
       );
     } catch (error) {
-      console.error('Error toggling reaction:', error);
+      console.error("Error toggling reaction:", error);
       // Revert on error by reloading comments
       loadComments();
     }
@@ -185,8 +192,12 @@ const TaskDetails = () => {
   };
 
   const hasUserReacted = (comment: any, type: string): boolean => {
-    const userId = localStorage.getItem('userId');
-    return comment.reactions?.some((r: any) => r.user._id === userId && r.type === type) || false;
+    const userId = localStorage.getItem("userId");
+    return (
+      comment.reactions?.some(
+        (r: any) => r.user._id === userId && r.type === type
+      ) || false
+    );
   };
 
   const getExistingReactionTypes = (comment: any): string[] => {
@@ -225,10 +236,18 @@ const TaskDetails = () => {
                     {taskDetails?.title}
                   </h1>
                   <div className="flex gap-2">
-                    <span className={`${getStatusClass(taskDetails?.status)} px-3 py-1 rounded-full text-sm font-semibold`}>
+                    <span
+                      className={`${getStatusClass(
+                        taskDetails?.status
+                      )} px-3 py-1 rounded-full text-sm font-semibold`}
+                    >
                       {taskDetails?.status}
                     </span>
-                    <span className={`${getPriorityClass(taskDetails?.priority)} px-3 py-1 rounded-full text-sm font-semibold`}>
+                    <span
+                      className={`${getPriorityClass(
+                        taskDetails?.priority
+                      )} px-3 py-1 rounded-full text-sm font-semibold`}
+                    >
                       {taskDetails?.priority}
                     </span>
                     <span className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full text-sm font-semibold">
@@ -244,45 +263,61 @@ const TaskDetails = () => {
                 <div className="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-lg">
                   <div className="flex items-center mb-2">
                     <CalendarOutlined className="text-blue-500 dark:text-blue-400 mr-2" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Start Date</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Start Date
+                    </span>
                   </div>
                   <p className="text-gray-900 dark:text-gray-100">
-                    {taskDetails?.timeline?.start ? formatDate(taskDetails.timeline.start) : 'Not set'}
+                    {taskDetails?.timeline?.start
+                      ? formatDate(taskDetails.timeline.start)
+                      : "Not set"}
                   </p>
                 </div>
 
                 <div className="bg-green-50 dark:bg-green-900/50 p-4 rounded-lg">
                   <div className="flex items-center mb-2">
                     <CalendarOutlined className="text-green-500 dark:text-green-400 mr-2" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Due Date</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Due Date
+                    </span>
                   </div>
                   <p className="text-gray-900 dark:text-gray-100">
-                    {taskDetails?.timeline?.end ? formatDate(taskDetails.timeline.end) : 'Not set'}
+                    {taskDetails?.timeline?.end
+                      ? formatDate(taskDetails.timeline.end)
+                      : "Not set"}
                   </p>
                 </div>
 
                 <div className="bg-purple-50 dark:bg-purple-900/50 p-4 rounded-lg">
                   <div className="flex items-center mb-2">
                     <FieldTimeOutlined className="text-purple-500 dark:text-purple-400 mr-2" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Last Updated</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Last Updated
+                    </span>
                   </div>
                   <p className="text-gray-900 dark:text-gray-100">
-                    {taskDetails?.updatedAt ? formatDate(taskDetails.updatedAt) : 'Not available'}
+                    {taskDetails?.updatedAt
+                      ? formatDate(taskDetails.updatedAt)
+                      : "Not available"}
                   </p>
                 </div>
               </div>
 
               {/* Description Section */}
               <div className="p-6 border-t border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Description</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Description
+                </h2>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {taskDetails?.description || 'No description provided'}
+                  {taskDetails?.description || "No description provided"}
                 </p>
               </div>
 
               {/* Assigned Members Section */}
               <div className="p-6 border-t border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Assigned Members</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Assigned Members
+                </h2>
                 <div className="space-y-3">
                   {taskDetails?.assignedTo?.map((member: any) => (
                     <div
@@ -295,7 +330,9 @@ const TaskDetails = () => {
                           alt={member.username}
                           className="w-8 h-8 rounded-full"
                         />
-                        <span className="text-gray-900 dark:text-gray-100">{member.username}</span>
+                        <span className="text-gray-900 dark:text-gray-100">
+                          {member.username}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -304,7 +341,9 @@ const TaskDetails = () => {
 
               {/* Activity Log Section */}
               <div className="p-6 border-t border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Activity Log</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Activity Log
+                </h2>
                 <Timeline
                   items={taskDetails?.activityLog?.map((activity: any) => ({
                     children: (
@@ -377,8 +416,10 @@ const TaskDetails = () => {
                     >
                       <div className="flex items-start space-x-3">
                         <img
-                          src={`https://ui-avatars.com/api/?name=${comment.author?.username || 'User'}&background=random`}
-                          alt={comment.author?.username || 'User'}
+                          src={`https://ui-avatars.com/api/?name=${
+                            comment.author?.username || "User"
+                          }&background=random`}
+                          alt={comment.author?.username || "User"}
                           className="w-10 h-10 rounded-full shadow-sm"
                         />
                         <div className="flex-1 min-w-0">
@@ -394,17 +435,24 @@ const TaskDetails = () => {
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                               <Dropdown
                                 menu={{
-                                  items: REACTION_TYPES.map(type => ({
+                                  items: REACTION_TYPES.map((type) => ({
                                     key: type,
                                     label: (
-                                      <span className={hasUserReacted(comment, type) ? 'text-blue-500' : ''}>
+                                      <span
+                                        className={
+                                          hasUserReacted(comment, type)
+                                            ? "text-blue-500"
+                                            : ""
+                                        }
+                                      >
                                         {type}
                                       </span>
                                     ),
-                                    onClick: () => handleReaction(comment._id, type)
-                                  }))
+                                    onClick: () =>
+                                      handleReaction(comment._id, type),
+                                  })),
                                 }}
-                                trigger={['click']}
+                                trigger={["click"]}
                               >
                                 <Button
                                   type="text"
@@ -414,17 +462,21 @@ const TaskDetails = () => {
                               </Dropdown>
                             </div>
                           </div>
-                          <p className="mt-2 text-gray-600 dark:text-gray-300">{comment.content}</p>
+                          <p className="mt-2 text-gray-600 dark:text-gray-300">
+                            {comment.content}
+                          </p>
                           {getExistingReactionTypes(comment).length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-3">
                               {getExistingReactionTypes(comment).map((type) => (
                                 <button
                                   key={type}
-                                  onClick={() => handleReaction(comment._id, type)}
+                                  onClick={() =>
+                                    handleReaction(comment._id, type)
+                                  }
                                   className={`inline-flex items-center gap-1 px-2 py-1 rounded-full transition-colors ${
                                     hasUserReacted(comment, type)
-                                      ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
-                                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                                      ? "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                                      : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                                   } hover:bg-gray-200 dark:hover:bg-gray-600`}
                                 >
                                   <span>{type}</span>
@@ -449,4 +501,4 @@ const TaskDetails = () => {
   );
 };
 
-export default TaskDetails; 
+export default TaskDetails;
