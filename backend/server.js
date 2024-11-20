@@ -34,8 +34,12 @@ app.use(
       "Content-Type",
       "Authorization",
       "Access-Control-Allow-Origin",
+      "Origin",
+      "Accept"
     ],
     exposedHeaders: ["Access-Control-Allow-Origin"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   })
 );
 
