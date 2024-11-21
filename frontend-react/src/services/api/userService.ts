@@ -1,28 +1,26 @@
 import axiosInstance from './axiosInstance';
 import { AxiosResponse } from 'axios';
 
-interface User {
+export interface UserProfile {
   _id: string;
   username: string;
-  email: string;
-  avatar?: string;
   name?: string;
+  email: string;
+  birthDate?: Date;
+  socialMedia?: {
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
+    github?: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const userService = {
-  async getAllUsers(): Promise<User[]> {
+  async getCurrentUserProfile(): Promise<UserProfile> {
     try {
-      const response: AxiosResponse<User[]> = await axiosInstance.get('/api/users');
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      throw error;
-    }
-  },
-
-  async getUserProfile(): Promise<User> {
-    try {
-      const response: AxiosResponse<User> = await axiosInstance.get('/api/users/profile');
+      const response: AxiosResponse<UserProfile> = await axiosInstance.get('/api/users/profile');
       return response.data;
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -30,9 +28,12 @@ export const userService = {
     }
   },
 
-  async updateUserProfile(userData: Partial<User>): Promise<User> {
+  async updateUserProfile(profileData: Partial<UserProfile>): Promise<UserProfile> {
     try {
-      const response: AxiosResponse<User> = await axiosInstance.put('/api/users/profile', userData);
+      const response: AxiosResponse<UserProfile> = await axiosInstance.put(
+        '/api/users/profile',
+        profileData
+      );
       return response.data;
     } catch (error) {
       console.error('Error updating user profile:', error);

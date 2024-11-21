@@ -10,6 +10,9 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import "./App.css";
 import ProjectDetails from "./pages/project-details/ProjectDetails";
 import TaskDetails from './pages/task-details/TaskDetails';
+import AssignedTasks from './pages/assigned-tasks/AssignedTasks';
+import Search from './pages/search/Search';
+import Profile from './pages/profile/Profile';
 
 const App = () => {
   return (
@@ -28,6 +31,9 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/projects/:id" element={<ProjectDetails />} />
             <Route path="/projects/:projectId/tasks/:taskId" element={<TaskDetails />} />
+            <Route path="/assigned-tasks" element={<AssignedTasks />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -44,6 +44,26 @@ interface ActivityLog {
   total: number;
 }
 
+interface AssignedTask {
+  _id: string;
+  title: string;
+  description: string;
+  status: 'Not Started' | 'In Progress' | 'Stuck' | 'Done';
+  priority: 'none' | 'low' | 'medium' | 'high' | 'critical';
+  projectId: string;
+  projectName: string;
+  assignedTo: Array<{
+    _id: string;
+    username: string;
+  }>;
+  timeline?: {
+    start: string;
+    end: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const projectService = {
   async getUserProjects(): Promise<Project[]> {
     try {
@@ -208,5 +228,40 @@ export const projectService = {
       { type }
     );
     return response.data;
+  },
+
+  async getAssignedTasks(): Promise<AssignedTask[]> {
+    try {
+      const response: AxiosResponse<AssignedTask[]> = await axiosInstance.get('/api/projects/assigned-tasks');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching assigned tasks:', error);
+      throw error;
+    }
+  },
+
+  async updateAssignedTaskStatus(projectId: string, taskId: string, status: string): Promise<Project> {
+    try {
+      const response: AxiosResponse<Project> = await axiosInstance.put(
+        `/api/projects/${projectId}/tasks/${taskId}`,
+        { status }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      throw error;
+    }
+  },
+
+  async getTasksByProject(projectId: string): Promise<AssignedTask[]> {
+    try {
+      const response: AxiosResponse<AssignedTask[]> = await axiosInstance.get(
+        `/api/projects/${projectId}/tasks`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching project tasks:', error);
+      throw error;
+    }
   }
 }; 
