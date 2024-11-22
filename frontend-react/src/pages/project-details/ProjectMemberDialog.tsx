@@ -1,6 +1,6 @@
-import { Modal, Form, Select, List, Avatar, Button, message } from 'antd';
-import { useEffect, useState } from 'react';
-import { DeleteOutlined } from '@ant-design/icons';
+import { Modal, Form, Select, List, Avatar, Button, message } from "antd";
+import { useEffect, useState } from "react";
+import { DeleteOutlined } from "@ant-design/icons";
 import { userService } from '../../services/api/userService';
 import { projectService } from '../../services/api/projectService';
 
@@ -58,8 +58,8 @@ const ProjectMembersDialog = ({
       );
       setUsers(filteredUsers);
     } catch (error) {
-      console.error('Error loading users:', error);
-      message.error('Failed to load users');
+      console.error("Error loading users:", error);
+      message.error("Failed to load users");
     } finally {
       setLoading(false);
     }
@@ -69,23 +69,23 @@ const ProjectMembersDialog = ({
     try {
       const values = await form.validateFields();
       await projectService.addProjectMembers(project._id, values.members);
-      message.success('Members added successfully');
+      message.success("Members added successfully");
       form.resetFields();
       onMembersUpdated();
     } catch (error) {
-      console.error('Error adding members:', error);
-      message.error('Failed to add members');
+      console.error("Error adding members:", error);
+      message.error("Failed to add members");
     }
   };
 
   const handleRemoveMember = async (memberId: string) => {
     try {
       await projectService.removeProjectMember(project._id, memberId);
-      message.success('Member removed successfully');
+      message.success("Member removed successfully");
       onMembersUpdated();
     } catch (error) {
-      console.error('Error removing member:', error);
-      message.error('Failed to remove member');
+      console.error("Error removing member:", error);
+      message.error("Failed to remove member");
     }
   };
 
@@ -134,13 +134,20 @@ const ProjectMembersDialog = ({
                     danger
                     icon={<DeleteOutlined />}
                     onClick={() => handleRemoveMember(member._id)}
-                  />
+                  />,
                 ]}
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={member.avatar} />}
+                  avatar={
+                    <Avatar
+                      src={`https://ui-avatars.com/api/?name=${member.username}&background=random`}
+                      className="cursor-pointer"
+                    />
+                  }
                   title={
-                    <span className="dark:text-gray-200">{member.username}</span>
+                    <span className="dark:text-gray-200">
+                      {member.username}
+                    </span>
                   }
                   description={
                     <span className="dark:text-gray-400">{member.email}</span>

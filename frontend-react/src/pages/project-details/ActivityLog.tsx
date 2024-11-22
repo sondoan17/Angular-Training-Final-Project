@@ -30,17 +30,17 @@ const ActivityLog = forwardRef<ActivityLogRef, ActivityLogProps>(({ projectId },
     total: 0
   });
 
-  const loadActivityLog = async (page: number) => {
+  const loadActivityLog = async (page: number = 1, pageSize: number = 5) => {
     if (!projectId) return;
 
     try {
       setLoading(true);
-      const response = await projectService.getProjectActivityLog(projectId, page, pagination.pageSize);
+      const response = await projectService.getProjectActivityLog(projectId, page, pageSize);
       setActivities(response.logs);
       setPagination({
-        ...pagination,
-        current: page,
-        total: response.total
+        current: response.currentPage,
+        pageSize: pageSize,
+        total: response.totalLogs
       });
     } catch (error) {
       console.error('Error loading activity log:', error);
@@ -56,6 +56,11 @@ const ActivityLog = forwardRef<ActivityLogRef, ActivityLogProps>(({ projectId },
   useEffect(() => {
     loadActivityLog(1);
   }, [projectId]);
+
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    const newPage = pageSize !== pagination.pageSize ? 1 : page;
+    loadActivityLog(newPage, pageSize);
+  };
 
   const formatActivityAction = (action: string) => {
     if (action.includes('changed from')) {
@@ -115,7 +120,10 @@ const ActivityLog = forwardRef<ActivityLogRef, ActivityLogProps>(({ projectId },
         current={pagination.current}
         pageSize={pagination.pageSize}
         total={pagination.total}
-        onChange={(page) => loadActivityLog(page)}
+        onChange={handlePaginationChange}
+        showSizeChanger
+        showTotal={(total) => `Total ${total} items`}
+        pageSizeOptions={['5', '10', '20', '50']}
       />
     </div>
   );

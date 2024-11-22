@@ -16,6 +16,7 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { searchService } from '../../services/api/searchService';
 import type { SearchResult } from '../../services/api/searchService';
+import NotificationPopover from '../notifications/NotificationPopover';
 
 interface NavbarProps {
   toggleSidebar: () => void;
@@ -218,11 +219,7 @@ const Navbar = ({ toggleSidebar, isDarkMode }: NavbarProps) => {
               onClick={() => setShowMobileSearch(!showMobileSearch)}
             />
 
-            <Button
-              type="text"
-              icon={<BellOutlined />}
-              className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-            />
+            <NotificationPopover />
 
             <Button
               type="text"

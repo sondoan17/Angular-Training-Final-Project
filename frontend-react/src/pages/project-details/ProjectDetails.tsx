@@ -12,6 +12,7 @@ import ActivityLog, { ActivityLogRef } from './ActivityLog';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import { Project, Task } from '../../types/project.types';
 import { projectService } from '../../services/api/projectService';
+import { taskService } from '../../services/api/taskService';
 import TaskDetailsDialog from './TaskDetailsDialog';
 
 const ProjectDetails = () => {
@@ -116,7 +117,7 @@ const ProjectDetails = () => {
       });
 
       // Make API call
-      const updatedProject = await projectService.updateTaskStatus(id, task._id, newStatus);
+      const updatedProject = await taskService.updateTaskStatus(id, task._id, newStatus);
 
       // Update local state with server response
       if (updatedProject) {

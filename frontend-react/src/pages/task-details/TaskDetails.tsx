@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, Spin, Timeline, Input, Form, Dropdown } from "antd";
+import { Button, Spin, Timeline, Input, Form, Dropdown, message, Pagination } from "antd";
 import {
   ArrowLeftOutlined,
   CalendarOutlined,
   FieldTimeOutlined,
   SmileOutlined,
 } from "@ant-design/icons";
-import { projectService } from "../../services/api/projectService";
+import { taskService } from "../../services/api/taskService";
 import dayjs from "dayjs";
 
 const REACTION_TYPES = ["👍", "👎", "😄", "🎉", "😕", "❤️"];
@@ -37,44 +37,47 @@ const TaskDetails = () => {
   const [newComment, setNewComment] = useState("");
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [form] = Form.useForm();
-
   const [comments, setComments] = useState<Comment[]>([]);
+  const [activityLog, setActivityLog] = useState<any[]>([]);
+  const [activityLogPagination, setActivityLogPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
+  const [isLoadingActivityLog, setIsLoadingActivityLog] = useState(false);
 
   useEffect(() => {
-    loadTaskDetails();
-    loadComments();
-  }, [projectId, taskId]);
+    const fetchData = async () => {
+      if (!projectId || !taskId) {
+        message.error('Invalid project or task ID');
+        navigate('/projects');
+        return;
+      }
 
-  const loadTaskDetails = async () => {
-    if (!projectId || !taskId) return;
-
-    try {
       setIsLoading(true);
-      const details = await projectService.getTaskDetails(projectId, taskId);
-      setTaskDetails(details);
-    } catch (error) {
-      console.error("Error loading task details:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      try {
+        // Load task details, comments, and first page of activity log in parallel
+        const [taskData, commentsData] = await Promise.all([
+          taskService.getTaskDetails(projectId, taskId),
+          taskService.getTaskComments(projectId, taskId)
+        ]);
 
-  const loadComments = async () => {
-    if (!projectId || !taskId) return;
+        setTaskDetails(taskData);
+        setComments(commentsData);
+        
+        // Load activity log separately to avoid delay in main content
+        loadActivityLog(1);
+      } catch (error) {
+        console.error('Error loading task data:', error);
+        message.error('Failed to load task details');
+        navigate(`/projects/${projectId}`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    try {
-      setIsLoadingComments(true);
-      const commentsData = await projectService.getTaskComments(
-        projectId,
-        taskId
-      );
-      setComments(commentsData);
-    } catch (error) {
-      console.error("Error loading comments:", error);
-    } finally {
-      setIsLoadingComments(false);
-    }
-  };
+    fetchData();
+  }, [projectId, taskId, navigate]);
 
   const getStatusClass = (status: string): string => {
     switch (status) {
@@ -119,7 +122,7 @@ const TaskDetails = () => {
 
     try {
       setIsLoadingComments(true);
-      const comment = await projectService.addTaskComment(projectId, taskId, {
+      const comment = await taskService.addTaskComment(projectId, taskId, {
         content: newComment.trim(),
       });
 
@@ -167,7 +170,7 @@ const TaskDetails = () => {
       });
 
       // Make API call
-      const updatedComment = await projectService.addCommentReaction(
+      const updatedComment = await taskService.addCommentReaction(
         projectId,
         taskId,
         commentId,
@@ -200,15 +203,71 @@ const TaskDetails = () => {
     );
   };
 
-  const getExistingReactionTypes = (comment: any): string[] => {
-    if (!comment.reactions) return [];
-    return Array.from(new Set(comment.reactions.map((r: any) => r.type)));
+  const getExistingReactionTypes = (comment: Comment): string[] => {
+    const reactionTypes = new Set<string>();
+    comment.reactions?.forEach(reaction => {
+      reactionTypes.add(reaction.type);
+    });
+    return Array.from(reactionTypes);
+  };
+
+  const loadComments = async () => {
+    if (!projectId || !taskId) return;
+    
+    try {
+      const commentsData = await taskService.getTaskComments(projectId, taskId);
+      setComments(commentsData);
+    } catch (error) {
+      console.error('Error loading comments:', error);
+      message.error('Failed to load comments');
+    }
+  };
+
+  const loadActivityLog = async (page: number = 1) => {
+    if (!projectId || !taskId) return;
+
+    try {
+      setIsLoadingActivityLog(true);
+      const response = await taskService.getTaskActivityLog(projectId, taskId, page);
+      
+      setActivityLog(response.logs);
+      setActivityLogPagination({
+        current: response.currentPage,
+        pageSize: 10,
+        total: response.totalLogs
+      });
+    } catch (error) {
+      console.error('Error loading activity log:', error);
+      message.error('Failed to load activity log');
+    } finally {
+      setIsLoadingActivityLog(false);
+    }
+  };
+
+  const handleActivityLogPageChange = (page: number) => {
+    loadActivityLog(page);
   };
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen">
         <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (!taskDetails) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Task not found</h2>
+          <Button 
+            type="primary" 
+            onClick={() => navigate(`/projects/${projectId}`)}
+          >
+            Back to Project
+          </Button>
+        </div>
       </div>
     );
   }
@@ -344,18 +403,46 @@ const TaskDetails = () => {
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                   Activity Log
                 </h2>
-                <Timeline
-                  items={taskDetails?.activityLog?.map((activity: any) => ({
-                    children: (
-                      <div className="text-gray-600 dark:text-gray-300">
-                        <p>{activity.action}</p>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {formatDateTime(activity.timestamp)}
-                        </span>
+                
+                {isLoadingActivityLog ? (
+                  <div className="flex justify-center py-4">
+                    <Spin />
+                  </div>
+                ) : (
+                  <>
+                    <Timeline
+                      items={activityLog.map((activity) => ({
+                        children: (
+                          <div className="text-gray-600 dark:text-gray-300">
+                            <p>{activity.action}</p>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {formatDateTime(activity.timestamp)}
+                            </span>
+                          </div>
+                        ),
+                      }))}
+                    />
+                    
+                    {activityLogPagination.total > activityLogPagination.pageSize && (
+                      <div className="mt-4 flex justify-center">
+                        <Pagination
+                          current={activityLogPagination.current}
+                          total={activityLogPagination.total}
+                          pageSize={activityLogPagination.pageSize}
+                          onChange={handleActivityLogPageChange}
+                          showSizeChanger={false}
+                          className="dark:text-gray-300"
+                        />
                       </div>
-                    ),
-                  }))}
-                />
+                    )}
+                    
+                    {activityLog.length === 0 && (
+                      <div className="text-center text-gray-500 dark:text-gray-400 py-4">
+                        <p>No activity recorded yet</p>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -412,7 +499,7 @@ const TaskDetails = () => {
                   {comments.map((comment: Comment) => (
                     <div
                       key={comment._id}
-                      className="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 p-3 rounded-lg"
+                      className="group border-b border-gray-200 dark:border-gray-700 last:border-0 pb-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 p-3 rounded-lg"
                     >
                       <div className="flex items-start space-x-3">
                         <img
@@ -432,27 +519,32 @@ const TaskDetails = () => {
                                 {formatDateTime(comment.createdAt)}
                               </p>
                             </div>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <Dropdown
                                 menu={{
                                   items: REACTION_TYPES.map((type) => ({
                                     key: type,
                                     label: (
                                       <span
-                                        className={
+                                        className={`flex items-center gap-2 px-2 py-1 ${
                                           hasUserReacted(comment, type)
                                             ? "text-blue-500"
-                                            : ""
-                                        }
+                                            : "text-gray-600 dark:text-gray-300"
+                                        }`}
                                       >
-                                        {type}
+                                        <span>{type}</span>
+                                        {getReactionCount(comment, type) > 0 && (
+                                          <span className="text-xs text-gray-500">
+                                            {getReactionCount(comment, type)}
+                                          </span>
+                                        )}
                                       </span>
                                     ),
-                                    onClick: () =>
-                                      handleReaction(comment._id, type),
+                                    onClick: () => handleReaction(comment._id, type),
                                   })),
                                 }}
                                 trigger={["click"]}
+                                placement="bottomRight"
                               >
                                 <Button
                                   type="text"
@@ -470,9 +562,7 @@ const TaskDetails = () => {
                               {getExistingReactionTypes(comment).map((type) => (
                                 <button
                                   key={type}
-                                  onClick={() =>
-                                    handleReaction(comment._id, type)
-                                  }
+                                  onClick={() => handleReaction(comment._id, type)}
                                   className={`inline-flex items-center gap-1 px-2 py-1 rounded-full transition-colors ${
                                     hasUserReacted(comment, type)
                                       ? "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"

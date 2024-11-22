@@ -1,6 +1,6 @@
 import { Modal, Spin, Button } from "antd";
 import { useEffect, useState } from "react";
-import { projectService } from "../../services/api/projectService";
+import { taskService } from "../../services/api/taskService";
 import { CloseOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -34,7 +34,7 @@ const TaskDetailsDialog = ({
 
     try {
       setIsLoading(true);
-      const details = await projectService.getTaskDetails(projectId, task._id);
+      const details = await taskService.getTaskDetails(projectId, task._id);
       setTaskDetails(details);
     } catch (error) {
       console.error("Error loading task details:", error);
