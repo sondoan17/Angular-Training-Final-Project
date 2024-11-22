@@ -27,6 +27,7 @@ app.use(
       "https://*.google.com",
       "https://www.planify.website",
       "https://planify.website",
+      "https://planify-react-omega.vercel.app"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -59,6 +60,7 @@ app.use((req, res, next) => {
     "https://accounts.google.com",
     "https://planify-app-backend.vercel.app",
     "https://www.planify.website",
+    "https://planify-react-omega.vercel.app"
   ];
 
   const origin = req.headers.origin;
