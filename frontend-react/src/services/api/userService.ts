@@ -64,5 +64,15 @@ export const userService = {
       console.error('Error fetching user:', error);
       throw error;
     }
+  },
+
+  async findUserByUsername(username: string): Promise<User> {
+    try {
+      const response: AxiosResponse<User> = await axiosInstance.get(`/api/users/find/${username}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error finding user:', error);
+      throw error;
+    }
   }
 };

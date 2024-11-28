@@ -9,8 +9,33 @@ const userRoutes = require("./routes/userRoutes");
 const searchRoutes = require("./routes/searchRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const compression = require("compression");
+const messageRoutes = require('./routes/messageRoutes');
+const jwt = require('jsonwebtoken');
+const http = require('http');
+const socketIo = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: [
+      "http://localhost:4200",
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://planify-app-pi.vercel.app",
+      "https://accounts.google.com",
+      "https://*.google.com",
+      "https://www.planify.website",
+      "https://planify.website",
+      "https://planify-react-omega.vercel.app"
+    ],
+    credentials: true
+  }
+});
+
+// Store io instance in app.locals instead of using app.get('io')
+app.locals.io = io;
+
 const distPath = path.join(__dirname, "browser");
 
 // Middleware
@@ -93,6 +118,7 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Serve static files from Angular app
 app.use(express.static(distPath));
@@ -110,7 +136,38 @@ app.use((err, req, res, next) => {
     .json({ message: "Something went wrong!", error: err.message });
 });
 
+// Socket.IO middleware for authentication
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  
+  if (!token) {
+    return next(new Error('Authentication error'));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.userId;
+    next();
+  } catch (err) {
+    next(new Error('Authentication error'));
+  }
+});
+
+// Store online users
+const onlineUsers = new Map();
+
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.userId);
+  
+  socket.join(socket.userId);
+  
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.userId);
+  });
+});
+
+// Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

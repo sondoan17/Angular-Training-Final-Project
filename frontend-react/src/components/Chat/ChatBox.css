@@ -1,0 +1,35 @@
+.chat-drawer .ant-drawer-body {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.chat-input {
+  padding: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+}
+
+.message-sent {
+  background-color: #1890ff;
+  color: white;
+  margin-left: auto;
+}
+
+.message-received {
+  background-color: #f0f0f0;
+  margin-right: auto;
+} 

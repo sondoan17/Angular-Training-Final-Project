@@ -11,5 +11,6 @@ router.put('/profile', authMiddleware, userController.updateUserProfile);
 router.get('/check/:username', userController.checkUsername);
 router.get('/:userId', userController.getUserById);
 router.get('/', userController.getAllUsers);
+router.get('/find/:username', authMiddleware, userController.findUserByUsername);
 
 module.exports = router;

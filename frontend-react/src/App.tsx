@@ -13,8 +13,12 @@ import TaskDetails from './pages/task-details/TaskDetails';
 import AssignedTasks from './pages/assigned-tasks/AssignedTasks';
 import Search from './pages/search/Search';
 import Profile from './pages/profile/Profile';
+import ChatBox from './components/Chat/ChatBox';
+import { useAuth } from './hooks/useAuth';
 
 const App = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <ThemeProvider>
       <BrowserRouter>
@@ -36,6 +40,9 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Routes>
+        
+        {/* ChatBox will appear on all authenticated pages */}
+        {isAuthenticated && <ChatBox />}
       </BrowserRouter>
     </ThemeProvider>
   );
