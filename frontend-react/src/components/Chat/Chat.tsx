@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { Input, Button, Avatar, Tabs, Badge, Empty, message as antMessage } from 'antd';
-import { SendOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons';
+import { Input, Button, Avatar, Tabs, Badge, Empty, message as antMessage, Upload } from 'antd';
+import { SendOutlined, UserOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
 import { socket } from '../../services/socket';
 import type { TabsProps } from 'antd';
 import { userService } from '../../services/api/userService';
@@ -19,6 +19,9 @@ interface Message {
     username: string;
   };
   createdAt: string;
+  messageType: string;
+  imageUrl: string;
+  status: 'sent' | 'received' | 'seen';
 }
 
 interface RecentChat {
@@ -34,10 +37,14 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
   const [selectedUser, setSelectedUser] = useState<{id: string; username: string} | null>(null);
-  const [onlineUsers, setOnlineUsers] = useState<{id: string; username: string}[]>([]);
+ 
   const [recentChats, setRecentChats] = useState<RecentChat[]>([]);
   const [searchUsername, setSearchUsername] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Fetch recent chats from API using axiosInstance
@@ -71,7 +78,7 @@ const Chat = () => {
         
         // Use axiosInstance which includes auth headers
         const chatResponse = await axiosInstance.get(`/api/messages/${foundUser._id}`);
-        setMessages(chatResponse.data);
+        setMessages(chatResponse.data.messages || []);
         antMessage.success('User found!');
       }
     } catch (error) {
@@ -97,10 +104,15 @@ const Chat = () => {
     }
   };
 
-  // Add this useEffect to handle incoming messages
+  // Update the socket effect to include selectedUser dependency
   useEffect(() => {
+    if (!selectedUser) return;
+
     socket.on('newMessage', (message: Message) => {
-      setMessages(prev => [...prev, message]);
+      // Only update messages if the message is from/to the selected user
+      if (message.sender._id === selectedUser.id || message.receiver._id === selectedUser.id) {
+        setMessages(prev => [...prev, message]);
+      }
       
       // Update recent chats
       const updatedChat: RecentChat = {
@@ -130,20 +142,75 @@ const Chat = () => {
     return () => {
       socket.off('newMessage');
     };
-  }, []);
+  }, [selectedUser]); // Add selectedUser as dependency
+
+  const loadMessages = async (userId: string, pageNum: number) => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/api/messages/${userId}?page=${pageNum}&limit=10`);
+      
+      if (pageNum === 1) {
+        setMessages(response.data.messages || []);
+      } else {
+        // Prepend older messages to the beginning of the array
+        setMessages(prev => [...(response.data.messages || []), ...prev]);
+      }
+      
+      setHasMore(response.data.hasMore);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      antMessage.error('Failed to load messages');
+      setLoading(false);
+    }
+  };
+
+  const handleScroll = async () => {
+    if (!messagesContainerRef.current || loading || !hasMore || !selectedUser) return;
+
+    const { scrollTop } = messagesContainerRef.current;
+    // Load more when user scrolls near the top
+    if (scrollTop < 50) {
+      setPage(prev => prev + 1);
+      await loadMessages(selectedUser.id, page + 1);
+    }
+  };
 
   const handleSelectUser = async (userId: string, username: string) => {
     setSelectedUser({ id: userId, username });
-    
+    setPage(1);
+    setHasMore(true);
+    await loadMessages(userId, 1);
+  };
+
+  // Add this function to handle image upload
+  const handleImageUpload = async (file: File) => {
+    if (!selectedUser) return false;
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('receiverId', selectedUser.id);
+
     try {
-      // Load chat history
-      const chatResponse = await axiosInstance.get(`/api/messages/${userId}`);
-      setMessages(chatResponse.data);
+      const response = await axiosInstance.post('/api/messages/send-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      setMessages(prev => [...prev, response.data]);
+      return false; // Prevent default upload behavior
     } catch (error) {
-      console.error('Error loading chat history:', error);
-      antMessage.error('Failed to load chat history');
+      console.error('Error uploading image:', error);
+      antMessage.error('Failed to send image');
+      return false;
     }
   };
+
+  // Add scroll to bottom effect
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const items: TabsProps['items'] = [
     {
@@ -202,6 +269,48 @@ const Chat = () => {
     },
   ];
 
+  // Add this to your JSX near the input field
+  const uploadButton = (
+    <Upload
+      beforeUpload={handleImageUpload}
+      showUploadList={false}
+      accept="image/*"
+    >
+      <Button
+        icon={<UploadOutlined />}
+        disabled={!selectedUser}
+        className="rounded-full w-10 h-10 !p-0 flex items-center justify-center"
+      />
+    </Upload>
+  );
+
+  // Update the message rendering to handle images
+  const renderMessage = (msg: Message) => (
+    <div
+      key={msg._id}
+      className={`flex ${msg.sender._id === user?.id ? 'justify-end' : 'justify-start'}`}
+    >
+      <div
+        className={`max-w-[70%] p-3 rounded-lg ${
+          msg.sender._id === user?.id
+            ? 'bg-blue-500 text-white rounded-br-none'
+            : 'bg-gray-100 rounded-bl-none'
+        }`}
+      >
+        {msg.messageType === 'image' ? (
+          <img src={msg.imageUrl} alt="Message" className="max-w-full rounded" />
+        ) : (
+          <div>{msg.content}</div>
+        )}
+        <div className={`text-xs mt-1 ${
+          msg.sender._id === user?.id ? 'text-blue-100' : 'text-gray-500'
+        }`}>
+          {new Date(msg.createdAt).toLocaleTimeString()}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-full">
       <Tabs items={items} className="px-4" />
@@ -214,28 +323,17 @@ const Chat = () => {
               {selectedUser.username}
             </div>
             
-            <div className="flex-1 overflow-y-auto space-y-4 mb-4">
-              {messages.map((msg) => (
-                <div
-                  key={msg._id}
-                  className={`flex ${msg.sender._id === user?.id ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] p-3 rounded-lg ${
-                      msg.sender._id === user?.id
-                        ? 'bg-blue-500 text-white rounded-br-none'
-                        : 'bg-gray-100 rounded-bl-none'
-                    }`}
-                  >
-                    <div>{msg.content}</div>
-                    <div className={`text-xs mt-1 ${
-                      msg.sender._id === user?.id ? 'text-blue-100' : 'text-gray-500'
-                    }`}>
-                      {new Date(msg.createdAt).toLocaleTimeString()}
-                    </div>
-                  </div>
+            <div 
+              className="flex-1 overflow-y-auto space-y-4 mb-4"
+              ref={messagesContainerRef}
+              onScroll={handleScroll}
+            >
+              {loading && page > 1 && (
+                <div className="text-center py-2">
+                  Loading more messages...
                 </div>
-              ))}
+              )}
+              {messages.map(renderMessage)}
               <div ref={messagesEndRef} />
             </div>
           </>
@@ -261,6 +359,7 @@ const Chat = () => {
             disabled={!selectedUser}
             className="rounded-full w-10 h-10 !p-0 flex items-center justify-center"
           />
+          {uploadButton}
         </div>
       </div>
     </div>

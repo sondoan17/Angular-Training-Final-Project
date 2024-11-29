@@ -1,3 +1,4 @@
+const cloudinary = require('../services/cloudinary');
 const Message = require('../models/Message');
 const User = require('../models/User');
 const mongoose = require('mongoose');
@@ -81,6 +82,15 @@ exports.getMessagesWith = async (req, res) => {
   try {
     const { userId } = req.params;
     const currentUserId = req.user.userId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const totalMessages = await Message.countDocuments({
+      $or: [
+        { sender: currentUserId, receiver: userId },
+        { sender: userId, receiver: currentUserId }
+      ]
+    });
 
     const messages = await Message.find({
       $or: [
@@ -89,7 +99,8 @@ exports.getMessagesWith = async (req, res) => {
       ]
     })
     .sort({ createdAt: -1 })
-    .limit(50)
+    .skip((page - 1) * limit)
+    .limit(limit)
     .populate('sender', 'username')
     .populate('receiver', 'username');
 
@@ -103,7 +114,15 @@ exports.getMessagesWith = async (req, res) => {
       { read: true }
     );
 
-    res.json(messages.reverse());
+    const hasMore = totalMessages > page * limit;
+
+    res.json({
+      messages: messages.reverse(),
+      hasMore,
+      currentPage: page,
+      totalMessages,
+      totalPages: Math.ceil(totalMessages / limit)
+    });
   } catch (error) {
     console.error('Error getting messages:', error);
     res.status(500).json({ message: 'Error getting messages', error: error.message });
@@ -198,5 +217,73 @@ exports.searchUsers = async (req, res) => {
   } catch (error) {
     console.error('Error searching users:', error);
     res.status(500).json({ message: 'Error searching users', error: error.message });
+  }
+};
+
+// Add this new function
+exports.sendImageMessage = async (req, res) => {
+  try {
+    const { receiverId } = req.body;
+    const senderId = req.user.userId;
+    
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'chat_images'
+    });
+
+    const newMessage = new Message({
+      sender: senderId,
+      receiver: receiverId,
+      content: 'Image',
+      messageType: 'image',
+      imageUrl: result.secure_url,
+      createdAt: new Date()
+    });
+
+    await newMessage.save();
+
+    const populatedMessage = await Message.findById(newMessage._id)
+      .populate('sender', 'username')
+      .populate('receiver', 'username');
+
+    const io = req.app.locals.io;
+    if (io) {
+      io.to(receiverId).emit('newMessage', populatedMessage);
+    }
+
+    res.status(201).json(populatedMessage);
+  } catch (error) {
+    console.error('Error sending image message:', error);
+    res.status(500).json({ message: 'Error sending image message', error: error.message });
+  }
+};
+
+exports.updateMessageStatus = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { status } = req.body;
+    
+    const message = await Message.findByIdAndUpdate(
+      messageId,
+      { status },
+      { new: true }
+    ).populate('sender', 'username').populate('receiver', 'username');
+
+    const io = req.app.locals.io;
+    if (io) {
+      io.to(message.sender._id.toString()).emit('messageStatus', {
+        messageId: message._id,
+        status
+      });
+    }
+
+    res.json(message);
+  } catch (error) {
+    console.error('Error updating message status:', error);
+    res.status(500).json({ message: 'Error updating message status' });
   }
 }; 
