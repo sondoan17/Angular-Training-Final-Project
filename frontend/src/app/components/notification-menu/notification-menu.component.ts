@@ -255,7 +255,7 @@ export class NotificationMenuComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Don't load notifications immediately
+    
   }
 
   ngOnDestroy() {

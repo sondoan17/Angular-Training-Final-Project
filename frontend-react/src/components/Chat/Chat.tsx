@@ -183,7 +183,7 @@ const Chat = () => {
     await loadMessages(userId, 1);
   };
 
-  // Add this function to handle image upload
+  
   const handleImageUpload = async (file: File) => {
     if (!selectedUser) return false;
 
@@ -207,7 +207,7 @@ const Chat = () => {
     }
   };
 
-  // Add scroll to bottom effect
+ 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -269,7 +269,7 @@ const Chat = () => {
     },
   ];
 
-  // Add this to your JSX near the input field
+  
   const uploadButton = (
     <Upload
       beforeUpload={handleImageUpload}

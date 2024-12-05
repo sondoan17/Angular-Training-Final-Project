@@ -220,7 +220,7 @@ exports.searchUsers = async (req, res) => {
   }
 };
 
-// Add this new function
+
 exports.sendImageMessage = async (req, res) => {
   try {
     const { receiverId } = req.body;

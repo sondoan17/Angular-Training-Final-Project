@@ -5,35 +5,42 @@ export const socket = io(import.meta.env.VITE_API_URL, {
   withCredentials: true,
   path: "/socket.io/",
   transports: ["polling"],
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  reconnectionAttempts: Infinity,
-  timeout: 20000,
+  reconnectionDelay: 5000,
+  reconnectionDelayMax: 10000,
+  reconnectionAttempts: 5,
+  timeout: 45000,
   forceNew: true,
 });
 
 export const connectSocket = (token: string) => {
+  if (socket.connected) {
+    return;
+  }
+
   socket.auth = { token };
   socket.connect();
 
+  let reconnectAttempts = 0;
+  const maxReconnectAttempts = 5;
+
   socket.on("connect_error", (error) => {
     console.error("Socket connection error:", error.message);
-    setTimeout(() => {
-      socket.connect();
-    }, 1000);
+    reconnectAttempts++;
+    
+    if (reconnectAttempts < maxReconnectAttempts) {
+      setTimeout(() => {
+        socket.connect();
+      }, 5000);
+    }
   });
 
   socket.on("disconnect", (reason) => {
     console.log("Socket disconnected:", reason);
-    if (reason === "io server disconnect" || reason === "transport close") {
+    if (reason === "io server disconnect") {
       setTimeout(() => {
         socket.connect();
-      }, 1000);
+      }, 5000);
     }
-  });
-
-  socket.on("reconnect_attempt", (attemptNumber) => {
-    console.log(`Reconnection attempt ${attemptNumber}`);
   });
 };
 

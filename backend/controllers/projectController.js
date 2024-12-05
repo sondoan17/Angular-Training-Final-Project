@@ -294,7 +294,6 @@ exports.removeMemberFromProject = async (req, res) => {
     // Remove member from project members array
     project.members.pull(memberId);
 
-    // Add this block: Remove member from all tasks in the project
     project.tasks.forEach(task => {
       if (task.assignedTo && task.assignedTo.includes(memberId)) {
         task.assignedTo = task.assignedTo.filter(id => id.toString() !== memberId);

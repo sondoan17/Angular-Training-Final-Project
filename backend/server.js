@@ -45,12 +45,10 @@ const io = socketIo(server, {
   }
 });
 
-// Store io instance in app.locals instead of using app.get('io')
 app.locals.io = io;
 
 const distPath = path.join(__dirname, "browser");
 
-// Middleware
 app.use(express.json());
 app.use(compression());
 app.use(
@@ -88,29 +86,23 @@ app.use(
   })
 );
 
-// Logging middleware
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.url}`);
   next();
 });
 
-// MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((error) => console.log(error));
-// Security headers
-app.use((req, res, next) => {
-  // Remove COEP header as it's causing issues with Google scripts
-  res.removeHeader("Cross-Origin-Embedder-Policy");
 
-  // Update security headers
+app.use((req, res, next) => {
+  res.removeHeader("Cross-Origin-Embedder-Policy");
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-
   next();
 });
-// API routes
+
 app.use("/api/auth", authRouter);
 app.use("/api/projects", projectRoutes);
 app.use("/api/users", userRoutes);
@@ -118,15 +110,12 @@ app.use("/api/search", searchRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/messages", messageRoutes);
 
-// Serve static files from Angular app
 app.use(express.static(distPath));
 
-// Handle Angular app routes
 app.get("*", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
-// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res
@@ -134,17 +123,13 @@ app.use((err, req, res, next) => {
     .json({ message: "Something went wrong!", error: err.message });
 });
 
-
-
-// Update Socket.IO middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   const clientIp = socket.handshake.address;
 
-  // Rate limiting
   const now = Date.now();
   const connectionTimestamp = rateLimit.get(clientIp) || 0;
-  if (now - connectionTimestamp < 3000) { // 3 seconds cooldown
+  if (now - connectionTimestamp < 3000) {
     return next(new Error("Too many connection attempts"));
   }
   rateLimit.set(clientIp, now);
@@ -162,7 +147,6 @@ io.use((socket, next) => {
   }
 });
 
-// Store online users
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
@@ -175,7 +159,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
