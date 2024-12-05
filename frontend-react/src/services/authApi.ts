@@ -29,22 +29,22 @@ interface ResetPasswordRequest {
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_URL}/api/auth`,
+    baseUrl: import.meta.env.VITE_API_URL,
     credentials: "include",
     prepareHeaders: (headers) => {
-      headers.set("Access-Control-Allow-Origin", "*");
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers.set('authorization', `Bearer ${token}`);
+      }
       return headers;
     },
   }),
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
       query: (credentials) => ({
-        url: "/login",
+        url: "/api/auth/login",
         method: "POST",
         body: credentials,
-        headers: {
-          "Content-Type": "application/json",
-        },
       }),
     }),
     register: builder.mutation<{ message: string }, RegisterRequest>({

@@ -44,28 +44,13 @@ app.use(compression());
 app.use(
   cors({
     origin: [
-      "http://localhost:4200",
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "https://planify-app-pi.vercel.app",
-      "https://accounts.google.com",
-      "https://*.google.com",
-      "https://www.planify.website",
-      "https://planify.website",
-      "https://planify-react-omega.vercel.app"
+      'https://www.planify.website',
+      'http://localhost:5173',
     ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Access-Control-Allow-Origin",
-      "Origin",
-      "Accept"
-    ],
-    exposedHeaders: ["Access-Control-Allow-Origin"],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 200
   })
 );
 
@@ -165,6 +150,18 @@ io.on('connection', (socket) => {
     console.log('User disconnected:', socket.userId);
   });
 });
+
+// Handle preflight requests
+app.options('*', cors({
+  origin: [
+    'https://www.planify.website',
+    'http://localhost:5173',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
 
 // Start server
 const PORT = process.env.PORT || 3000;
