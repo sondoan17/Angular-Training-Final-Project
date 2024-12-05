@@ -50,37 +50,36 @@ app.use(
         "http://localhost:5173",
         "https://planify-app-pi.vercel.app",
         "https://accounts.google.com",
-        "https://*.google.com",
         "https://www.planify.website",
         "https://planify.website",
-        "https://planify-react-omega.vercel.app",
+        "https://planify-react-omega.vercel.app"
       ];
-
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        origin.match(/https:\/\/.*\.google\.com$/)
-      ) {
+      
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, origin);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     preflightContinue: false,
-    optionsSuccessStatus: 204,
+    optionsSuccessStatus: 204
   })
 );
 
 // Handle OPTIONS requests explicitly
-app.options("*", cors());
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  res.status(204).end();
+});
 
 // Logging middleware
 app.use((req, res, next) => {
