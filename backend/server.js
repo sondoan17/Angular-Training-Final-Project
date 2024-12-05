@@ -132,7 +132,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// Update your Socket.IO error handling
+
 io.engine.on("connection_error", (err) => {
   console.log('Socket.IO connection error:', err);
 });
