@@ -24,21 +24,14 @@ const io = socketIo(server, {
       "http://localhost:3000",
       "http://localhost:5173",
       "https://planify-app-pi.vercel.app",
+      "https://accounts.google.com",
+      "https://*.google.com",
       "https://www.planify.website",
       "https://planify.website",
       "https://planify-react-omega.vercel.app"
     ],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
-  },
-  allowEIO3: true,
-  transports: ['polling'],
-  pingTimeout: 30000,
-  pingInterval: 15000,
-  upgradeTimeout: 15000,
-  allowUpgrades: false,
-  maxHttpBufferSize: 1e8
+  }
 });
 
 // Store io instance in app.locals instead of using app.get('io')
@@ -60,7 +53,7 @@ app.use(
         "https://accounts.google.com",
         "https://www.planify.website",
         "https://planify.website",
-        "https://planify-react-omega.vercel.app",
+        "https://planify-react-omega.vercel.app"
       ];
 
       if (!origin || allowedOrigins.includes(origin)) {
@@ -74,11 +67,13 @@ app.use(
     allowedHeaders: [
       "Content-Type",
       "Authorization",
-      "X-Requested-With",
-      "Accept",
+      "Access-Control-Allow-Origin",
+      "Origin",
+      "Accept"
     ],
+    exposedHeaders: ["Access-Control-Allow-Origin"],
     preflightContinue: false,
-    optionsSuccessStatus: 204,
+    optionsSuccessStatus: 204
   })
 );
 
