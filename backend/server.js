@@ -18,19 +18,30 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: [
-      "http://localhost:4200",
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "https://planify-app-pi.vercel.app",
-      "https://accounts.google.com",
-      "https://*.google.com",
-      "https://www.planify.website",
-      "https://planify.website",
-      "https://planify-react-omega.vercel.app",
-    ],
-    credentials: true,
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:4200",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://planify-app-pi.vercel.app",
+        "https://accounts.google.com",
+        "https://www.planify.website",
+        "https://planify.website",
+        "https://planify-react-omega.vercel.app"
+      ];
+      
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
   },
+  transports: ['websocket', 'polling'],
+  allowEIO3: true
 });
 
 // Store io instance in app.locals instead of using app.get('io')
