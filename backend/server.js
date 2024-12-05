@@ -32,29 +32,49 @@ const io = socketIo(server, {
     credentials: true
   }
 });
+
 // Store io instance in app.locals instead of using app.get('io')
 app.locals.io = io;
+
 const distPath = path.join(__dirname, "browser");
+
 // Middleware
 app.use(express.json());
 app.use(compression());
 app.use(
   cors({
     origin: [
-      'https://www.planify.website',
-      'http://localhost:5173',
+      "http://localhost:4200",
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://planify-app-pi.vercel.app",
+      "https://accounts.google.com",
+      "https://*.google.com",
+      "https://www.planify.website",
+      "https://planify.website",
+      "https://planify-react-omega.vercel.app"
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    optionsSuccessStatus: 200
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Access-Control-Allow-Origin",
+      "Origin",
+      "Accept"
+    ],
+    exposedHeaders: ["Access-Control-Allow-Origin"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   })
 );
+
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.url}`);
   next();
 });
+
 // Security headers
 app.use((req, res, next) => {
   const allowedOrigins = [
@@ -73,6 +93,7 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
 
+  // Remove COEP header as it's causing issues with Google scripts
   res.removeHeader("Cross-Origin-Embedder-Policy");
 
   // Update security headers
@@ -84,6 +105,7 @@ app.use((req, res, next) => {
 
   next();
 });
+
 // MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -143,17 +165,6 @@ io.on('connection', (socket) => {
     console.log('User disconnected:', socket.userId);
   });
 });
-// Handle preflight requests
-app.options('*', cors({
-  origin: [
-    'https://www.planify.website',
-    'http://localhost:5173',
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
 
 // Start server
 const PORT = process.env.PORT || 3000;
