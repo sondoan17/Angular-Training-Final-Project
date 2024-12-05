@@ -27,6 +27,7 @@ const allowedOrigins = [
   // Production domains
   "https://planify-app-pi.vercel.app",
   "https://planify-react-omega.vercel.app",
+  "https://planify-app-backend.vercel.app",
   "https://www.planify.website",
   "https://planify.website",
   
@@ -45,11 +46,10 @@ const io = socketIo(server, {
 // Update main CORS middleware
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
     if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error('CORS not allowed'), false);
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
     }
     return callback(null, true);
   },
@@ -61,10 +61,21 @@ app.use(cors({
     "Access-Control-Allow-Origin",
     "Origin",
     "Accept"
-  ]
+  ],
+  exposedHeaders: ['Access-Control-Allow-Origin']
 }));
 
-// Remove or simplify the second security headers middleware since CORS is handled above
+// Ensure OPTIONS requests are handled properly
+app.options('*', cors());
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  next();
+});
+
 app.use((req, res, next) => {
   // Only keep essential security headers
   res.removeHeader("Cross-Origin-Embedder-Policy");
