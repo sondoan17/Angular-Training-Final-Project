@@ -18,30 +18,21 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: function (origin, callback) {
-      const allowedOrigins = [
-        "http://localhost:4200",
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "https://planify-app-pi.vercel.app",
-        "https://accounts.google.com",
-        "https://www.planify.website",
-        "https://planify.website",
-        "https://planify-react-omega.vercel.app"
-      ];
-      
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: [
+      "http://localhost:4200",
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://planify-app-pi.vercel.app",
+      "https://www.planify.website",
+      "https://planify.website",
+      "https://planify-react-omega.vercel.app"
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
   },
-  transports: ['websocket', 'polling'],
-  allowEIO3: true
+  allowEIO3: true,
+  transports: ['websocket', 'polling']
 });
 
 // Store io instance in app.locals instead of using app.get('io')
@@ -79,18 +70,6 @@ app.use(
     optionsSuccessStatus: 204
   })
 );
-
-// Handle OPTIONS requests explicitly
-app.options('*', (req, res) => {
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-  }
-  res.status(204).end();
-});
 
 // Logging middleware
 app.use((req, res, next) => {
