@@ -69,6 +69,15 @@ app.use(
   })
 );
 
+// Explicitly handle OPTIONS requests
+app.options('*', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(204);
+});
+
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.url}`);
@@ -80,7 +89,7 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     "http://localhost:4200",
     "http://localhost:3000",
-    'http://localhost:5173' ,
+    "http://localhost:5173",
     "https://planify-app-pi.vercel.app",
     "https://accounts.google.com",
     "https://planify-app-backend.vercel.app",
@@ -91,6 +100,8 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "https://planify-app-backend.vercel.app");
   }
 
   // Remove COEP header as it's causing issues with Google scripts
