@@ -9,10 +9,10 @@ const userRoutes = require("./routes/userRoutes");
 const searchRoutes = require("./routes/searchRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const compression = require("compression");
-const messageRoutes = require('./routes/messageRoutes');
-const jwt = require('jsonwebtoken');
-const http = require('http');
-const socketIo = require('socket.io');
+const messageRoutes = require("./routes/messageRoutes");
+const jwt = require("jsonwebtoken");
+const http = require("http");
+const socketIo = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
@@ -27,10 +27,10 @@ const io = socketIo(server, {
       "https://*.google.com",
       "https://www.planify.website",
       "https://planify.website",
-      "https://planify-react-omega.vercel.app"
+      "https://planify-react-omega.vercel.app",
     ],
-    credentials: true
-  }
+    credentials: true,
+  },
 });
 
 // Store io instance in app.locals instead of using app.get('io')
@@ -43,80 +43,48 @@ app.use(express.json());
 app.use(compression());
 app.use(
   cors({
-    origin: [
-      "http://localhost:4200",
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "https://planify-app-pi.vercel.app",
-      "https://accounts.google.com",
-      "https://*.google.com",
-      "https://www.planify.website",
-      "https://planify.website",
-      "https://planify-react-omega.vercel.app"
-    ],
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:4200",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://planify-app-pi.vercel.app",
+        "https://accounts.google.com",
+        "https://*.google.com",
+        "https://www.planify.website",
+        "https://planify.website",
+        "https://planify-react-omega.vercel.app",
+      ];
+
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.match(/https:\/\/.*\.google\.com$/)
+      ) {
+        callback(null, origin);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
-      "Access-Control-Allow-Origin",
-      "Origin",
-      "Accept"
+      "X-Requested-With",
+      "Accept",
     ],
-    exposedHeaders: ["Access-Control-Allow-Origin"],
     preflightContinue: false,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 204,
   })
 );
 
-// Explicitly handle OPTIONS requests
-app.options('*', (req, res) => {
-  console.log('OPTIONS request received for:', req.url);
-  console.log('Request headers:', req.headers);
-
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(204);
-});
+// Handle OPTIONS requests explicitly
+app.options("*", cors());
 
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.url}`);
-  next();
-});
-
-// Security headers
-app.use((req, res, next) => {
-  const allowedOrigins = [
-    "http://localhost:4200",
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "https://planify-app-pi.vercel.app",
-    "https://accounts.google.com",
-    "https://planify-app-backend.vercel.app",
-    "https://www.planify.website",
-    "https://planify-react-omega.vercel.app"
-  ];
-
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  } else {
-    res.setHeader("Access-Control-Allow-Origin", "https://planify-app-backend.vercel.app");
-  }
-
-  // Remove COEP header as it's causing issues with Google scripts
-  res.removeHeader("Cross-Origin-Embedder-Policy");
-
-  // Update security headers
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
-
   next();
 });
 
@@ -125,14 +93,24 @@ mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((error) => console.log(error));
+// Security headers
+app.use((req, res, next) => {
+  // Remove COEP header as it's causing issues with Google scripts
+  res.removeHeader("Cross-Origin-Embedder-Policy");
 
+  // Update security headers
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+
+  next();
+});
 // API routes
 app.use("/api/auth", authRouter);
 app.use("/api/projects", projectRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use('/api/messages', messageRoutes);
+app.use("/api/messages", messageRoutes);
 
 // Serve static files from Angular app
 app.use(express.static(distPath));
@@ -153,9 +131,9 @@ app.use((err, req, res, next) => {
 // Socket.IO middleware for authentication
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
-  
+
   if (!token) {
-    return next(new Error('Authentication error'));
+    return next(new Error("Authentication error"));
   }
 
   try {
@@ -163,20 +141,20 @@ io.use((socket, next) => {
     socket.userId = decoded.userId;
     next();
   } catch (err) {
-    next(new Error('Authentication error'));
+    next(new Error("Authentication error"));
   }
 });
 
 // Store online users
 const onlineUsers = new Map();
 
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.userId);
-  
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.userId);
+
   socket.join(socket.userId);
-  
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.userId);
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.userId);
   });
 });
 
