@@ -17,6 +17,7 @@ const socketIo = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
+  path: '/socket.io/',
   cors: {
     origin: [
       "http://localhost:4200",
@@ -32,7 +33,9 @@ const io = socketIo(server, {
     credentials: true
   },
   allowEIO3: true,
-  transports: ['websocket', 'polling']
+  transports: ['websocket'],
+  pingTimeout: 60000,
+  pingInterval: 25000
 });
 
 // Store io instance in app.locals instead of using app.get('io')
