@@ -30,11 +30,6 @@ export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_API_URL}/api/auth`,
-    credentials: "include",
-    prepareHeaders: (headers) => {
-      headers.set("Access-Control-Allow-Origin", "*");
-      return headers;
-    },
   }),
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
@@ -42,9 +37,6 @@ export const authApi = createApi({
         url: "/login",
         method: "POST",
         body: credentials,
-        headers: {
-          "Content-Type": "application/json",
-        },
       }),
     }),
     register: builder.mutation<{ message: string }, RegisterRequest>({

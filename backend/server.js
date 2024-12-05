@@ -26,18 +26,19 @@ const io = socketIo(server, {
       "https://planify-app-pi.vercel.app",
       "https://www.planify.website",
       "https://planify.website",
-      "https://planify-react-omega.vercel.app",
+      "https://planify-react-omega.vercel.app"
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
+    credentials: true
   },
   allowEIO3: true,
-  transports: ["polling", "websocket"],
-  pingTimeout: 60000,
-  pingInterval: 25000,
-  upgradeTimeout: 30000,
-  allowUpgrades: true,
+  transports: ['polling'],
+  pingTimeout: 30000,
+  pingInterval: 15000,
+  upgradeTimeout: 15000,
+  allowUpgrades: false,
+  maxHttpBufferSize: 1e8
 });
 
 // Store io instance in app.locals instead of using app.get('io')
