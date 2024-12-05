@@ -71,6 +71,9 @@ app.use(
 
 // Explicitly handle OPTIONS requests
 app.options('*', (req, res) => {
+  console.log('OPTIONS request received for:', req.url);
+  console.log('Request headers:', req.headers);
+
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
