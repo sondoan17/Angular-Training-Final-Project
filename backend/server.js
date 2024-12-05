@@ -19,15 +19,15 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: [
-      "http://localhost:4200",
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "https://planify-app-pi.vercel.app",
-      "https://accounts.google.com",
-      "https://*.google.com",
-      "https://www.planify.website",
-      "https://planify.website",
-      "https://planify-react-omega.vercel.app"
+     "http://localhost:4200",
+    "http://localhost:3000",
+    'http://localhost:5173' ,
+    "https://planify-app-pi.vercel.app",
+    "https://accounts.google.com",
+    "https://planify-app-backend.vercel.app",
+    "https://www.planify.website",
+    "https://planify.website",
+    "https://planify-react-omega.vercel.app"
     ],
     credentials: true
   }
@@ -45,14 +45,14 @@ app.use(
   cors({
     origin: [
       "http://localhost:4200",
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "https://planify-app-pi.vercel.app",
-      "https://accounts.google.com",
-      "https://*.google.com",
-      "https://www.planify.website",
-      "https://planify.website",
-      "https://planify-react-omega.vercel.app"
+    "http://localhost:3000",
+    'http://localhost:5173' ,
+    "https://planify-app-pi.vercel.app",
+    "https://accounts.google.com",
+    "https://planify-app-backend.vercel.app",
+    "https://www.planify.website",
+    "https://planify.website",
+    "https://planify-react-omega.vercel.app"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
