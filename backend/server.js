@@ -41,29 +41,38 @@ const distPath = path.join(__dirname, "browser");
 // Middleware
 app.use(express.json());
 app.use(compression());
+
+const allowedOrigins = [
+  "http://localhost:4200",
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://planify-app-pi.vercel.app",
+  "https://accounts.google.com",
+  "https://planify-app-backend.vercel.app",
+  "https://www.planify.website"
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:4200",
-    "http://localhost:3000",
-    'http://localhost:5173' ,
-    "https://planify-app-pi.vercel.app",
-    "https://accounts.google.com",
-    "https://planify-app-backend.vercel.app",
-    "https://www.planify.website",
-    "https://planify.website",
-    "https://planify-react-omega.vercel.app"
-    ],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Access-Control-Allow-Origin",
-      "Origin",
-      "Accept"
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
     ],
-    exposedHeaders: ["Access-Control-Allow-Origin"],
     preflightContinue: false,
     optionsSuccessStatus: 204
   })
@@ -172,5 +181,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-app.options('*', cors());
