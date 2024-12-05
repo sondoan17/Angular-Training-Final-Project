@@ -16,6 +16,7 @@ const socketIo = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
+const rateLimit = new Map();
 const io = socketIo(server, {
   path: "/socket.io/",
   cors: {
@@ -24,13 +25,23 @@ const io = socketIo(server, {
       "http://localhost:3000",
       "http://localhost:5173",
       "https://planify-app-pi.vercel.app",
-      "https://accounts.google.com",
-      "https://*.google.com",
       "https://www.planify.website",
       "https://planify.website",
       "https://planify-react-omega.vercel.app"
     ],
-    credentials: true
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  },
+  allowEIO3: true,
+  transports: ['polling'],
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  connectTimeout: 45000,
+  allowUpgrades: false,
+  maxHttpBufferSize: 1e8,
+  perMessageDeflate: {
+    threshold: 1024
   }
 });
 
@@ -123,9 +134,20 @@ app.use((err, req, res, next) => {
     .json({ message: "Something went wrong!", error: err.message });
 });
 
-// Socket.IO middleware for authentication
+
+
+// Update Socket.IO middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
+  const clientIp = socket.handshake.address;
+
+  // Rate limiting
+  const now = Date.now();
+  const connectionTimestamp = rateLimit.get(clientIp) || 0;
+  if (now - connectionTimestamp < 3000) { // 3 seconds cooldown
+    return next(new Error("Too many connection attempts"));
+  }
+  rateLimit.set(clientIp, now);
 
   if (!token) {
     return next(new Error("Authentication error"));
