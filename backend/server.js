@@ -150,7 +150,6 @@ io.on('connection', (socket) => {
     console.log('User disconnected:', socket.userId);
   });
 });
-
 // Handle preflight requests
 app.options('*', cors({
   origin: [
