@@ -19,18 +19,21 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: [
-      "http://localhost:5173",
+      "http://localhost:4200",
       "http://localhost:3000",
+      "http://localhost:5173",
+      "https://planify-app-pi.vercel.app",
+      "https://accounts.google.com",
+      "https://*.google.com",
       "https://www.planify.website",
-      "https://planify.website"
+      "https://planify.website",
+      "https://planify-react-omega.vercel.app"
     ],
-    credentials: true,
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Authorization", "Content-Type"],
-    transports: ['websocket', 'polling']
+    credentials: true
   }
 });
 
+// Store io instance in app.locals instead of using app.get('io')
 app.locals.io = io;
 
 const distPath = path.join(__dirname, "browser");
@@ -38,37 +41,68 @@ const distPath = path.join(__dirname, "browser");
 // Middleware
 app.use(express.json());
 app.use(compression());
-app.use(cors({
-  origin: function(origin, callback) {
-    const allowedOrigins = [
+app.use(
+  cors({
+    origin: [
       "http://localhost:4200",
       "http://localhost:3000",
       "http://localhost:5173",
       "https://planify-app-pi.vercel.app",
       "https://accounts.google.com",
+      "https://*.google.com",
       "https://www.planify.website",
       "https://planify.website",
-      "https://planify-react-omega.vercel.app",
-      "https://planify-app-backend.vercel.app"
-    ];
-    
-    
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error('CORS not allowed'), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
-  maxAge: 86400 // Cache preflight request for 24 hours
-}));
+      "https://planify-react-omega.vercel.app"
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Access-Control-Allow-Origin",
+      "Origin",
+      "Accept"
+    ],
+    exposedHeaders: ["Access-Control-Allow-Origin"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  })
+);
 
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.url}`);
+  next();
+});
+
+// Security headers
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    "http://localhost:4200",
+    "http://localhost:3000",
+    'http://localhost:5173' ,
+    "https://planify-app-pi.vercel.app",
+    "https://accounts.google.com",
+    "https://planify-app-backend.vercel.app",
+    "https://www.planify.website",
+    "https://planify-react-omega.vercel.app"
+  ];
+
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  // Remove COEP header as it's causing issues with Google scripts
+  res.removeHeader("Cross-Origin-Embedder-Policy");
+
+  // Update security headers
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+
   next();
 });
 
@@ -130,11 +164,6 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.userId);
   });
-});
-
-
-io.engine.on("connection_error", (err) => {
-  console.log('Socket.IO connection error:', err);
 });
 
 // Start server
