@@ -73,7 +73,6 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
 
-  // Remove COEP header as it's causing issues with Google scripts
   res.removeHeader("Cross-Origin-Embedder-Policy");
 
   // Update security headers
@@ -85,7 +84,6 @@ app.use((req, res, next) => {
 
   next();
 });
-
 // MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI)
