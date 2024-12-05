@@ -32,12 +32,9 @@ const io = socketIo(server, {
     credentials: true
   }
 });
-
 // Store io instance in app.locals instead of using app.get('io')
 app.locals.io = io;
-
 const distPath = path.join(__dirname, "browser");
-
 // Middleware
 app.use(express.json());
 app.use(compression());
