@@ -64,7 +64,7 @@ app.use(
       "Accept"
     ],
     exposedHeaders: ["Access-Control-Allow-Origin"],
-    preflightContinue: false,
+    preflightContinue: true,
     optionsSuccessStatus: 204
   })
 );
@@ -165,6 +165,9 @@ io.on('connection', (socket) => {
     console.log('User disconnected:', socket.userId);
   });
 });
+
+// Handle OPTIONS requests
+app.options('*', cors());
 
 // Start server
 const PORT = process.env.PORT || 3000;
