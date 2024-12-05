@@ -27,13 +27,13 @@ const io = socketIo(server, {
       "https://*.google.com",
       "https://www.planify.website",
       "https://planify.website",
-      "https://planify-react-omega.vercel.app"
+      "https://planify-react-omega.vercel.app",
+      "https://planify-app-backend.vercel.app", 
     ],
     credentials: true
   }
 });
 
-// Store io instance in app.locals instead of using app.get('io')
 app.locals.io = io;
 
 const distPath = path.join(__dirname, "browser");
@@ -52,7 +52,8 @@ app.use(
       "https://*.google.com",
       "https://www.planify.website",
       "https://planify.website",
-      "https://planify-react-omega.vercel.app"
+      "https://planify-react-omega.vercel.app",
+      "https://planify-app-backend.vercel.app", 
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -83,9 +84,9 @@ app.use((req, res, next) => {
     'http://localhost:5173' ,
     "https://planify-app-pi.vercel.app",
     "https://accounts.google.com",
-    "https://planify-app-backend.vercel.app",
     "https://www.planify.website",
-    "https://planify-react-omega.vercel.app"
+    "https://planify-react-omega.vercel.app",
+    "https://planify-app-backend.vercel.app", 
   ];
 
   const origin = req.headers.origin;

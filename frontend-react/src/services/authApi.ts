@@ -31,10 +31,6 @@ export const authApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_API_URL}/api/auth`,
     credentials: "include",
-    prepareHeaders: (headers) => {
-      headers.set("Access-Control-Allow-Origin", "*");
-      return headers;
-    },
   }),
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
