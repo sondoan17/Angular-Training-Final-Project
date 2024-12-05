@@ -4,22 +4,41 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "browser/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/socket.io/(.*)",
-      "dest": "server.js",
+      "src": "/api/(.*)",
+      "methods": ["OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "http://localhost:5173",
-        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
         "Access-Control-Allow-Credentials": "true"
       }
     },
     {
       "src": "/api/(.*)",
       "dest": "server.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/browser/assets/$1"
+    },
+    {
+      "src": "/(.*\\.[^/]*)",
+      "dest": "/browser/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/browser/index.html"
     }
   ]
 } 
