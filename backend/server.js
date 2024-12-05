@@ -17,7 +17,7 @@ const socketIo = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
-  path: '/socket.io/',
+  path: "/socket.io/",
   cors: {
     origin: [
       "http://localhost:4200",
@@ -26,18 +26,18 @@ const io = socketIo(server, {
       "https://planify-app-pi.vercel.app",
       "https://www.planify.website",
       "https://planify.website",
-      "https://planify-react-omega.vercel.app"
+      "https://planify-react-omega.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
+    credentials: true,
   },
   allowEIO3: true,
-  transports: ['polling', 'websocket'],
+  transports: ["polling", "websocket"],
   pingTimeout: 60000,
   pingInterval: 25000,
   upgradeTimeout: 30000,
-  allowUpgrades: true
+  allowUpgrades: true,
 });
 
 // Store io instance in app.locals instead of using app.get('io')
@@ -59,20 +59,25 @@ app.use(
         "https://accounts.google.com",
         "https://www.planify.website",
         "https://planify.website",
-        "https://planify-react-omega.vercel.app"
+        "https://planify-react-omega.vercel.app",
       ];
-      
+
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, origin);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
     preflightContinue: false,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 204,
   })
 );
 
