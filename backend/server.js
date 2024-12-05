@@ -33,9 +33,11 @@ const io = socketIo(server, {
     credentials: true
   },
   allowEIO3: true,
-  transports: ['websocket'],
+  transports: ['polling', 'websocket'],
   pingTimeout: 60000,
-  pingInterval: 25000
+  pingInterval: 25000,
+  upgradeTimeout: 30000,
+  allowUpgrades: true
 });
 
 // Store io instance in app.locals instead of using app.get('io')

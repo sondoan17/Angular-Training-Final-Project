@@ -16,10 +16,16 @@
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Max-Age": "86400"
-      }
+      },
+      "continue": true
     },
     {
       "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "handle": "upgrade",
+      "src": "/socket.io/(.*)",
       "dest": "server.js"
     }
   ]
