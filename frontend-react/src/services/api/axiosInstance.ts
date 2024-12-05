@@ -28,6 +28,10 @@ axiosInstance.interceptors.response.use(
       store.dispatch({ type: 'auth/logout' });
       window.location.href = '/login';
     }
+    if (error.message === 'Network Error') {
+      console.error('CORS or network error occurred');
+      // Handle CORS error (e.g., show user-friendly message)
+    }
     return Promise.reject(error);
   }
 );
