@@ -32,7 +32,7 @@ export const authApi = createApi({
     baseUrl: `${import.meta.env.VITE_API_URL}/api/auth`,
     credentials: "include",
     prepareHeaders: (headers) => {
-      headers.set('Content-Type', 'application/json');
+      headers.set("Access-Control-Allow-Origin", "*");
       return headers;
     },
   }),
