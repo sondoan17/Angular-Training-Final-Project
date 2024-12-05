@@ -50,13 +50,11 @@ app.use(
     optionsSuccessStatus: 200
   })
 );
-
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.url}`);
   next();
 });
-
 // Security headers
 app.use((req, res, next) => {
   const allowedOrigins = [
