@@ -230,8 +230,12 @@ exports.sendImageMessage = async (req, res) => {
       return res.status(400).json({ message: 'No image file provided' });
     }
 
+    // Convert buffer to base64 string for Cloudinary
+    const b64 = Buffer.from(req.file.buffer).toString('base64');
+    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+
     // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
+    const result = await cloudinary.uploader.upload(dataURI, {
       folder: 'chat_images'
     });
 
