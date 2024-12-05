@@ -41,33 +41,7 @@ const distPath = path.join(__dirname, "browser");
 // Middleware
 app.use(express.json());
 app.use(compression());
-app.use(
-  cors({
-    origin: [
-      "http://localhost:4200",
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "https://planify-app-pi.vercel.app",
-      "https://accounts.google.com",
-      "https://*.google.com",
-      "https://www.planify.website",
-      "https://planify.website",
-      "https://planify-react-omega.vercel.app"
-    ],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Access-Control-Allow-Origin",
-      "Origin",
-      "Accept"
-    ],
-    exposedHeaders: ["Access-Control-Allow-Origin"],
-    preflightContinue: true,
-    optionsSuccessStatus: 204
-  })
-);
+app.use(cors());
 
 // Logging middleware
 app.use((req, res, next) => {
