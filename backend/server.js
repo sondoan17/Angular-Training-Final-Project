@@ -71,20 +71,20 @@ app.options('*', cors());
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   next();
 });
 
 app.use((req, res, next) => {
-  // Only keep essential security headers
+ 
   res.removeHeader("Cross-Origin-Embedder-Policy");
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   next();
 });
 
-// Store io instance in app.locals instead of using app.get('io')
+
 app.locals.io = io;
 
 const distPath = path.join(__dirname, "browser");
