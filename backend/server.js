@@ -19,18 +19,15 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: [
-      "http://localhost:4200",
-      "http://localhost:3000",
       "http://localhost:5173",
-      "https://planify-app-pi.vercel.app",
-      "https://accounts.google.com",
-      "https://*.google.com",
+      "http://localhost:3000",
       "https://www.planify.website",
-      "https://planify.website",
-      "https://planify-react-omega.vercel.app",
-      "https://planify-app-backend.vercel.app", 
+      "https://planify.website"
     ],
-    credentials: true
+    credentials: true,
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Authorization", "Content-Type"],
+    transports: ['websocket', 'polling']
   }
 });
 
@@ -133,6 +130,11 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.userId);
   });
+});
+
+// Update your Socket.IO error handling
+io.engine.on("connection_error", (err) => {
+  console.log('Socket.IO connection error:', err);
 });
 
 // Start server
